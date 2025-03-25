@@ -1,4 +1,11 @@
-![Banner](https://github.com/user-attachments/assets/4028f3af-2718-4dca-81a6-b2500bc22d65)
+<div align="center">
+ <img height="160" src="https://github.com/user-attachments/assets/73daa1c3-8cf0-4e02-adae-427b36a924a1" />
+<div>
+ <img src="https://img.shields.io/github/license/lumitech-co/lumitech-react-nextjs-template?style=flat" />
+ <img src="https://img.shields.io/badge/maintenance-active-blue?style=flat" />
+</div>
+</div>
+
 
 ## Lumitech Next.js Template ⚡
 The Lumitech Next.js Template provides a powerful and modern starting point for building fast, scalable, and maintainable web applications. With a clean architecture and pre-configured best practices, this template ensures that your development process is efficient and the project is production-ready.
