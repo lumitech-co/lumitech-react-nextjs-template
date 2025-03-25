@@ -11,7 +11,7 @@
 The Lumitech Next.js Template provides a powerful and modern starting point for building fast, scalable, and maintainable web applications. With a clean architecture and pre-configured best practices, this template ensures that your development process is efficient and the project is production-ready.
 
 ### About Lumitech
-[Lumitech](https://lumitech.co/) is a global custom software development company helping tech businesses build successful teams and innovative products. With a 600% growth since 2022, our team of engineers, AI/ML specialists, and product managers delivers high-quality software using the latest technologies. Learn more on our [website](https://lumitech.co/).
+[Lumitech](https://lumitech.co/) is a global custom software development company helping tech businesses build successful teams and innovative products. With a 600% growth since 2022, our team of engineers, AI/ML specialists, and product managers delivers high-quality software using the latest technologies.
 
 ### Why Use This Template? <br>
 This template is designed to accelerate and simplify development by providing modern technologies, a well-structured architecture, and ready-to-use examples:
