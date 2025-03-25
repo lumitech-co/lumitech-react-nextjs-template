@@ -1,9 +1,5 @@
 <div align="center">
  <img height="160" src="https://github.com/user-attachments/assets/73daa1c3-8cf0-4e02-adae-427b36a924a1" />
-<div>
- <img src="https://img.shields.io/github/license/lumitech-co/lumitech-react-nextjs-template?style=flat" />
- <img src="https://img.shields.io/badge/maintenance-active-blue?style=flat" />
-</div>
 </div>
 
 
