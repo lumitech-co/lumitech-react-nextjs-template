@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 import { templates } from "./templates.js";
 
 export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
@@ -16,81 +17,84 @@ export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
 
 
 
-    fs.mkdirSync(`${modulePath}/api`, { recursive: true });
-    console.log(`📁 Created folder: ${modulePath}`);
+    const apiFolder = `${modulePath}/api`;
+    fs.mkdirSync(apiFolder, { recursive: true });
+    console.log(`📁 Created folder: ${apiFolder}`);
 
     const apiGetContent = templates["api/get"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiGetFilePath = path.join(modulePath, "get.ts");
+    const apiGetFilePath = path.join(apiFolder, "get.ts");
     fs.writeFileSync(apiGetFilePath, apiGetContent);
 
     const apiPutContent = templates["api/put"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiPutFilePath = path.join(modulePath, "put.ts");
+    const apiPutFilePath = path.join(apiFolder, "put.ts");
     fs.writeFileSync(apiPutFilePath, apiPutContent);
 
     const apiPatchContent = templates["api/patch"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiPatchFilePath = path.join(modulePath, "patch.ts");
+    const apiPatchFilePath = path.join(apiFolder, "patch.ts");
     fs.writeFileSync(apiPatchFilePath, apiPatchContent);
 
     const apiPostContent = templates["api/post"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiPostFilePath = path.join(modulePath, "post.ts");
+    const apiPostFilePath = path.join(apiFolder, "post.ts");
     fs.writeFileSync(apiPostFilePath, apiPostContent);
 
     const apiDeleteContent = templates["api/delete"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiDeleteFilePath = path.join(modulePath, "delete.ts");
+    const apiDeleteFilePath = path.join(apiFolder, "delete.ts");
     fs.writeFileSync(apiDeleteFilePath, apiDeleteContent);
 
     const apiIndexContent = templates["api/index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiIndexFilePath = path.join(modulePath, "index.ts");
+    const apiIndexFilePath = path.join(apiFolder, "index.ts");
     fs.writeFileSync(apiIndexFilePath, apiIndexContent);
 
 
 
-    fs.mkdirSync(`${modulePath}/hooks`, { recursive: true });
-    console.log(`📁 Created folder: ${modulePath}`);
+    const hooksFolder = `${modulePath}/hooks`;
+    fs.mkdirSync(hooksFolder, { recursive: true });
+    console.log(`📁 Created folder: ${hooksFolder}`);
 
     const hooksGetContent = templates["hooks/get"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksGetFilePath = path.join(modulePath, "get.ts");
+    const hooksGetFilePath = path.join(hooksFolder, "get.ts");
     fs.writeFileSync(hooksGetFilePath, hooksGetContent);
 
     const hooksPutContent = templates["hooks/put"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksPutFilePath = path.join(modulePath, "put.ts");
+    const hooksPutFilePath = path.join(hooksFolder, "put.ts");
     fs.writeFileSync(hooksPutFilePath, hooksPutContent);
 
     const hooksPatchContent = templates["hooks/patch"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksPatchFilePath = path.join(modulePath, "patch.ts");
+    const hooksPatchFilePath = path.join(hooksFolder, "patch.ts");
     fs.writeFileSync(hooksPatchFilePath, hooksPatchContent);
 
     const hooksPostContent = templates["hooks/post"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksPostFilePath = path.join(modulePath, "post.ts");
+    const hooksPostFilePath = path.join(hooksFolder, "post.ts");
     fs.writeFileSync(hooksPostFilePath, hooksPostContent);
 
     const hooksDeleteContent = templates["hooks/delete"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksDeleteFilePath = path.join(modulePath, "delete.ts");
+    const hooksDeleteFilePath = path.join(hooksFolder, "delete.ts");
     fs.writeFileSync(hooksDeleteFilePath, hooksDeleteContent);
 
     const hooksIndexContent = templates["hooks/index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksIndexFilePath = path.join(modulePath, "index.ts");
+    const hooksIndexFilePath = path.join(hooksFolder, "index.ts");
     fs.writeFileSync(hooksIndexFilePath, hooksIndexContent);
 
 
 
-    fs.mkdirSync(`${modulePath}/types`, { recursive: true });
-    console.log(`📁 Created folder: ${modulePath}`);
+    const typesFolder = `${modulePath}/types`;
+    fs.mkdirSync(typesFolder, { recursive: true });
+    console.log(`📁 Created folder: ${typesFolder}`);
 
     const typesParamsContent = templates["types/params"](namePascal, nameCamel, nameKebab, snakeCase);
-    const typesParamsFilePath = path.join(modulePath, "params.ts");
+    const typesParamsFilePath = path.join(typesFolder, "params.ts");
     fs.writeFileSync(typesParamsFilePath, typesParamsContent);
 
     const typesPayloadsContent = templates["types/payloads"](namePascal, nameCamel, nameKebab, snakeCase);
-    const typesPayloadsFilePath = path.join(modulePath, "payloads.ts");
+    const typesPayloadsFilePath = path.join(typesFolder, "payloads.ts");
     fs.writeFileSync(typesPayloadsFilePath, typesPayloadsContent);
 
     const typesResponsesContent = templates["types/responses"](namePascal, nameCamel, nameKebab, snakeCase);
-    const typesResponsesFilePath = path.join(modulePath, "responses.ts");
+    const typesResponsesFilePath = path.join(typesFolder, "responses.ts");
     fs.writeFileSync(typesResponsesFilePath, typesResponsesContent);
 
     const typesIndexContent = templates["types/index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const typesIndexFilePath = path.join(modulePath, "index.ts");
+    const typesIndexFilePath = path.join(typesFolder, "index.ts");
     fs.writeFileSync(typesIndexFilePath, typesIndexContent);
 
 
@@ -103,34 +107,45 @@ export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
 
     // === UPDATE QUERY KEYS ENUM ===
     try {
-        const queryKeysPath = path.join(process.cwd(), "src/shared/query-keys.ts");
+        const queryKeysPath = path.join(process.cwd(), "src/shared/constants/query-keys.ts");
 
         if (!fs.existsSync(queryKeysPath)) {
             console.warn("⚠️  query-keys.ts not found, skipping enum update.");
         } else {
             const content = fs.readFileSync(queryKeysPath, "utf8");
 
-            // Регулярка, чтобы вставить перед закрывающей скобкой
             const updatedContent = content.replace(
                 /export\s+enum\s+QueryKeys\s*{([^}]*)}/s,
                 (match, body) => {
-                    // Проверим, есть ли уже такой ключ
-                    const newKey = `GET_${snakeCase.toUpperCase()}`;
+                    const newInfiniteKey = `GET_INFINITE_${snakeCase.toUpperCase()}S`;
+                    const newKey = `GET_${snakeCase.toUpperCase()}S`;
+
                     if (body.includes(newKey)) {
                         console.warn(`⚠️  ${newKey} already exists in QueryKeys.`);
                         return match;
                     }
 
-                    // Добавляем с запятой и отступом
-                    const newBody = `${body.trimEnd()},\n  ${newKey}\n`;
-                    return `export enum QueryKeys {${newBody}}`;
+                    // Убираем лишние запятые и пробелы в конце
+                    const cleanedBody = body.trim().replace(/,+\s*$/, "");
+
+                    // Добавляем аккуратно новый ключ
+                    const newBody = `${cleanedBody},\n  ${newKey},\n  ${newInfiniteKey},`;
+                    return `export enum QueryKeys {\n  ${newBody}\n}`;
                 }
             );
 
             fs.writeFileSync(queryKeysPath, updatedContent);
-            console.log(`✨ Added ${"GET_" + snakeCase.toUpperCase()} to QueryKeys`);
+            console.log(`✨ Added GET_${snakeCase.toUpperCase()} to QueryKeys`);
         }
     } catch (err) {
         console.error("❌ Failed to update QueryKeys:", err);
+    }
+
+    try {
+    console.log("🧹 Running lint:fix...");
+        execSync("npm run lint:fix", { stdio: "inherit" });
+        console.log("✅ Linting complete!");
+    } catch (error) {
+        console.error("⚠️  Linting failed:", error.message);
     }
 };

@@ -22,4 +22,5 @@ const nameSnake = moduleName
     .toLowerCase();
 
 // MODULE
+console.log({nameCamel, namePascal, nameKebab, nameSnake})
 generateModule(nameCamel, namePascal, nameKebab, nameSnake);
