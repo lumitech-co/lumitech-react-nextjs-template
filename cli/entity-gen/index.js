@@ -1,25 +1,25 @@
-import { generateModule } from "./module-generator.js";
+import { generateEntity } from "./entity-generator.js";
 
-const moduleName = process.argv[2];
+const entityName = process.argv[2];
 
-if (!moduleName) {
+if (!entityName) {
     console.error(
-        "❌ Please provide a module name. Example: npm run generate:module moduleName"
+        "❌ Please provide a entity name. Example: npm run generate:entity entityName"
     );
 
     process.exit(1);
 }
 
-const nameCamel = moduleName.charAt(0).toLowerCase() + moduleName.slice(1);
-const namePascal = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
+const nameCamel = entityName.charAt(0).toLowerCase() + entityName.slice(1);
+const namePascal = entityName.charAt(0).toUpperCase() + entityName.slice(1);
 
-const nameKebab = moduleName
+const nameKebab = entityName
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .toLowerCase();
 
-const nameSnake = moduleName
+const nameSnake = entityName
     .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
     .toLowerCase();
 
 // MODULE
-generateModule(nameCamel, namePascal, nameKebab, nameSnake);
+generateEntity(nameCamel, namePascal, nameKebab, nameSnake);

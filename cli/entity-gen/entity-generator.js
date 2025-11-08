@@ -3,21 +3,21 @@ import path from "path";
 import { execSync } from "child_process";
 import { templates } from "./templates.js";
 
-export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
-    const modulePath = path.join(process.cwd(), "src/entities", nameKebab);
+export const generateEntity = (nameCamel, namePascal, nameKebab, snakeCase) => {
+    const entityPath = path.join(process.cwd(), "src/entities", nameKebab);
 
-    if (fs.existsSync(modulePath)) {
-        console.error(`❌ Module "${nameKebab}" already exists!`);
+    if (fs.existsSync(entityPath)) {
+        console.error(`❌ Entity "${nameKebab}" already exists!`);
         process.exit(1);
     }
 
-    fs.mkdirSync(modulePath, { recursive: true });
-    console.log(`📁 Created folder: ${modulePath}`);
+    fs.mkdirSync(entityPath, { recursive: true });
+    console.log(`📁 Created folder: ${entityPath}`);
 
 
 
 
-    const apiFolder = `${modulePath}/api`;
+    const apiFolder = `${entityPath}/api`;
     fs.mkdirSync(apiFolder, { recursive: true });
     console.log(`📁 Created folder: ${apiFolder}`);
 
@@ -47,7 +47,7 @@ export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
 
 
 
-    const hooksFolder = `${modulePath}/hooks`;
+    const hooksFolder = `${entityPath}/hooks`;
     fs.mkdirSync(hooksFolder, { recursive: true });
     console.log(`📁 Created folder: ${hooksFolder}`);
 
@@ -77,7 +77,7 @@ export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
 
 
 
-    const typesFolder = `${modulePath}/types`;
+    const typesFolder = `${entityPath}/types`;
     fs.mkdirSync(typesFolder, { recursive: true });
     console.log(`📁 Created folder: ${typesFolder}`);
 
@@ -100,8 +100,34 @@ export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
 
 
     const indexContent = templates["index"](namePascal, nameCamel, nameKebab);
-    const indexFilePath = path.join(modulePath, "index.ts");
+    const indexFilePath = path.join(entityPath, "index.ts");
     fs.writeFileSync(indexFilePath, indexContent);
+
+
+
+    // === UPDATE entities/index.ts ===
+    try {
+        const indexPath = path.join(process.cwd(), "src/entities/index.ts");
+        let content = "";
+
+        if (fs.existsSync(indexPath)) {
+            content = fs.readFileSync(indexPath, "utf8");
+        } else {
+            fs.writeFileSync(indexPath, "");
+        }
+
+        const exportLine = `export * from "./${nameKebab}";`;
+
+        if (!content.includes(exportLine)) {
+            content += (content.trimEnd() ? "\n" : "") + exportLine + "\n";
+            fs.writeFileSync(indexPath, content);
+            console.log(`✨ Added export for "${nameKebab}" to entities/index.ts`);
+        } else {
+            console.log(`⚠️ Export for "${nameKebab}" already exists in index.ts`);
+        }
+    } catch (err) {
+        console.error("❌ Failed to update entities/index.ts:", err);
+    }
 
 
 
@@ -142,7 +168,7 @@ export const generateModule = (nameCamel, namePascal, nameKebab, snakeCase) => {
     }
 
     try {
-    console.log("🧹 Running lint:fix...");
+        console.log("🧹 Running lint:fix...");
         execSync("npm run lint:fix", { stdio: "inherit" });
         console.log("✅ Linting complete!");
     } catch (error) {
