@@ -162,7 +162,7 @@ export const templates = {
     "api/get": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { api } from 'shared/lib';
-        import { I${namePascal}Response, IGet${namePascal}sParams } from '../types';
+        import { I${namePascal}Response, I${namePascal}sResponse, IGet${namePascal}sParams } from '../types';
 
         export const get${namePascal} = async (
             ${nameCamel}Id: string,
