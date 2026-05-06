@@ -4,6 +4,7 @@ export * from './company-workbooks';
 export * from './consolidated-summary';
 export * from './dashboard';
 export * from './extraction-fields';
+export * from './profile';
 export * from './report-retrieval';
 export * from './review-queue';
 export * from './screening-rules';
