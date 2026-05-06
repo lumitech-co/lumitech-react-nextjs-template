@@ -1,3 +1,5 @@
 export enum QueryKeys {
-  GET_TODOS,
+  AUTH_LOGIN = 'AUTH_LOGIN',
+  AUTH_RESET_PASSWORD = 'AUTH_RESET_PASSWORD',
+  AUTH_USER = 'AUTH_USER',
 }
