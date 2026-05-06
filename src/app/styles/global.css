@@ -1178,3 +1178,95 @@
     opacity: 0.4;
   }
 }
+
+/* ───── Excel preview (outside @layer to prevent purging) ───── */
+.xlsx {
+  font-family: 'Calibri', 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  border: 1px solid #b6b9bd;
+  background: #fff;
+}
+.xlsx-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px 0;
+  background: #f1f2f3;
+  border-bottom: 1px solid #b6b9bd;
+}
+.xlsx-tab {
+  padding: 4px 12px 5px;
+  font-size: 11px;
+  background: #e1e3e5;
+  border: 1px solid #b6b9bd;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  cursor: pointer;
+}
+.xlsx-tab.active {
+  background: #fff;
+}
+.xlsx-grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+.xlsx-grid th,
+.xlsx-grid td {
+  border: 1px solid #d4d4d4;
+  padding: 3px 6px;
+  height: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.xlsx-grid th {
+  background: #f8f9fa;
+  font-weight: 500;
+  color: #4a4a4a;
+  min-width: 36px;
+  text-align: center;
+}
+.xlsx-grid td.row-h {
+  background: #f8f9fa;
+  font-weight: 500;
+  color: #4a4a4a;
+  text-align: center;
+  min-width: 26px;
+}
+.xlsx-grid td.label-cell {
+  font-weight: 600;
+  background: #ffffff;
+  min-width: 220px;
+}
+.xlsx-grid td.input-cell {
+  background: #ffffff;
+}
+.xlsx-grid td.formula-cell {
+  background: #f4f8ff;
+  color: #1f4f9c;
+  font-style: italic;
+}
+.xlsx-grid td.score-cell {
+  background: #fff7e0;
+  font-weight: 700;
+}
+.xlsx-grid td.has-comment {
+  position: relative;
+}
+.xlsx-grid td.has-comment::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 6px solid #c2185b;
+  border-left: 6px solid transparent;
+}
+.xlsx-grid td.nd-cell {
+  color: var(--ink-400);
+  font-style: italic;
+}
+.xlsx-grid td.flagged-low {
+  background: #fff7e0 !important;
+}
+.xlsx-grid td.flagged-out {
+  background: #fbe7e3 !important;
+}

@@ -10,10 +10,9 @@ import {
 } from 'shared/api';
 import { AlertIcon, CheckIcon, ExternalIcon, RefreshIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
-import { Badge, useToast } from 'shared/ui';
+import { Badge, ReExtractionBanner, useToast } from 'shared/ui';
 
 import { FlagValueModal } from './flag-value-modal';
-import { ReExtractionBanner } from './re-extraction-banner';
 
 const ND_VALUE = '\u2014';
 
