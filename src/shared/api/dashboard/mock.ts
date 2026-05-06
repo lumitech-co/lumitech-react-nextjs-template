@@ -5,9 +5,11 @@ import {
   IArchivedRun,
   ICompany,
   IReport,
+  IReviewItem,
   IRun,
   IScreeningRules,
   ISummaryRow,
+  ITemplateField,
   IWorkbookRow,
   Stage,
 } from './types';
@@ -420,5 +422,258 @@ export const DEFAULT_SCREENING: IScreeningRules = {
   minMcap: 2.0,
   threshold: 90,
 };
+
+export const MOCK_TEMPLATE_FIELDS: ITemplateField[] = [
+  {
+    id: 'rev',
+    label: 'Revenue',
+    section: 'Income Statement',
+    synonyms: ['Net Sales', 'Turnover', 'Total Revenue'],
+    hint: 'Use top-line group revenue, exclude joint ventures.',
+    rules: [
+      'Source: Income Statement section of the Annual Report.',
+      'Should be a positive number; large year-on-year swings should be reviewed.',
+    ],
+  },
+  {
+    id: 'gp',
+    label: 'Gross Profit',
+    section: 'Income Statement',
+    synonyms: ['Gross Margin'],
+    hint: '',
+    rules: ['Should be \u2264 Revenue. If exceeded, flag as inconsistency.'],
+  },
+  {
+    id: 'ebitda',
+    label: 'EBITDA',
+    section: 'Income Statement',
+    synonyms: ['Operating EBITDA', 'Adjusted EBITDA'],
+    hint: 'Prefer reported EBITDA over adjusted unless only adjusted is available.',
+    rules: [
+      'Should be \u2264 Revenue. If EBITDA exceeds Revenue, flag as Outlier (likely sign or units error).',
+    ],
+  },
+  {
+    id: 'ebit',
+    label: 'EBIT',
+    section: 'Income Statement',
+    synonyms: ['Operating Profit', 'Operating Income'],
+    hint: '',
+    rules: [
+      'Should be \u2264 EBITDA. If EBIT exceeds EBITDA, flag as inconsistency.',
+      'Should be \u2264 Revenue.',
+    ],
+  },
+  {
+    id: 'ni',
+    label: 'Net Income',
+    section: 'Income Statement',
+    synonyms: ['Profit for the year', 'Net Profit', 'Net earnings'],
+    hint: 'Attributable to owners of the parent.',
+    rules: [
+      'Should be \u2264 EBIT in most cases. If Net Income exceeds EBIT, verify (possible one-off gain).',
+      'Source: Income Statement, last line attributable to owners of the parent.',
+    ],
+  },
+  {
+    id: 'eps',
+    label: 'Diluted EPS',
+    section: 'Income Statement',
+    synonyms: ['EPS diluted'],
+    hint: '',
+    rules: ['Reported in currency per share, not millions. Do not normalise.'],
+  },
+  {
+    id: 'ta',
+    label: 'Total Assets',
+    section: 'Balance Sheet',
+    synonyms: [],
+    hint: '',
+    rules: [
+      'Source: Consolidated Balance Sheet.',
+      'Should equal Total Equity + Total Liabilities.',
+    ],
+  },
+  {
+    id: 'te',
+    label: 'Total Equity',
+    section: 'Balance Sheet',
+    synonyms: ['Shareholders Equity', 'Total Stockholders Equity'],
+    hint: '',
+    rules: [
+      'Source: Consolidated Balance Sheet.',
+      'Should be a positive number for going concerns. Negative equity should be flagged.',
+    ],
+  },
+  {
+    id: 'td',
+    label: 'Total Debt',
+    section: 'Balance Sheet',
+    synonyms: ['Borrowings', 'Interest-bearing debt'],
+    hint: 'Sum current + non-current interest-bearing borrowings.',
+    rules: [
+      'Source: Consolidated Balance Sheet \u2014 Notes to the accounts on borrowings.',
+      'Sum of current + non-current interest-bearing borrowings.',
+    ],
+  },
+  {
+    id: 'cash',
+    label: 'Cash & Equivalents',
+    section: 'Balance Sheet',
+    synonyms: ['Cash', 'Cash and cash equivalents'],
+    hint: '',
+    rules: [
+      'Source: Consolidated Balance Sheet \u2014 current assets.',
+      'Must be a positive number.',
+    ],
+  },
+  {
+    id: 'ocf',
+    label: 'Operating Cash Flow',
+    section: 'Cash Flow',
+    synonyms: ['Cash from operations', 'Net cash from operating activities'],
+    hint: '',
+    rules: [
+      'Source: Consolidated/Group Cashflow statement in the Annual Report.',
+    ],
+  },
+  {
+    id: 'capex',
+    label: 'CapEx',
+    section: 'Cash Flow',
+    synonyms: ['Capital expenditure', 'Purchases of PP&E'],
+    hint: 'Report as negative.',
+    rules: [
+      'Source: Consolidated/Group Cashflow statement or the Property, plant & equipment note.',
+      'CapEx should be reported as a negative value (it is an outflow). If positive, flag as likely sign error.',
+    ],
+  },
+  {
+    id: 'fcf',
+    label: 'Free Cash Flow',
+    section: 'Cash Flow',
+    synonyms: ['FCF'],
+    hint: 'OCF \u2212 CapEx if not reported directly.',
+    rules: [
+      'If not reported directly, calculate as Operating Cash Flow \u2212 CapEx.',
+    ],
+  },
+  {
+    id: 'div',
+    label: 'Dividends Paid',
+    section: 'Cash Flow',
+    synonyms: ['Dividends to shareholders'],
+    hint: '',
+    rules: [
+      'Source: Consolidated Cashflow statement / Statement of changes in equity.',
+      'Reported as a negative value (it is an outflow).',
+    ],
+  },
+  {
+    id: 'emp',
+    label: 'Employees (FTE)',
+    section: 'Operating Metrics',
+    synonyms: ['Headcount', 'Total employees'],
+    hint: 'Year-end FTE if available.',
+    rules: [
+      'Source: Annual Report \u2014 typically in the People / Sustainability section.',
+      'Reported as a count, not in millions. Do not normalise.',
+    ],
+  },
+];
+
+export const MOCK_REVIEW_ITEMS: IReviewItem[] = [
+  {
+    id: 'r1',
+    company: "L'Or\u00E9al",
+    field: 'EBITDA',
+    year: 2024,
+    value: '8,420',
+    currency: 'EUR',
+    flag: 'low_confidence',
+    reason:
+      "AI confidence 78% \u2014 multiple line items match 'Operating EBITDA'",
+    page: 142,
+    evidence:
+      'Operating EBITDA before non-recurring items reached \u20AC8,420m, up 7.9% on a like-for-like basis.',
+  },
+  {
+    id: 'r2',
+    company: 'Vinci',
+    field: 'EBIT',
+    year: 2024,
+    value: '7,180',
+    currency: 'EUR',
+    flag: 'outlier',
+    reason: 'EBIT exceeds Revenue check failed',
+    page: 88,
+    evidence:
+      'Operating income from ordinary activities (EBIT) was \u20AC7,180m.',
+  },
+  {
+    id: 'r3',
+    company: 'Reckitt Benckiser',
+    field: 'Net Income',
+    year: 2024,
+    value: '1,290',
+    currency: 'GBP',
+    flag: 'low_confidence',
+    reason: 'AI confidence 82% \u2014 adjusted vs reported ambiguity',
+    page: 104,
+    evidence:
+      'Profit attributable to owners of the parent was \u00A31,290m on a reported basis.',
+  },
+  {
+    id: 'r4',
+    company: 'SAP',
+    field: 'Free Cash Flow',
+    year: 2024,
+    value: '6,015',
+    currency: 'EUR',
+    flag: 'low_confidence',
+    reason: 'AI confidence 86% \u2014 multiple FCF definitions in MD&A',
+    page: 71,
+    evidence:
+      'Free cash flow amounted to \u20AC6,015m, an increase of \u20AC1.3 billion year-over-year.',
+  },
+  {
+    id: 'r5',
+    company: "L'Or\u00E9al",
+    field: 'CapEx',
+    year: 2024,
+    value: '\u2014',
+    currency: 'EUR',
+    flag: 'missing',
+    reason: 'No CapEx line found in cash flow statement',
+    page: null,
+    evidence: '',
+  },
+  {
+    id: 'r6',
+    company: 'Vinci',
+    field: 'Total Debt',
+    year: 2024,
+    value: '24,510',
+    currency: 'EUR',
+    flag: 'low_confidence',
+    reason: 'AI confidence 88%',
+    page: 165,
+    evidence:
+      'Total interest-bearing borrowings stood at \u20AC24,510m at year end.',
+  },
+  {
+    id: 'r7',
+    company: 'Reckitt Benckiser',
+    field: 'EBITDA',
+    year: 2024,
+    value: '4,620',
+    currency: 'GBP',
+    flag: 'outlier',
+    reason: 'YoY change > 80% \u2014 verify against prior-year value',
+    page: 96,
+    evidence:
+      'Adjusted EBITDA of \u00A34,620m reflects the disposal of the Infant Formula business.',
+  },
+];
 
 export { EXCLUDED_SECTORS };

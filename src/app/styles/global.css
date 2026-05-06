@@ -1094,6 +1094,59 @@
   background: var(--accent);
 }
 
+/* ───── PDF page mock (outside @layer to prevent purging) ───── */
+.pdf-page {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 32px 40px;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #2a2a2a;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+.pdf-page h2 {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  margin: 0 0 12px;
+  color: #0b1733;
+}
+.pdf-page h3 {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  margin: 16px 0 6px;
+  color: #0b1733;
+}
+.pdf-page table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 10px;
+}
+.pdf-page table td,
+.pdf-page table th {
+  padding: 4px 6px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.pdf-page table th {
+  font-weight: 600;
+  background: #f4f4f4;
+}
+.pdf-highlight {
+  background: #ffe89a;
+  outline: 2px solid #f2b900;
+  border-radius: 2px;
+  padding: 1px 2px;
+  box-shadow: 0 0 0 4px rgba(242, 185, 0, 0.18);
+  animation: hl 1.4s ease-in-out infinite alternate;
+}
+@keyframes hl {
+  to {
+    box-shadow: 0 0 0 7px rgba(242, 185, 0, 0.1);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

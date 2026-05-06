@@ -111,3 +111,27 @@ export interface IScreeningRules {
   minMcap: number;
   threshold: number;
 }
+
+export interface ITemplateField {
+  id: string;
+  label: string;
+  section: string;
+  synonyms: string[];
+  hint: string;
+  rules: string[];
+}
+
+export type ReviewFlag = 'outlier' | 'low_confidence' | 'missing';
+
+export interface IReviewItem {
+  id: string;
+  company: string;
+  field: string;
+  year: number;
+  value: string;
+  currency: string;
+  flag: ReviewFlag;
+  reason: string;
+  page: number | null;
+  evidence: string;
+}
