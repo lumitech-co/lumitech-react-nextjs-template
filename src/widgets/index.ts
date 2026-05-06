@@ -1,6 +1,7 @@
 export * from './app-shell';
 export * from './brand-panel';
 export * from './company-workbooks';
+export * from './consolidated-summary';
 export * from './dashboard';
 export * from './extraction-fields';
 export * from './report-retrieval';
