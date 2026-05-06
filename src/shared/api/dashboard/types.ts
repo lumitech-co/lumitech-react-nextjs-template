@@ -45,6 +45,18 @@ export interface IRun {
   reExtraction?: IRunReExtraction;
 }
 
+export type ExcludedReason =
+  | 'excluded_sector'
+  | 'below_threshold'
+  | 'manual_override'
+  | null;
+
+export interface IReport {
+  year: number;
+  status: string;
+  page: number;
+}
+
 export interface ICompany {
   id: string;
   name: string;
@@ -55,6 +67,11 @@ export interface ICompany {
   stage: Stage;
   conviction: number | null;
   manuallyAdded?: boolean;
+  excluded: boolean;
+  excludedReason: ExcludedReason;
+  website: string;
+  sourceListing: string;
+  reports: IReport[];
 }
 
 export type ActivityTone = 'default' | 'success' | 'warning' | 'danger';

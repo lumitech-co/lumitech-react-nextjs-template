@@ -1,8 +1,10 @@
 /* eslint-disable no-magic-numbers */
 import {
+  ExcludedReason,
   IActivityItem,
   IArchivedRun,
   ICompany,
+  IReport,
   IRun,
   IScreeningRules,
   ISummaryRow,
@@ -127,6 +129,11 @@ const MANUAL_COMPANIES: ICompany[] = [
     stage: 'pending_retrieval',
     conviction: null,
     manuallyAdded: true,
+    excluded: false,
+    excludedReason: null,
+    website: 'spotify.com',
+    sourceListing: 'S&P 500',
+    reports: [],
   },
   {
     id: 'co-m-2',
@@ -138,6 +145,15 @@ const MANUAL_COMPANIES: ICompany[] = [
     stage: 'extraction',
     conviction: null,
     manuallyAdded: true,
+    excluded: false,
+    excludedReason: null,
+    website: 'rolls-royce.com',
+    sourceListing: 'FTSE 100',
+    reports: [
+      { year: 2025, status: 'Retrieved', page: 110 },
+      { year: 2024, status: 'Retrieved', page: 105 },
+      { year: 2023, status: 'Manually Uploaded', page: 98 },
+    ],
   },
   {
     id: 'co-m-3',
@@ -149,21 +165,112 @@ const MANUAL_COMPANIES: ICompany[] = [
     stage: 'done',
     conviction: 92,
     manuallyAdded: true,
+    excluded: false,
+    excludedReason: null,
+    website: 'tsmc.com',
+    sourceListing: 'NYSE (ADR)',
+    reports: [
+      { year: 2025, status: 'Retrieved', page: 124 },
+      { year: 2024, status: 'Retrieved', page: 118 },
+      { year: 2023, status: 'Retrieved', page: 110 },
+    ],
+  },
+];
+
+const COUNTRY_TLD: Record<string, string> = {
+  UK: '.co.uk',
+  DE: '.de',
+  FR: '.fr',
+  CH: '.com',
+};
+
+const deriveWebsite = (name: string, country: string): string => {
+  const slug = name.toLowerCase().replace(/[^a-z]/g, '');
+  const tld = COUNTRY_TLD[country] || '.com';
+
+  return `${slug}${tld}`;
+};
+
+const getReport2025Status = (index: number): string => {
+  if (index % 11 === 0) {
+    return 'Not Retrieved';
+  }
+
+  if (index % 7 === 0 || index === 5) {
+    return 'Not Published';
+  }
+
+  if (index === 39) {
+    return 'Manually Uploaded';
+  }
+
+  return 'Retrieved';
+};
+
+const getReport2024Status = (index: number): string => {
+  if (index % 17 === 0) {
+    return 'Not Retrieved';
+  }
+
+  if (index === 9) {
+    return 'Not Published';
+  }
+
+  return 'Retrieved';
+};
+
+const buildReports = (index: number): IReport[] => [
+  {
+    year: 2025,
+    status: getReport2025Status(index),
+    page: 87 + (index % 30),
+  },
+  {
+    year: 2024,
+    status: getReport2024Status(index),
+    page: 92 + (index % 25),
+  },
+  { year: 2023, status: 'Retrieved', page: 78 + (index % 20) },
+  {
+    year: 2022,
+    status: index % 19 === 0 ? 'Not Retrieved' : 'Retrieved',
+    page: 70 + (index % 18),
+  },
+  {
+    year: 2021,
+    status: index % 23 === 0 ? 'Not Published' : 'Retrieved',
+    page: 65 + (index % 15),
   },
 ];
 
 const STOXX_COMPANIES: ICompany[] = RAW_COMPANIES.map(
-  ([name, sector, country, weight, mcap, stage, conviction], index) => ({
-    id: `co-${index + 1}`,
-    name,
-    sector,
-    country,
-    weight,
-    mcap,
-    stage,
-    conviction,
-    manuallyAdded: false,
-  }),
+  ([name, sector, country, weight, mcap, stage, conviction], index) => {
+    const isExcluded = stage === 'excluded';
+    let excludedReason: ExcludedReason = null;
+
+    if (isExcluded) {
+      excludedReason = EXCLUDED_SECTORS.includes(sector)
+        ? 'excluded_sector'
+        : 'below_threshold';
+    }
+
+    return {
+      id: `co-${index + 1}`,
+      name,
+      sector,
+      country,
+      weight,
+      mcap,
+      stage,
+      conviction,
+      manuallyAdded: false,
+      excluded: isExcluded,
+      excludedReason,
+      website: deriveWebsite(name, country),
+      sourceListing: 'STOXX 600',
+      reports: buildReports(index),
+    };
+  },
 );
 
 export const MOCK_COMPANIES: ICompany[] = [

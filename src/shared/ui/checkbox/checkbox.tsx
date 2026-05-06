@@ -1,3 +1,5 @@
+import { cn } from 'shared/lib';
+
 interface ICheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
@@ -6,7 +8,7 @@ interface ICheckboxProps {
 
 export const Checkbox = ({ checked, onChange, disabled }: ICheckboxProps) => (
   <span
-    className={`checkbox${checked ? 'checked' : ''}`}
+    className={cn('checkbox', checked && 'checked')}
     aria-label={checked ? 'Checked' : 'Unchecked'}
     onClick={() => {
       if (!disabled) {

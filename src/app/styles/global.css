@@ -469,67 +469,7 @@
     pointer-events: none;
   }
 
-  /* ───── Badge ───── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 999px;
-    line-height: 1.5;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-  .badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    display: inline-block;
-  }
-  .badge-success {
-    background: var(--success-bg);
-    color: var(--success);
-  }
-  .badge-success .badge-dot {
-    background: var(--success);
-  }
-  .badge-warning {
-    background: var(--warning-bg);
-    color: var(--warning);
-  }
-  .badge-warning .badge-dot {
-    background: var(--warning);
-  }
-  .badge-danger {
-    background: var(--danger-bg);
-    color: var(--danger);
-  }
-  .badge-danger .badge-dot {
-    background: var(--danger);
-  }
-  .badge-info {
-    background: var(--info-bg);
-    color: var(--info);
-  }
-  .badge-info .badge-dot {
-    background: var(--info);
-  }
-  .badge-neutral {
-    background: var(--ink-100);
-    color: var(--ink-700);
-  }
-  .badge-neutral .badge-dot {
-    background: var(--ink-400);
-  }
-  .badge-accent {
-    background: var(--accent-50);
-    color: var(--accent);
-  }
-  .badge-accent .badge-dot {
-    background: var(--accent);
-  }
+  /* Badge styles moved outside @layer — see below */
 
   /* ───── Misc ───── */
   .link {
@@ -1090,6 +1030,68 @@
     width: 11px;
     height: 11px;
   }
+}
+
+/* ───── Badge (outside @layer to prevent Tailwind purging dynamic class names) ───── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.badge-success .badge-dot {
+  background: var(--success);
+}
+.badge-warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.badge-warning .badge-dot {
+  background: var(--warning);
+}
+.badge-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.badge-danger .badge-dot {
+  background: var(--danger);
+}
+.badge-info {
+  background: var(--info-bg);
+  color: var(--info);
+}
+.badge-info .badge-dot {
+  background: var(--info);
+}
+.badge-neutral {
+  background: var(--ink-100);
+  color: var(--ink-700);
+}
+.badge-neutral .badge-dot {
+  background: var(--ink-400);
+}
+.badge-accent {
+  background: var(--accent-50);
+  color: var(--accent);
+}
+.badge-accent .badge-dot {
+  background: var(--accent);
 }
 
 @keyframes fadeIn {
