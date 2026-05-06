@@ -10,6 +10,7 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { queryClient } from 'shared/lib';
+import { ToastProvider } from 'shared/ui';
 
 let browserQueryClient: QueryClient | undefined;
 
@@ -26,11 +27,11 @@ const getQueryClient = () => {
 };
 
 export const TanStackQueryProvider = ({ children }: PropsWithChildren) => {
-  const queryClient = getQueryClient();
+  const client = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
+    <QueryClientProvider client={client}>
+      <ToastProvider>{children}</ToastProvider>
       <ReactQueryDevtools />
     </QueryClientProvider>
   );

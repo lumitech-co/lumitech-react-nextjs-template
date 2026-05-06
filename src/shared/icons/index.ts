@@ -1,4 +1,5 @@
 export { default as AlertIcon } from './alert.svg';
+export { default as ArchiveIcon } from './archive.svg';
 export { default as ArrowRightIcon } from './arrow-right.svg';
 export { default as BellIcon } from './bell.svg';
 export { default as BuildingIcon } from './building.svg';
