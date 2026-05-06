@@ -36,8 +36,10 @@
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-dropzone": "^15.0.0",
     "react-hook-form": "^7.54.2",
     "tailwind-merge": "^2.2.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8",
     "zustand": "^5.0.3"
   },

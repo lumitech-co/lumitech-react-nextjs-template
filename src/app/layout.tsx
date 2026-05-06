@@ -1,24 +1,22 @@
 import { ReactNode } from 'react';
 
 import type { Metadata } from 'next';
-import { Urbanist } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
-import { Header } from 'features';
-import { cn } from 'shared/lib';
 import { TanStackQueryProvider } from 'shared/providers';
 
 import 'app/styles/global.css';
 
-const urbanist = Urbanist({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-urbanist',
+  variable: '--font-inter',
   weight: ['400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
-  title: 'Lumitech | Next.js Template',
+  title: 'Iron Blue · Equity Research Platform',
   description:
-    "This Next.js template provides a ready-to-use setup for building fast, scalable web apps. It's recommended for all web projects, even if SEO isn't a priority, as Next.js offers many valuable built-in tools.",
+    'Iron Blue ingests the live STOXX 600 universe, screens it against your house rules, retrieves and parses 3-year annual reports, and populates your scoring template — flagging only the rows that need a human eye.',
 };
 
 type Props = {
@@ -27,17 +25,9 @@ type Props = {
 
 const RootLayout = ({ children }: Props) => {
   return (
-    <html lang="en">
-      <body
-        className={cn(
-          'bg-white text-gray-600 transition-all duration-1000 ease-in-out dark:bg-gray-600 dark:text-white',
-          urbanist.className,
-        )}
-      >
-        <TanStackQueryProvider>
-          <Header />
-          {children}
-        </TanStackQueryProvider>
+    <html lang="en" className={inter.variable}>
+      <body>
+        <TanStackQueryProvider>{children}</TanStackQueryProvider>
       </body>
     </html>
   );
