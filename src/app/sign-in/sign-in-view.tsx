@@ -2,36 +2,33 @@
 
 import { useEffect, useState } from 'react';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { SignInScreen, useAuthStore } from 'features';
 import { BrandPanel } from 'widgets';
 
-import { DashboardView } from '../dashboard-view';
-
-export const HomeView = () => {
+export const SignInView = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const router = useRouter();
   const searchParams = useSearchParams();
   const sessionExpired = searchParams.get('expired') === '1';
-
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  if (!hasMounted) {
+  useEffect(() => {
+    if (hasMounted && isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [hasMounted, isAuthenticated, router]);
+
+  if (!hasMounted || isAuthenticated) {
     return null;
   }
 
-  if (!isAuthenticated) {
-    return (
-      <SignInScreen
-        leftPanel={<BrandPanel />}
-        sessionExpired={sessionExpired}
-      />
-    );
-  }
-
-  return <DashboardView />;
+  return (
+    <SignInScreen leftPanel={<BrandPanel />} sessionExpired={sessionExpired} />
+  );
 };

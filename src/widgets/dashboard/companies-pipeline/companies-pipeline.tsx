@@ -1,18 +1,21 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+
 import { ICompany } from 'shared/api';
 import { ArrowRightIcon } from 'shared/icons';
 import { Conviction, StageChip } from 'shared/ui';
 
+import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
+
 interface ICompaniesPipelineProps {
   companies: ICompany[];
-  onGoto?: (route: string) => void;
 }
 
 const VISIBLE_COUNT = 12;
 
-export const CompaniesPipeline = ({
-  companies,
-  onGoto,
-}: ICompaniesPipelineProps) => {
+export const CompaniesPipeline = ({ companies }: ICompaniesPipelineProps) => {
+  const router = useRouter();
   const recent = companies.slice(0, VISIBLE_COUNT);
 
   return (
@@ -23,12 +26,12 @@ export const CompaniesPipeline = ({
         <span
           className="link"
           style={{ fontSize: 12, cursor: 'pointer' }}
-          onClick={() => onGoto?.('universe')}
+          onClick={() => router.push(ROUTE_PATHS.universe)}
           role="button"
           tabIndex={0}
           onKeyDown={event => {
             if (event.key === 'Enter') {
-              onGoto?.('universe');
+              router.push(ROUTE_PATHS.universe);
             }
           }}
         >

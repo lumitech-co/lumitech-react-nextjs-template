@@ -1064,6 +1064,32 @@
     color: var(--ink-700);
     line-height: 1.4;
   }
+
+  /* ───── Checkbox ───── */
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--ink-300);
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .checkbox.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .checkbox.checked svg {
+    display: block;
+  }
+  .checkbox svg {
+    display: none;
+    width: 11px;
+    height: 11px;
+  }
 }
 
 @keyframes fadeIn {

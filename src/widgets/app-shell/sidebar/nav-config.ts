@@ -70,3 +70,26 @@ export const ROUTE_TITLES: Record<RouteId, string> = {
   summary: 'Consolidated Summary',
   profile: 'My Account',
 };
+
+export const ROUTE_PATHS: Record<RouteId, string> = {
+  dashboard: '/dashboard',
+  screening: '/screening-rules',
+  universe: '/universe',
+  retrieval: '/retrieval',
+  extraction: '/extraction',
+  review: '/review',
+  workbooks: '/workbooks',
+  summary: '/summary',
+  profile: '/profile',
+};
+
+const PATH_TO_ROUTE: Record<string, RouteId> = Object.entries(
+  ROUTE_PATHS,
+).reduce<Record<string, RouteId>>((acc, [routeId, path]) => {
+  acc[path] = routeId as RouteId;
+
+  return acc;
+}, {});
+
+export const getRouteIdFromPath = (pathname: string): RouteId =>
+  PATH_TO_ROUTE[pathname] || 'dashboard';

@@ -1,11 +1,7 @@
-import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 
-import { HomeView } from 'app/views/home-view';
-
-const HomePage = () => (
-  <Suspense fallback={null}>
-    <HomeView />
-  </Suspense>
-);
+const HomePage = () => {
+  redirect('/dashboard');
+};
 
 export default HomePage;

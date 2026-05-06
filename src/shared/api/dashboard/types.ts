@@ -88,3 +88,9 @@ export interface ISummaryRow {
   total: number;
   conviction: number;
 }
+
+export interface IScreeningRules {
+  excludedSectors: string[];
+  minMcap: number;
+  threshold: number;
+}

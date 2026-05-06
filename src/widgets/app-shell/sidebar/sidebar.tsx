@@ -1,27 +1,34 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
+
 import { useAuthStore } from 'features';
 import { LogoutIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
 
-import { INavItem, NAV_GROUPS, RouteId } from './nav-config';
+import {
+  getRouteIdFromPath,
+  INavItem,
+  NAV_GROUPS,
+  ROUTE_PATHS,
+} from './nav-config';
+
+type RunStatus = 'idle' | 'running' | 'complete' | 'cancelled';
 
 interface ISidebarProps {
-  activeRoute: RouteId;
-  onRouteChange: (route: RouteId) => void;
   reviewCount?: number;
-  runStatus?: 'idle' | 'running' | 'complete' | 'cancelled';
+  runStatus?: RunStatus;
   runStartedAt?: string;
 }
 
-const RUN_DOT_COLOR: Record<NonNullable<ISidebarProps['runStatus']>, string> = {
+const RUN_DOT_COLOR: Record<RunStatus, string> = {
   running: '#6CA3FF',
   complete: '#5DD39E',
   cancelled: '#98AED1',
   idle: '#98AED1',
 };
 
-const RUN_LABEL: Record<NonNullable<ISidebarProps['runStatus']>, string> = {
+const RUN_LABEL: Record<RunStatus, string> = {
   running: 'Run in progress',
   complete: 'Last run complete',
   cancelled: 'Run cancelled',
@@ -29,12 +36,13 @@ const RUN_LABEL: Record<NonNullable<ISidebarProps['runStatus']>, string> = {
 };
 
 export const Sidebar = ({
-  activeRoute,
-  onRouteChange,
   reviewCount,
   runStatus = 'idle',
   runStartedAt = '—',
 }: ISidebarProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const activeRoute = getRouteIdFromPath(pathname);
   const user = useAuthStore(state => state.user);
   const signOut = useAuthStore(state => state.signOut);
 
@@ -48,7 +56,7 @@ export const Sidebar = ({
       <div
         key={entry.id}
         className={cn('nav-item', isActive && 'active')}
-        onClick={() => onRouteChange(entry.id)}
+        onClick={() => router.push(ROUTE_PATHS[entry.id])}
       >
         <Icon className="nav-ico" />
         <span>{entry.label}</span>
@@ -98,7 +106,7 @@ export const Sidebar = ({
       </div>
       <div
         className="sidebar-user cursor-pointer"
-        onClick={() => onRouteChange('profile')}
+        onClick={() => router.push(ROUTE_PATHS.profile)}
         title="Open profile"
       >
         <div className="sidebar-user-avatar">{user?.initials ?? 'IB'}</div>

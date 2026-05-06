@@ -21,11 +21,7 @@ import { RunStats } from './run-stats';
 import { ViewSummaryModal } from './view-summary-modal';
 import { ViewWorkbooksModal } from './view-workbooks-modal';
 
-interface IDashboardProps {
-  goto?: (route: string) => void;
-}
-
-export const Dashboard = ({ goto }: IDashboardProps) => {
+export const Dashboard = () => {
   const [viewWorkbooks, setViewWorkbooks] = useState<IArchivedRun | null>(null);
   const [viewSummary, setViewSummary] = useState<IArchivedRun | null>(null);
 
@@ -42,7 +38,7 @@ export const Dashboard = ({ goto }: IDashboardProps) => {
         </div>
       </div>
 
-      <RunCompletedBanner run={MOCK_RUN} onGoto={goto} />
+      <RunCompletedBanner run={MOCK_RUN} />
 
       <PipelineProgress run={MOCK_RUN} companies={MOCK_COMPANIES} />
 
@@ -52,7 +48,7 @@ export const Dashboard = ({ goto }: IDashboardProps) => {
         className="grid-2"
         style={{ gridTemplateColumns: '2fr 1fr', alignItems: 'stretch' }}
       >
-        <CompaniesPipeline companies={MOCK_COMPANIES} onGoto={goto} />
+        <CompaniesPipeline companies={MOCK_COMPANIES} />
         <div className="col gap-16">
           <ActivityFeed items={MOCK_ACTIVITY} />
         </div>

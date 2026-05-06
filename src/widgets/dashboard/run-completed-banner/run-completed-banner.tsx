@@ -1,15 +1,19 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+
 import { IRun } from 'shared/api';
 import { CheckIcon, InboxIcon, LayersIcon } from 'shared/icons';
 
+import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
+
 interface IRunCompletedBannerProps {
   run: IRun;
-  onGoto?: (route: string) => void;
 }
 
-export const RunCompletedBanner = ({
-  run,
-  onGoto,
-}: IRunCompletedBannerProps) => {
+export const RunCompletedBanner = ({ run }: IRunCompletedBannerProps) => {
+  const router = useRouter();
+
   if (run.status !== 'completed') {
     return null;
   }
@@ -66,7 +70,7 @@ export const RunCompletedBanner = ({
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => onGoto?.('review')}
+              onClick={() => router.push(ROUTE_PATHS.review)}
             >
               <InboxIcon width={13} height={13} />
               Open Review Queue
@@ -75,7 +79,7 @@ export const RunCompletedBanner = ({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => onGoto?.('summary')}
+            onClick={() => router.push(ROUTE_PATHS.summary)}
           >
             <LayersIcon width={13} height={13} />
             View Consolidated Summary
