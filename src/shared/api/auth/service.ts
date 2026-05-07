@@ -4,6 +4,7 @@ import { env } from 'env';
 import {
   IAuthTokenResponse,
   IRequestPasswordResetRequest,
+  IResetPasswordRequest,
   ISignInRequest,
 } from './types';
 
@@ -12,13 +13,6 @@ const authAxios = axios.create({
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
-
-const RESET_DELAY_MS = 400;
-
-const wait = (ms: number) =>
-  new Promise<void>(resolve => {
-    setTimeout(resolve, ms);
-  });
 
 export const authApi = {
   signIn: async (data: ISignInRequest): Promise<IAuthTokenResponse> => {
@@ -42,8 +36,12 @@ export const authApi = {
   },
 
   requestPasswordReset: async (
-    _data: IRequestPasswordResetRequest,
+    data: IRequestPasswordResetRequest,
   ): Promise<void> => {
-    await wait(RESET_DELAY_MS);
+    await authAxios.post('/api/auth/forgot-password', data);
+  },
+
+  resetPassword: async (data: IResetPasswordRequest): Promise<void> => {
+    await authAxios.post('/api/auth/reset-password', data);
   },
 };

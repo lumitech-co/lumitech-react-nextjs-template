@@ -15,6 +15,12 @@ export interface IRequestPasswordResetRequest {
   email: string;
 }
 
+export interface IResetPasswordRequest {
+  resetPasswordToken: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export interface IAuthTokenResponse {
   message: string;
   data: {
