@@ -1,17 +1,23 @@
 import { create } from 'zustand';
 
-import { IUser } from 'shared/api';
+import { authApi } from 'shared/api';
+import { tokenStorage } from 'shared/lib';
 
 interface IAuthStore {
-  user: IUser | null;
   isAuthenticated: boolean;
-  signIn: (user: IUser) => void;
+  signIn: (accessToken: string) => void;
   signOut: () => void;
 }
 
 export const useAuthStore = create<IAuthStore>(set => ({
-  user: null,
-  isAuthenticated: false,
-  signIn: user => set({ user, isAuthenticated: true }),
-  signOut: () => set({ user: null, isAuthenticated: false }),
+  isAuthenticated: tokenStorage.get() !== null,
+  signIn: accessToken => {
+    tokenStorage.set(accessToken);
+    set({ isAuthenticated: true });
+  },
+  signOut: () => {
+    authApi.logout().catch(() => {});
+    tokenStorage.clear();
+    set({ isAuthenticated: false });
+  },
 }));

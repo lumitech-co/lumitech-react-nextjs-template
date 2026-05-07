@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuthStore } from 'features';
 import { cn } from 'shared/lib';
 
 const DEFAULT_EMAIL = 'eleanor.hartwell@ironblue.co';
@@ -8,10 +7,8 @@ const DEFAULT_ROLE = 'Analyst';
 const INACTIVITY_LABEL = '30 minutes';
 
 export const ProfilePage = () => {
-  const user = useAuthStore(state => state.user);
-
-  const email = user?.email ?? DEFAULT_EMAIL;
-  const role = user?.role ?? DEFAULT_ROLE;
+  const email = DEFAULT_EMAIL;
+  const role = DEFAULT_ROLE;
 
   return (
     <div className="content">

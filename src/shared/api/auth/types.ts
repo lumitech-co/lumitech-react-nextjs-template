@@ -14,3 +14,10 @@ export interface ISignInRequest {
 export interface IRequestPasswordResetRequest {
   email: string;
 }
+
+export interface IAuthTokenResponse {
+  message: string;
+  data: {
+    accessToken: string;
+  };
+}

@@ -43,7 +43,6 @@ export const Sidebar = ({
   const router = useRouter();
   const pathname = usePathname();
   const activeRoute = getRouteIdFromPath(pathname);
-  const user = useAuthStore(state => state.user);
   const signOut = useAuthStore(state => state.signOut);
 
   const renderItem = (entry: INavItem) => {
@@ -109,12 +108,10 @@ export const Sidebar = ({
         onClick={() => router.push(ROUTE_PATHS.profile)}
         title="Open profile"
       >
-        <div className="sidebar-user-avatar">{user?.initials ?? 'IB'}</div>
+        <div className="sidebar-user-avatar">IB</div>
         <div className="min-w-0 flex-1">
-          <div className="sidebar-user-name truncate">
-            {user?.name ?? 'Iron Blue User'}
-          </div>
-          <div className="sidebar-user-role">{user?.role ?? 'Member'}</div>
+          <div className="sidebar-user-name truncate">Iron Blue User</div>
+          <div className="sidebar-user-role">Member</div>
         </div>
         <button
           type="button"

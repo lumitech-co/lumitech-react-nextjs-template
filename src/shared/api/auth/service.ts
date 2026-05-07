@@ -1,8 +1,19 @@
-import { IRequestPasswordResetRequest, ISignInRequest, IUser } from './types';
+import axios from 'axios';
+import { env } from 'env';
 
-const SIGN_IN_DELAY_MS = 600;
+import {
+  IAuthTokenResponse,
+  IRequestPasswordResetRequest,
+  ISignInRequest,
+} from './types';
+
+const authAxios = axios.create({
+  baseURL: env.NEXT_PUBLIC_API_URL,
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
+});
+
 const RESET_DELAY_MS = 400;
-const MIN_PASSWORD_LENGTH = 4;
 
 const wait = (ms: number) =>
   new Promise<void>(resolve => {
@@ -10,20 +21,24 @@ const wait = (ms: number) =>
   });
 
 export const authApi = {
-  signIn: async (data: ISignInRequest): Promise<IUser> => {
-    await wait(SIGN_IN_DELAY_MS);
+  signIn: async (data: ISignInRequest): Promise<IAuthTokenResponse> => {
+    const response = await authAxios.post<IAuthTokenResponse>(
+      '/api/auth/login',
+      data,
+    );
 
-    if (!data.email || data.password.length < MIN_PASSWORD_LENGTH) {
-      throw new Error('Invalid email or password');
-    }
+    return response.data;
+  },
 
-    return {
-      id: 'u-1',
-      email: data.email,
-      name: 'Eleanor Hartwell',
-      role: 'Analyst',
-      initials: 'EH',
-    };
+  refresh: async (): Promise<IAuthTokenResponse> => {
+    const response =
+      await authAxios.post<IAuthTokenResponse>('/api/auth/refresh');
+
+    return response.data;
+  },
+
+  logout: async (): Promise<void> => {
+    await authAxios.post('/api/auth/logout');
   },
 
   requestPasswordReset: async (
