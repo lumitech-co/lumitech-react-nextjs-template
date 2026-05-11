@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
-import { TanStackQueryProvider } from 'shared/providers';
+import { Providers } from './providers';
 
 import 'app/styles/global.css';
 
@@ -27,7 +27,7 @@ const RootLayout = ({ children }: Props) => {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <TanStackQueryProvider>{children}</TanStackQueryProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

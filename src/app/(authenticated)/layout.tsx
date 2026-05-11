@@ -13,6 +13,8 @@ type Props = {
 
 const AuthenticatedLayout = ({ children }: Props) => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
+  const fetchUser = useAuthStore(state => state.fetchUser);
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -25,6 +27,12 @@ const AuthenticatedLayout = ({ children }: Props) => {
       router.replace('/sign-in');
     }
   }, [hasMounted, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (hasMounted && isAuthenticated && !user) {
+      fetchUser();
+    }
+  }, [hasMounted, isAuthenticated, user, fetchUser]);
 
   if (!hasMounted || !isAuthenticated) {
     return null;

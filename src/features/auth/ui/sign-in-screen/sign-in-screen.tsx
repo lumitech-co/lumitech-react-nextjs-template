@@ -11,11 +11,13 @@ type SignInView = 'signin' | 'forgot' | 'sent';
 interface ISignInScreenProps {
   leftPanel: ReactNode;
   sessionExpired?: boolean;
+  passwordReset?: boolean;
 }
 
 export const SignInScreen = ({
   leftPanel,
   sessionExpired,
+  passwordReset,
 }: ISignInScreenProps) => {
   const [view, setView] = useState<SignInView>('signin');
   const [resetEmail, setResetEmail] = useState<string>('');
@@ -37,6 +39,7 @@ export const SignInScreen = ({
             <SignInForm
               onForgotPassword={showForgot}
               sessionExpired={sessionExpired}
+              passwordReset={passwordReset}
             />
           )}
           {view === 'forgot' && (

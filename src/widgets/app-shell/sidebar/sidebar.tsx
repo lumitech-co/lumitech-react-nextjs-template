@@ -43,8 +43,16 @@ export const Sidebar = ({
   const router = useRouter();
   const pathname = usePathname();
   const activeRoute = getRouteIdFromPath(pathname);
-  const user = useAuthStore(state => state.user);
   const signOut = useAuthStore(state => state.signOut);
+  const user = useAuthStore(state => state.user);
+
+  const initials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
+    : 'IB';
+  const fullName = user
+    ? `${user.firstName} ${user.lastName}`
+    : 'Iron Blue User';
+  const roleName = user?.role ?? 'Member';
 
   const renderItem = (entry: INavItem) => {
     const Icon = entry.icon;
@@ -109,12 +117,10 @@ export const Sidebar = ({
         onClick={() => router.push(ROUTE_PATHS.profile)}
         title="Open profile"
       >
-        <div className="sidebar-user-avatar">{user?.initials ?? 'IB'}</div>
+        <div className="sidebar-user-avatar">{initials}</div>
         <div className="min-w-0 flex-1">
-          <div className="sidebar-user-name truncate">
-            {user?.name ?? 'Iron Blue User'}
-          </div>
-          <div className="sidebar-user-role">{user?.role ?? 'Member'}</div>
+          <div className="sidebar-user-name truncate">{fullName}</div>
+          <div className="sidebar-user-role">{roleName}</div>
         </div>
         <button
           type="button"

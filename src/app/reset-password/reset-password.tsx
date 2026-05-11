@@ -4,15 +4,14 @@ import { useEffect, useState } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { SignInScreen, useAuthStore } from 'features';
+import { ResetPasswordScreen, useAuthStore } from 'features';
 import { BrandPanel } from 'widgets';
 
-export const SignInView = () => {
+export const ResetPasswordView = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionExpired = searchParams.get('expired') === '1';
-  const passwordReset = searchParams.get('reset') === '1';
+  const token = searchParams.get('token');
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -20,20 +19,29 @@ export const SignInView = () => {
   }, []);
 
   useEffect(() => {
-    if (hasMounted && isAuthenticated) {
-      router.replace('/dashboard');
+    if (!hasMounted) {
+      return;
     }
-  }, [hasMounted, isAuthenticated, router]);
 
-  if (!hasMounted || isAuthenticated) {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+
+      return;
+    }
+
+    if (!token) {
+      router.replace('/sign-in');
+    }
+  }, [hasMounted, isAuthenticated, token, router]);
+
+  if (!hasMounted || isAuthenticated || !token) {
     return null;
   }
 
   return (
-    <SignInScreen
+    <ResetPasswordScreen
       leftPanel={<BrandPanel />}
-      sessionExpired={sessionExpired}
-      passwordReset={passwordReset}
+      resetPasswordToken={token}
     />
   );
 };

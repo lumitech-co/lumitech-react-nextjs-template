@@ -1,9 +1,9 @@
 export interface IUser {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   role: string;
-  initials: string;
 }
 
 export interface ISignInRequest {
@@ -13,4 +13,17 @@ export interface ISignInRequest {
 
 export interface IRequestPasswordResetRequest {
   email: string;
+}
+
+export interface IResetPasswordRequest {
+  resetPasswordToken: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface IAuthTokenResponse {
+  message: string;
+  data: {
+    accessToken: string;
+  };
 }

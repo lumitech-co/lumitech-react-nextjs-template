@@ -1,6 +1,12 @@
 'use client';
 
-import { ArrowRightIcon, ClockIcon, LockIcon, MailIcon } from 'shared/icons';
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  ClockIcon,
+  LockIcon,
+  MailIcon,
+} from 'shared/icons';
 import { Button, Field, IconInput } from 'shared/ui';
 
 import { useSignInForm } from '../../hooks';
@@ -8,11 +14,13 @@ import { useSignInForm } from '../../hooks';
 interface ISignInFormProps {
   onForgotPassword: () => void;
   sessionExpired?: boolean;
+  passwordReset?: boolean;
 }
 
 export const SignInForm = ({
   onForgotPassword,
   sessionExpired,
+  passwordReset,
 }: ISignInFormProps) => {
   const { form, onSubmit, isLoading, authError, clearAuthError, hasError } =
     useSignInForm();
@@ -24,6 +32,19 @@ export const SignInForm = ({
       <p className="signin-sub">
         Enter the credentials provided by your administrator.
       </p>
+
+      {passwordReset && (
+        <div
+          className="mb-4 flex items-center gap-2 rounded-md px-3 py-2.5 text-[12.5px]"
+          style={{
+            background: 'var(--success-bg)',
+            color: 'var(--success)',
+          }}
+        >
+          <CheckIcon className="h-3.5 w-3.5 shrink-0" />
+          <span>Password has been updated. Please sign in.</span>
+        </div>
+      )}
 
       {sessionExpired && (
         <div

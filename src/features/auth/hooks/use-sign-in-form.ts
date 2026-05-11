@@ -10,8 +10,6 @@ import { QueryKeys } from 'shared/constants';
 import { SignInFormData, signInSchema } from '../lib';
 import { useAuthStore } from '../model';
 
-const DEFAULT_EMAIL = 'eleanor.hartwell@ironblue.co';
-
 export const useSignInForm = () => {
   const signIn = useAuthStore(state => state.signIn);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -19,14 +17,14 @@ export const useSignInForm = () => {
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     mode: 'onSubmit',
-    defaultValues: { email: DEFAULT_EMAIL, password: '' },
+    defaultValues: { email: '', password: '' },
   });
 
   const mutation = useMutation({
     mutationKey: [QueryKeys.AUTH_LOGIN],
     mutationFn: authApi.signIn,
-    onSuccess: user => {
-      signIn(user);
+    onSuccess: response => {
+      signIn(response.data.accessToken);
     },
     onError: () => {
       setAuthError('Invalid email or password');
