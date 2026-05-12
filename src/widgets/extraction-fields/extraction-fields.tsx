@@ -4,44 +4,60 @@ import { useMemo, useState } from 'react';
 
 import {
   DEFAULT_SCREENING,
+  ICompany,
   ITemplateField,
+  MOCK_COMPANIES,
   MOCK_TEMPLATE_FIELDS,
 } from 'shared/api';
 import {
   CheckIcon,
-  PlusIcon,
   RefreshIcon,
+  SearchIcon,
   SparkleIcon,
-  TrashIcon,
   XIcon,
 } from 'shared/icons';
-import { Badge, useToast } from 'shared/ui';
+import { cn } from 'shared/lib';
+import { Badge, Modal, useToast } from 'shared/ui';
 
-const PROCESSED_COMPANIES = 44;
 const RANGE_MIN = 50;
 const RANGE_MAX = 100;
+const RULES_ROWS = 6;
 
 export const ExtractionFields = () => {
   const [fields, setFields] = useState<ITemplateField[]>(MOCK_TEMPLATE_FIELDS);
   const [selectedId, setSelectedId] = useState(MOCK_TEMPLATE_FIELDS[0]?.id);
   const [threshold, setThreshold] = useState(DEFAULT_SCREENING.threshold);
+  const [query, setQuery] = useState('');
+  const [showReExtract, setShowReExtract] = useState(false);
+  const [reExtractMode, setReExtractMode] = useState<'all' | 'selected'>('all');
+  const [reExtractSelected, setReExtractSelected] = useState<
+    Record<string, boolean>
+  >({});
+  const [reExtractQuery, setReExtractQuery] = useState('');
   const toast = useToast();
 
   const selected = fields.find(field => field.id === selectedId) ?? null;
 
-  const grouped = useMemo(() => {
-    const groups: Record<string, ITemplateField[]> = {};
+  const filteredFields = useMemo(() => {
+    if (!query.trim()) {
+      return fields;
+    }
 
-    fields.forEach(field => {
-      if (!groups[field.section]) {
-        groups[field.section] = [];
-      }
+    const lowerQuery = query.trim().toLowerCase();
 
-      groups[field.section]?.push(field);
-    });
+    return fields.filter(field =>
+      field.label.toLowerCase().includes(lowerQuery),
+    );
+  }, [fields, query]);
 
-    return Object.entries(groups);
-  }, [fields]);
+  const eligibleCompanies = useMemo(
+    () =>
+      MOCK_COMPANIES.filter(
+        (company: ICompany) =>
+          company.stage === 'done' || company.stage === 'review',
+      ),
+    [],
+  );
 
   const updateField = (patch: Partial<ITemplateField>) => {
     setFields(current =>
@@ -86,34 +102,45 @@ export const ExtractionFields = () => {
     event.currentTarget.value = '';
   };
 
-  const updateRule = (index: number, value: string) => {
-    if (!selected) {
-      return;
-    }
-
-    const next = [...selected.rules];
-
-    next[index] = value;
-    updateField({ rules: next });
+  const closeReExtract = () => {
+    setShowReExtract(false);
+    setReExtractQuery('');
   };
 
-  const deleteRule = (index: number) => {
-    if (!selected) {
-      return;
+  const handleReExtract = () => {
+    if (reExtractMode === 'all') {
+      toast(
+        `Re-extraction queued for all ${eligibleCompanies.length} processed companies \u00B7 using current parameters`,
+        { tone: 'success' },
+      );
+    } else {
+      const selCount = Object.values(reExtractSelected).filter(Boolean).length;
+
+      toast(
+        `Re-extraction queued for ${selCount} compan${selCount === 1 ? 'y' : 'ies'} \u00B7 using current parameters`,
+        { tone: 'success' },
+      );
     }
 
-    updateField({ rules: selected.rules.filter((_, idx) => idx !== index) });
+    setShowReExtract(false);
+    setReExtractSelected({});
+    setReExtractQuery('');
   };
 
-  const addRule = () => {
-    if (!selected) {
-      return;
+  const filteredEligible = useMemo(() => {
+    if (!reExtractQuery.trim()) {
+      return eligibleCompanies;
     }
 
-    updateField({ rules: [...selected.rules, ''] });
-  };
+    const lowerQuery = reExtractQuery.trim().toLowerCase();
 
-  const rulesCount = selected?.rules.length ?? 0;
+    return eligibleCompanies.filter((company: ICompany) =>
+      company.name.toLowerCase().includes(lowerQuery),
+    );
+  }, [eligibleCompanies, reExtractQuery]);
+
+  const reExtractSelectedCount =
+    Object.values(reExtractSelected).filter(Boolean).length;
 
   return (
     <div className="content">
@@ -133,23 +160,16 @@ export const ExtractionFields = () => {
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: 16, padding: '14px 16px' }}>
-        <div className="row gap-16" style={{ flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 280 }}>
+      <div className="card mb-4 p-3.5 px-4">
+        <div className="row flex-wrap gap-16">
+          <div className="min-w-[280px] flex-1">
             <div className="card-title">Low-confidence threshold</div>
             <div className="card-sub">
               Values extracted with AI confidence below this threshold are
               flagged as Low-confidence and added to the review queue.
             </div>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              minWidth: 240,
-            }}
-          >
+          <div className="flex min-w-[240px] items-center gap-3">
             <input
               type="range"
               min={RANGE_MIN}
@@ -157,120 +177,88 @@ export const ExtractionFields = () => {
               step="1"
               value={threshold}
               onChange={event => setThreshold(parseInt(event.target.value, 10))}
-              style={{ flex: 1, accentColor: 'var(--accent)' }}
+              className="flex-1 accent-accent"
             />
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 600,
-                fontVariantNumeric: 'tabular-nums',
-                minWidth: 50,
-                textAlign: 'right',
-              }}
-            >
+            <div className="min-w-[50px] text-right text-lg font-semibold tabular-nums">
               {threshold}%
             </div>
           </div>
         </div>
       </div>
 
-      <div
-        className="card"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '320px 1fr',
-          minHeight: 520,
-        }}
-      >
-        {/* Left sidebar — field list */}
-        <div
-          style={{
-            borderRight: '1px solid var(--line)',
-            overflow: 'auto',
-            maxHeight: 600,
-          }}
-        >
-          {grouped.map(([section, items]) => (
-            <div key={section}>
-              <div
-                className="sidebar-section"
-                style={{
-                  color: 'var(--ink-400)',
-                  padding: '12px 16px 4px',
-                  background: 'var(--surface-2)',
-                }}
-              >
-                {section}
-              </div>
-              {items.map(field => (
-                <div
-                  key={field.id}
-                  onClick={() => setSelectedId(field.id)}
-                  style={{
-                    padding: '10px 16px',
-                    cursor: 'pointer',
-                    borderLeft:
-                      selectedId === field.id
-                        ? '3px solid var(--accent)'
-                        : '3px solid transparent',
-                    background:
-                      selectedId === field.id
-                        ? 'var(--accent-50)'
-                        : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500 }}>
-                      {field.label}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--ink-500)' }}>
-                      {field.synonyms.length} synonym
-                      {field.synonyms.length === 1 ? '' : 's'} &middot;{' '}
-                      {field.rules.length} rule
-                      {field.rules.length === 1 ? '' : 's'}
-                      {field.hint ? ' \u00B7 hint' : ''}
-                    </div>
-                  </div>
-                  {field.hint && (
-                    <SparkleIcon
-                      width={12}
-                      height={12}
-                      style={{ color: 'var(--accent)' }}
-                    />
-                  )}
-                </div>
-              ))}
+      <div className="card grid h-[calc(100vh-240px)] grid-cols-[320px_1fr]">
+        <div className="flex flex-col overflow-hidden border-r border-line">
+          <div className="shrink-0 border-b border-line px-3 pb-2 pt-3">
+            <div className="relative">
+              <SearchIcon
+                width={13}
+                height={13}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400"
+              />
+              <input
+                className="input h-8 pl-[30px] text-xs"
+                placeholder={`Search ${fields.length} fields\u2026`}
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+              />
             </div>
-          ))}
+            {query.trim() && (
+              <div className="mt-1.5 pl-0.5 text-[11px] text-ink-500">
+                {filteredFields.length} of {fields.length} fields
+              </div>
+            )}
+          </div>
+          <div className="flex-1 overflow-auto">
+            {filteredFields.length === 0 && (
+              <div className="p-5 px-4 text-center text-xs italic text-ink-400">
+                No fields match &ldquo;{query}&rdquo;
+              </div>
+            )}
+            {filteredFields.map(field => (
+              <div
+                key={field.id}
+                onClick={() => setSelectedId(field.id)}
+                className={cn(
+                  'flex cursor-pointer items-center gap-2 border-b border-line px-4 py-2.5',
+                  selectedId === field.id
+                    ? 'border-l-[3px] border-l-accent bg-accent-50'
+                    : 'border-l-[3px] border-l-transparent',
+                )}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-medium leading-snug">
+                    {field.label}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-ink-500">
+                    {field.synonyms.length} synonym
+                    {field.synonyms.length === 1 ? '' : 's'} &middot;{' '}
+                    {field.rules.filter(rule => rule.trim()).length} rule
+                    {field.rules.filter(rule => rule.trim()).length === 1
+                      ? ''
+                      : 's'}
+                    {field.hint ? ' \u00B7 hint' : ''}
+                  </div>
+                </div>
+                {field.hint && (
+                  <SparkleIcon
+                    width={12}
+                    height={12}
+                    className="shrink-0 text-accent"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Right detail panel */}
-        <div style={{ padding: 24, overflow: 'auto' }}>
+        <div className="overflow-auto p-6">
           {selected && (
-            <div className="col gap-20">
+            <div className="col gap-4">
               <div>
-                <div
-                  style={{
-                    fontSize: 11.5,
-                    color: 'var(--ink-500)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    fontWeight: 600,
-                  }}
-                >
-                  {selected.section}
+                <div className="text-[11.5px] font-semibold uppercase tracking-wide text-ink-400">
+                  Field
                 </div>
-                <div
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 600,
-                    letterSpacing: '-0.01em',
-                    marginTop: 4,
-                  }}
-                >
+                <div className="mt-1 text-xl font-semibold tracking-tight">
                   {selected.label}
                 </div>
               </div>
@@ -281,36 +269,17 @@ export const ExtractionFields = () => {
                   Terms that the AI should treat as equivalent to &ldquo;
                   {selected.label}&rdquo;.
                 </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 6,
-                    padding: 8,
-                    border: '1px solid var(--line-strong)',
-                    borderRadius: 6,
-                    minHeight: 42,
-                    background: '#fff',
-                  }}
-                >
+                <div className="flex min-h-[42px] flex-wrap gap-1.5 rounded-md border border-line-strong bg-white p-2">
                   {selected.synonyms.map(synonym => (
                     <span
                       key={synonym}
-                      className="badge badge-accent"
-                      style={{ padding: '3px 6px 3px 10px', gap: 6 }}
+                      className="badge badge-accent gap-1.5 py-[3px] pl-2.5 pr-1.5"
                     >
                       {synonym}
                       <button
                         type="button"
                         onClick={() => removeSynonym(synonym)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'inherit',
-                          padding: 0,
-                          cursor: 'pointer',
-                          display: 'flex',
-                        }}
+                        className="flex cursor-pointer border-none bg-transparent p-0 text-inherit"
                         aria-label={`Remove synonym ${synonym}`}
                       >
                         <XIcon width={10} height={10} />
@@ -318,15 +287,7 @@ export const ExtractionFields = () => {
                     </span>
                   ))}
                   <input
-                    className="input"
-                    style={{
-                      border: 'none',
-                      flex: 1,
-                      minWidth: 120,
-                      height: 24,
-                      padding: 0,
-                      background: 'transparent',
-                    }}
+                    className="input h-6 min-w-[120px] flex-1 border-none bg-transparent p-0"
                     placeholder="Add synonym + Enter"
                     onKeyDown={handleSynonymKeyDown}
                   />
@@ -351,117 +312,30 @@ export const ExtractionFields = () => {
                 <label className="label">Validation rules</label>
                 <div className="hint">
                   Checks applied during and after extraction. Used for outlier
-                  flagging and source guidance. Empty rules are ignored.
+                  flagging and source guidance. Write one rule per line. Empty
+                  lines are ignored.
                 </div>
-                <div
-                  style={{
-                    padding: 8,
-                    background: 'var(--surface-2)',
-                    borderRadius: 6,
-                    border: '1px solid var(--line)',
-                  }}
-                >
-                  {rulesCount === 0 && (
-                    <div
-                      style={{
-                        padding: '8px 6px',
-                        fontSize: 12,
-                        color: 'var(--ink-400)',
-                        fontStyle: 'italic',
-                      }}
-                    >
-                      No validation rules defined for this field yet.
-                    </div>
-                  )}
-                  {/* eslint-disable react/no-array-index-key */}
-                  {selected.rules.map((rule, ruleIndex) => (
-                    <div
-                      key={`rule-${selectedId}-${ruleIndex}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 6,
-                        padding: '6px 0',
-                        borderBottom:
-                          ruleIndex < rulesCount - 1
-                            ? '1px solid var(--line)'
-                            : 'none',
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: 'var(--ink-400)',
-                          minWidth: 18,
-                          paddingTop: 8,
-                          fontVariantNumeric: 'tabular-nums',
-                        }}
-                      >
-                        {ruleIndex + 1}.
-                      </div>
-                      <textarea
-                        className="textarea"
-                        value={rule}
-                        rows={2}
-                        style={{
-                          flex: 1,
-                          fontSize: 12.5,
-                          lineHeight: 1.5,
-                          minHeight: 38,
-                          padding: '6px 10px',
-                        }}
-                        onChange={event =>
-                          updateRule(ruleIndex, event.target.value)
-                        }
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-icon btn-ghost"
-                        title="Delete rule"
-                        aria-label="Delete rule"
-                        style={{
-                          height: 30,
-                          width: 30,
-                          color: 'var(--danger)',
-                        }}
-                        onClick={() => deleteRule(ruleIndex)}
-                      >
-                        <TrashIcon width={13} height={13} />
-                      </button>
-                    </div>
-                  ))}
-                  {/* eslint-enable react/no-array-index-key */}
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm"
-                    style={{ marginTop: 8, color: 'var(--accent)' }}
-                    onClick={addRule}
-                  >
-                    <PlusIcon width={12} height={12} />
-                    Add rule
-                  </button>
-                </div>
+                <textarea
+                  className="textarea min-h-[120px] font-[inherit] text-[12.5px] leading-relaxed"
+                  value={selected.rules.join('\n')}
+                  rows={RULES_ROWS}
+                  placeholder={
+                    'One rule per line. For example:\nSource: Income Statement section of the Annual Report.\nShould be \u2264 Revenue. If exceeded, flag as inconsistency.\nNegative values should be flagged as sign error.'
+                  }
+                  onChange={event =>
+                    updateField({ rules: event.target.value.split('\n') })
+                  }
+                />
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: 8,
-                }}
-              >
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() =>
-                    toast(
-                      `Re-extraction queued for all ${PROCESSED_COMPANIES} processed companies \u00B7 using current parameters`,
-                      { tone: 'success' },
-                    )
-                  }
+                  onClick={() => setShowReExtract(true)}
                 >
                   <RefreshIcon width={13} height={13} />
-                  Re-extract all companies
+                  Re-extract Companies
                 </button>
                 <button
                   type="button"
@@ -480,6 +354,150 @@ export const ExtractionFields = () => {
           )}
         </div>
       </div>
+
+      <Modal
+        open={showReExtract}
+        onClose={closeReExtract}
+        title="Re-extract Companies"
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={closeReExtract}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={
+                reExtractMode === 'selected' && reExtractSelectedCount === 0
+              }
+              onClick={handleReExtract}
+            >
+              <RefreshIcon width={13} height={13} />
+              Start Re-extraction
+            </button>
+          </>
+        }
+      >
+        <div className="col gap-12">
+          <div className="hint leading-relaxed">
+            Re-extraction uses the current synonyms, AI hints, validation rules,
+            and Low-confidence threshold. PDFs are not re-downloaded &mdash;
+            only the AI extraction step runs again.
+          </div>
+
+          <div className="col gap-8">
+            <label
+              className={cn(
+                'flex cursor-pointer items-start gap-2.5 rounded-md border p-3',
+                reExtractMode === 'all'
+                  ? 'border-accent bg-accent-50'
+                  : 'border-line bg-white',
+              )}
+            >
+              <input
+                type="radio"
+                name="re-mode"
+                checked={reExtractMode === 'all'}
+                onChange={() => setReExtractMode('all')}
+                className="mt-[3px]"
+              />
+              <div>
+                <div className="text-[13.5px] font-medium">
+                  All processed companies
+                </div>
+                <div className="hint mt-0.5">
+                  Run re-extraction across all companies that have completed
+                  extraction in this run
+                </div>
+              </div>
+            </label>
+
+            <label
+              className={cn(
+                'flex cursor-pointer items-start gap-2.5 rounded-md border p-3',
+                reExtractMode === 'selected'
+                  ? 'border-accent bg-accent-50'
+                  : 'border-line bg-white',
+              )}
+            >
+              <input
+                type="radio"
+                name="re-mode"
+                checked={reExtractMode === 'selected'}
+                onChange={() => setReExtractMode('selected')}
+                className="mt-[3px]"
+              />
+              <div className="flex-1">
+                <div className="text-[13.5px] font-medium">
+                  Selected companies only
+                </div>
+                <div className="hint mt-0.5">
+                  Pick specific companies &mdash; useful for testing parameter
+                  changes
+                </div>
+              </div>
+            </label>
+          </div>
+
+          {reExtractMode === 'selected' && (
+            <>
+              <div className="relative">
+                <SearchIcon
+                  width={13}
+                  height={13}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400"
+                />
+                <input
+                  className="input h-8 pl-[30px] text-xs"
+                  placeholder="Search companies\u2026"
+                  value={reExtractQuery}
+                  onChange={event => setReExtractQuery(event.target.value)}
+                />
+              </div>
+              <div className="max-h-[280px] overflow-auto rounded-md border border-line">
+                {filteredEligible.length === 0 && (
+                  <div className="p-5 px-4 text-center text-xs italic text-ink-400">
+                    No companies match &ldquo;{reExtractQuery}&rdquo;
+                  </div>
+                )}
+                {filteredEligible.map((company: ICompany) => (
+                  <label
+                    key={company.id}
+                    className="flex cursor-pointer items-center gap-2 border-b border-line px-3 py-2"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!reExtractSelected[company.id]}
+                      onChange={event =>
+                        setReExtractSelected({
+                          ...reExtractSelected,
+                          [company.id]: event.target.checked,
+                        })
+                      }
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13px] font-medium">
+                        {company.name}
+                      </div>
+                      <div className="text-[11px] text-ink-500">
+                        {company.country} &middot; {company.sector}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <div className="hint">
+                {reExtractSelectedCount} compan
+                {reExtractSelectedCount === 1 ? 'y' : 'ies'} selected
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

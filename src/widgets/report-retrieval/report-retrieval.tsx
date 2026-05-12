@@ -19,8 +19,6 @@ import { EditWebsiteModal } from './edit-website-modal';
 import { ReuploadConfirmModal } from './reupload-confirm-modal';
 import { UploadReportModal } from './upload-report-modal';
 
-/* eslint-disable no-magic-numbers */
-
 type Filter = 'all' | 'issues' | 'not_published' | 'manual';
 
 const WINDOW_SIZE = 3;
@@ -142,41 +140,22 @@ export const ReportRetrieval = () => {
 
     if (report) {
       return (
-        <td key={year} style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
+        <td key={year} className="text-center">
+          <div className="inline-flex flex-col items-center gap-0.5">
             {statusBadge(report.status)}
             {(report.status === 'Retrieved' ||
               report.status === 'Manually Uploaded') && (
-              <div style={{ display: 'flex', gap: 2 }}>
+              <div className="flex gap-0.5">
                 <button
                   type="button"
-                  className="btn btn-ghost btn-sm"
-                  style={{
-                    height: 20,
-                    padding: '0 6px',
-                    fontSize: 11,
-                    color: 'var(--accent)',
-                  }}
+                  className="btn btn-ghost btn-sm h-5 px-1.5 text-[11px] text-accent"
                 >
                   <EyeIcon width={10} height={10} />
                   View
                 </button>
                 <button
                   type="button"
-                  className="btn btn-ghost btn-sm"
-                  style={{
-                    height: 20,
-                    padding: '0 6px',
-                    fontSize: 11,
-                    color: 'var(--accent)',
-                  }}
+                  className="btn btn-ghost btn-sm h-5 px-1.5 text-[11px] text-accent"
                   onClick={() => setReuploadConfirm({ company, year })}
                 >
                   <UploadIcon width={10} height={10} />
@@ -188,13 +167,7 @@ export const ReportRetrieval = () => {
               report.status === 'Not Published') && (
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
-                style={{
-                  height: 20,
-                  padding: '0 6px',
-                  fontSize: 11,
-                  color: 'var(--accent)',
-                }}
+                className="btn btn-ghost btn-sm h-5 px-1.5 text-[11px] text-accent"
                 onClick={() => setUploadFor({ company, year })}
               >
                 <UploadIcon width={10} height={10} />
@@ -207,25 +180,12 @@ export const ReportRetrieval = () => {
     }
 
     return (
-      <td key={year} style={{ textAlign: 'center' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <span style={{ color: 'var(--ink-300)', fontSize: 12 }}>&mdash;</span>
+      <td key={year} className="text-center">
+        <div className="inline-flex flex-col items-center gap-0.5">
+          <span className="text-xs text-ink-300">&mdash;</span>
           <button
             type="button"
-            className="btn btn-ghost btn-sm"
-            style={{
-              height: 20,
-              padding: '0 6px',
-              fontSize: 11,
-              color: 'var(--accent)',
-            }}
+            className="btn btn-ghost btn-sm h-5 px-1.5 text-[11px] text-accent"
             onClick={() => setUploadFor({ company, year })}
           >
             <UploadIcon width={10} height={10} />
@@ -278,22 +238,15 @@ export const ReportRetrieval = () => {
             Manual uploads <span className="count">{manualCount}</span>
           </div>
           <div className="spacer" />
-          <div style={{ padding: '6px 12px' }}>
-            <div className="input-with-icon" style={{ width: 240 }}>
+          <div className="px-3 py-1.5">
+            <div className="input-with-icon w-60">
               <SearchIcon
                 width={13}
                 height={13}
-                style={{
-                  position: 'absolute',
-                  left: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--ink-400)',
-                }}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400"
               />
               <input
-                className="input"
-                style={{ height: 30, fontSize: 12.5 }}
+                className="input h-[30px] text-[12.5px]"
                 placeholder="Search company\u2026"
                 value={query}
                 onChange={event => setQuery(event.target.value)}
@@ -308,10 +261,13 @@ export const ReportRetrieval = () => {
               <tr>
                 <th>Company</th>
                 <th>Official website</th>
-                <th style={{ width: 32, padding: 0 }}>
+                <th className="w-8 p-0">
                   <button
                     type="button"
-                    className="btn btn-icon btn-ghost"
+                    className={cn(
+                      'btn btn-icon btn-ghost size-7',
+                      !canGoOlder && 'opacity-30',
+                    )}
                     disabled={!canGoOlder}
                     aria-label="View older years"
                     title={
@@ -322,24 +278,22 @@ export const ReportRetrieval = () => {
                     onClick={() =>
                       setWindowStart(prev => Math.min(maxStart, prev + 1))
                     }
-                    style={{
-                      height: 28,
-                      width: 28,
-                      opacity: canGoOlder ? 1 : 0.3,
-                    }}
                   >
                     <ChevronLeftIcon width={13} height={13} />
                   </button>
                 </th>
                 {visibleYears.map(year => (
-                  <th key={year} style={{ textAlign: 'center' }}>
+                  <th key={year} className="text-center">
                     {year}
                   </th>
                 ))}
-                <th style={{ width: 32, padding: 0 }}>
+                <th className="w-8 p-0">
                   <button
                     type="button"
-                    className="btn btn-icon btn-ghost"
+                    className={cn(
+                      'btn btn-icon btn-ghost size-7',
+                      !canGoNewer && 'opacity-30',
+                    )}
                     disabled={!canGoNewer}
                     aria-label="View newer years"
                     title={
@@ -350,11 +304,6 @@ export const ReportRetrieval = () => {
                     onClick={() =>
                       setWindowStart(prev => Math.max(0, prev - 1))
                     }
-                    style={{
-                      height: 28,
-                      width: 28,
-                      opacity: canGoNewer ? 1 : 0.3,
-                    }}
                   >
                     <ChevronRightIcon width={13} height={13} />
                   </button>
@@ -365,14 +314,7 @@ export const ReportRetrieval = () => {
               {list.slice(0, VISIBLE_LIMIT).map(company => (
                 <tr key={company.id}>
                   <td>
-                    <div
-                      style={{
-                        fontWeight: 500,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
+                    <div className="flex items-center gap-1.5 font-medium">
                       {company.name}
                       {company.manuallyAdded && (
                         <Badge tone="accent" withDot={false}>
@@ -380,7 +322,7 @@ export const ReportRetrieval = () => {
                         </Badge>
                       )}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                    <div className="text-[11px] text-ink-400">
                       {company.country} &middot; {company.sector}
                       {company.manuallyAdded && company.sourceListing
                         ? ` \u00B7 ${company.sourceListing}`
@@ -388,45 +330,26 @@ export const ReportRetrieval = () => {
                     </div>
                   </td>
                   <td>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
+                    <div className="flex items-center gap-1.5">
                       <GlobeIcon
                         width={12}
                         height={12}
-                        style={{ color: 'var(--ink-400)' }}
+                        className="text-ink-400"
                       />
-                      <a className="link" style={{ fontSize: 12.5 }}>
-                        {company.website}
-                      </a>
+                      <a className="link text-[12.5px]">{company.website}</a>
                       <button
                         type="button"
-                        className="btn btn-icon btn-ghost"
+                        className="btn btn-icon btn-ghost size-[22px]"
                         onClick={() => setEditWebsite(company)}
-                        style={{ height: 22, width: 22 }}
                         aria-label="Edit website"
                       >
                         <EditIcon width={11} height={11} />
                       </button>
                     </div>
                   </td>
-                  <td
-                    style={{
-                      padding: 0,
-                      background: 'var(--surface-2, #FAFAFA)',
-                    }}
-                  />
+                  <td className="bg-surface-2 p-0" />
                   {visibleYears.map(year => renderYearCell(company, year))}
-                  <td
-                    style={{
-                      padding: 0,
-                      background: 'var(--surface-2, #FAFAFA)',
-                    }}
-                  />
+                  <td className="bg-surface-2 p-0" />
                 </tr>
               ))}
             </tbody>

@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { ICompany } from 'shared/api';
 import { TrashIcon, UploadIcon } from 'shared/icons';
+import { cn } from 'shared/lib';
 import { Modal, useToast } from 'shared/ui';
 
 /* eslint-disable no-magic-numbers */
@@ -89,11 +90,11 @@ export const UploadReportModal = ({
         <div className="col gap-12">
           <div className="field">
             <label className="label">Company</label>
-            <div style={{ fontWeight: 500 }}>{target.company.name}</div>
+            <div className="font-medium">{target.company.name}</div>
           </div>
           <div className="field">
             <label className="label">Reporting year</label>
-            <div style={{ fontWeight: 500 }}>{target.year}</div>
+            <div className="font-medium">{target.year}</div>
           </div>
           <div className="field">
             <label className="label">
@@ -101,43 +102,25 @@ export const UploadReportModal = ({
             </label>
 
             {file ? (
-              <div
-                style={{
-                  border: '1px solid var(--line)',
-                  borderRadius: 8,
-                  padding: '12px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                }}
-              >
+              <div className="flex items-center gap-2.5 rounded-lg border border-line px-4 py-3">
                 <UploadIcon
                   width={16}
                   height={16}
-                  style={{ color: 'var(--accent)', flexShrink: 0 }}
+                  className="shrink-0 text-accent"
                 />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 500,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13px] font-medium">
                     {file.name}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                  <div className="text-[11px] text-ink-400">
                     {formatSize(file.size)}
                   </div>
                 </div>
                 <button
                   type="button"
-                  className="btn btn-icon btn-ghost"
+                  className="btn btn-icon btn-ghost size-6"
                   onClick={() => setFile(null)}
                   aria-label="Remove file"
-                  style={{ height: 24, width: 24 }}
                 >
                   <TrashIcon width={13} height={13} />
                 </button>
@@ -145,29 +128,18 @@ export const UploadReportModal = ({
             ) : (
               <div
                 {...getRootProps()}
-                style={{
-                  border: '2px dashed var(--line-strong)',
-                  borderRadius: 8,
-                  padding: '24px 16px',
-                  textAlign: 'center',
-                  color: 'var(--ink-500)',
-                  cursor: 'pointer',
-                  background: isDragActive ? 'var(--accent-50)' : 'transparent',
-                }}
+                className={cn(
+                  'cursor-pointer rounded-lg border-2 border-dashed border-line-strong px-4 py-6 text-center text-ink-500',
+                  isDragActive && 'bg-accent-50',
+                )}
               >
                 <input {...getInputProps()} />
                 <UploadIcon
                   width={20}
                   height={20}
-                  style={{ display: 'block', margin: '0 auto 6px' }}
+                  className="mx-auto mb-1.5 block"
                 />
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: 'var(--ink-700)',
-                  }}
-                >
+                <div className="text-[13px] font-medium text-ink-700">
                   {isDragActive
                     ? 'Drop the PDF here'
                     : 'Drop PDF here or click to browse'}

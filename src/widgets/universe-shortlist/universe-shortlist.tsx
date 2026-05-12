@@ -263,22 +263,15 @@ export const UniverseShortlist = () => {
             Deleted <span className="count">{deletedList.length}</span>
           </div>
           <div className="spacer" />
-          <div style={{ padding: '6px 12px' }}>
-            <div className="input-with-icon" style={{ width: 240 }}>
+          <div className="px-3 py-1.5">
+            <div className="input-with-icon w-60">
               <SearchIcon
                 width={13}
                 height={13}
-                style={{
-                  position: 'absolute',
-                  left: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--ink-400)',
-                }}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400"
               />
               <input
-                className="input"
-                style={{ height: 30, fontSize: 12.5 }}
+                className="input h-[30px] text-[12.5px]"
                 placeholder="Search company\u2026"
                 value={query}
                 onChange={event => setQuery(event.target.value)}
@@ -304,43 +297,19 @@ export const UniverseShortlist = () => {
               {list.map(company => (
                 <tr
                   key={company.id}
-                  style={company.deleted ? { opacity: 0.5 } : undefined}
+                  className={cn(company.deleted && 'opacity-50')}
                 >
                   <td>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 5,
-                          background: 'var(--accent-50)',
-                          color: 'var(--accent)',
-                          display: 'grid',
-                          placeItems: 'center',
-                          fontSize: 10,
-                          fontWeight: 700,
-                          flexShrink: 0,
-                        }}
-                      >
+                    <div className="flex items-center gap-2">
+                      <div className="grid size-6 shrink-0 place-items-center rounded-[5px] bg-accent-50 text-[10px] font-bold text-accent">
                         {company.name.slice(0, INITIALS_LENGTH).toUpperCase()}
                       </div>
                       <div>
                         <div
-                          style={{
-                            fontWeight: 500,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            textDecoration: company.deleted
-                              ? 'line-through'
-                              : 'none',
-                          }}
+                          className={cn(
+                            'inline-flex items-center gap-1.5 font-medium',
+                            company.deleted && 'line-through',
+                          )}
                         >
                           {company.name}
                           {company.manuallyAdded && (
@@ -349,22 +318,16 @@ export const UniverseShortlist = () => {
                             </Badge>
                           )}
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                        <div className="text-[11px] text-ink-400">
                           {company.website}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td
-                    style={{
-                      fontFamily: 'var(--font-mono, monospace)',
-                      fontSize: 12,
-                      color: 'var(--ink-600)',
-                    }}
-                  >
+                  <td className="font-mono text-xs text-ink-700">
                     {deriveRic(company.name, company.country)}
                   </td>
-                  <td style={{ color: 'var(--ink-500)' }}>{company.sector}</td>
+                  <td className="text-ink-500">{company.sector}</td>
                   <td>{company.country}</td>
                   <td className="tnum text-right">
                     &pound;{company.mcap.toFixed(1)}bn
