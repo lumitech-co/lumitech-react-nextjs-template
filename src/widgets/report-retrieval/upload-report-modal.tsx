@@ -159,7 +159,7 @@ export const UploadReportModal = ({
                 <UploadIcon
                   width={20}
                   height={20}
-                  style={{ marginBottom: 6 }}
+                  style={{ display: 'block', margin: '0 auto 6px' }}
                 />
                 <div
                   style={{

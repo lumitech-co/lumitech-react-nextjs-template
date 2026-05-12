@@ -16,6 +16,7 @@ import { cn } from 'shared/lib';
 import { Badge } from 'shared/ui';
 
 import { EditWebsiteModal } from './edit-website-modal';
+import { ReuploadConfirmModal } from './reupload-confirm-modal';
 import { UploadReportModal } from './upload-report-modal';
 
 /* eslint-disable no-magic-numbers */
@@ -50,6 +51,10 @@ export const ReportRetrieval = () => {
   const [filter, setFilter] = useState<Filter>('all');
   const [editWebsite, setEditWebsite] = useState<ICompany | null>(null);
   const [uploadFor, setUploadFor] = useState<{
+    company: ICompany;
+    year: number;
+  } | null>(null);
+  const [reuploadConfirm, setReuploadConfirm] = useState<{
     company: ICompany;
     year: number;
   } | null>(null);
@@ -149,19 +154,35 @@ export const ReportRetrieval = () => {
             {statusBadge(report.status)}
             {(report.status === 'Retrieved' ||
               report.status === 'Manually Uploaded') && (
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                style={{
-                  height: 20,
-                  padding: '0 6px',
-                  fontSize: 11,
-                  color: 'var(--ink-500)',
-                }}
-              >
-                <EyeIcon width={10} height={10} />
-                View
-              </button>
+              <div style={{ display: 'flex', gap: 2 }}>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  style={{
+                    height: 20,
+                    padding: '0 6px',
+                    fontSize: 11,
+                    color: 'var(--accent)',
+                  }}
+                >
+                  <EyeIcon width={10} height={10} />
+                  View
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  style={{
+                    height: 20,
+                    padding: '0 6px',
+                    fontSize: 11,
+                    color: 'var(--accent)',
+                  }}
+                  onClick={() => setReuploadConfirm({ company, year })}
+                >
+                  <UploadIcon width={10} height={10} />
+                  Re-upload
+                </button>
+              </div>
             )}
             {(report.status === 'Not Retrieved' ||
               report.status === 'Not Published') && (
@@ -421,6 +442,20 @@ export const ReportRetrieval = () => {
       <UploadReportModal
         target={uploadFor}
         onClose={() => setUploadFor(null)}
+      />
+
+      <ReuploadConfirmModal
+        target={reuploadConfirm}
+        onClose={() => setReuploadConfirm(null)}
+        onConfirm={() => {
+          const context = reuploadConfirm;
+
+          setReuploadConfirm(null);
+
+          if (context) {
+            setUploadFor(context);
+          }
+        }}
       />
     </div>
   );
