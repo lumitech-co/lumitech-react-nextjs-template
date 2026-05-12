@@ -7,6 +7,7 @@ import {
   CloudIcon,
   DownloadIcon,
   PlusIcon,
+  RefreshIcon,
   SearchIcon,
   TrashIcon,
 } from 'shared/icons';
@@ -15,13 +16,46 @@ import { Badge, useToast } from 'shared/ui';
 
 import { AddCompanyModal } from './add-company-modal';
 
-/* eslint-disable no-magic-numbers */
-
-type Tab = 'shortlist' | 'excluded' | 'all';
+type Tab = 'shortlist' | 'excluded' | 'all' | 'deleted';
 
 const INITIALS_LENGTH = 2;
+const RIC_NAME_LENGTH = 4;
+
+const RIC_EXCHANGE_MAP: Record<string, string> = {
+  UK: 'L',
+  DE: 'DE',
+  FR: 'PA',
+  CH: 'S',
+  NL: 'AS',
+  ES: 'MC',
+  IT: 'MI',
+  SE: 'ST',
+  DK: 'CO',
+  FI: 'HE',
+  NO: 'OL',
+  BE: 'BR',
+  IE: 'I',
+  PT: 'LS',
+  AT: 'VI',
+  US: 'N',
+  TW: 'TW',
+};
+
+const deriveRic = (name: string, country: string): string => {
+  const code = name
+    .replace(/[^A-Za-z]/g, '')
+    .slice(0, RIC_NAME_LENGTH)
+    .toUpperCase();
+  const exchange = RIC_EXCHANGE_MAP[country] || country;
+
+  return `${code}.${exchange}`;
+};
 
 const getStatusBadge = (company: ICompany) => {
+  if (company.deleted) {
+    return <Badge tone="neutral">Deleted</Badge>;
+  }
+
   if (company.excluded) {
     if (company.excludedReason === 'excluded_sector') {
       return <Badge tone="danger">Excluded &middot; sector</Badge>;
@@ -53,11 +87,15 @@ export const UniverseShortlist = () => {
   const toast = useToast();
 
   const shortlisted = useMemo(
-    () => companies.filter(company => !company.excluded),
+    () => companies.filter(company => !company.excluded && !company.deleted),
     [companies],
   );
   const excluded = useMemo(
-    () => companies.filter(company => company.excluded),
+    () => companies.filter(company => company.excluded && !company.deleted),
+    [companies],
+  );
+  const deletedList = useMemo(
+    () => companies.filter(company => company.deleted),
     [companies],
   );
 
@@ -68,6 +106,10 @@ export const UniverseShortlist = () => {
 
     if (tab === 'excluded') {
       return excluded;
+    }
+
+    if (tab === 'deleted') {
+      return deletedList;
     }
 
     return companies;
@@ -97,8 +139,24 @@ export const UniverseShortlist = () => {
 
   const removeCo = useCallback(
     (companyId: string) => {
-      setCompanies(prev => prev.filter(company => company.id !== companyId));
-      toast('Company removed from shortlist');
+      setCompanies(prev =>
+        prev.map(company =>
+          company.id === companyId ? { ...company, deleted: true } : company,
+        ),
+      );
+      toast('Company moved to Deleted \u00B7 use Restore to bring it back');
+    },
+    [toast],
+  );
+
+  const restoreCo = useCallback(
+    (companyId: string) => {
+      setCompanies(prev =>
+        prev.map(company =>
+          company.id === companyId ? { ...company, deleted: false } : company,
+        ),
+      );
+      toast('Company restored', { tone: 'success' });
     },
     [toast],
   );
@@ -198,23 +256,22 @@ export const UniverseShortlist = () => {
           >
             All <span className="count">{companies.length}</span>
           </div>
+          <div
+            className={cn('tab', tab === 'deleted' && 'active')}
+            onClick={() => setTab('deleted')}
+          >
+            Deleted <span className="count">{deletedList.length}</span>
+          </div>
           <div className="spacer" />
-          <div style={{ padding: '6px 12px' }}>
-            <div className="input-with-icon" style={{ width: 240 }}>
+          <div className="px-3 py-1.5">
+            <div className="input-with-icon w-60">
               <SearchIcon
                 width={13}
                 height={13}
-                style={{
-                  position: 'absolute',
-                  left: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--ink-400)',
-                }}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400"
               />
               <input
-                className="input"
-                style={{ height: 30, fontSize: 12.5 }}
+                className="input h-[30px] text-[12.5px]"
                 placeholder="Search company\u2026"
                 value={query}
                 onChange={event => setQuery(event.target.value)}
@@ -227,39 +284,32 @@ export const UniverseShortlist = () => {
           <table className="tbl">
             <thead>
               <tr>
-                <th className="text-right">Company</th>
-                <th className="text-right">Supersector</th>
-                <th className="text-right">Country</th>
+                <th>Company</th>
+                <th>RIC</th>
+                <th>Supersector</th>
+                <th>Country</th>
                 <th className="text-right">Market cap</th>
-                <th className="text-right">Weight</th>
-                <th className="text-right">Source</th>
-                <th className="text-right">Status</th>
-                {tab === 'shortlist' && (
-                  <th className="col-actions" aria-label="Actions" />
-                )}
+                <th>Status</th>
+                <th className="col-actions" aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
               {list.map(company => (
-                <tr key={company.id}>
-                  <td className="text-right">
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        justifyContent: 'flex-end',
-                      }}
-                    >
-                      <div style={{ textAlign: 'right' }}>
+                <tr
+                  key={company.id}
+                  className={cn(company.deleted && 'opacity-50')}
+                >
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <div className="grid size-6 shrink-0 place-items-center rounded-[5px] bg-accent-50 text-[10px] font-bold text-accent">
+                        {company.name.slice(0, INITIALS_LENGTH).toUpperCase()}
+                      </div>
+                      <div>
                         <div
-                          style={{
-                            fontWeight: 500,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            justifyContent: 'flex-end',
-                          }}
+                          className={cn(
+                            'inline-flex items-center gap-1.5 font-medium',
+                            company.deleted && 'line-through',
+                          )}
                         >
                           {company.name}
                           {company.manuallyAdded && (
@@ -268,52 +318,35 @@ export const UniverseShortlist = () => {
                             </Badge>
                           )}
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                        <div className="text-[11px] text-ink-400">
                           {company.website}
                         </div>
                       </div>
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 5,
-                          background: 'var(--accent-50)',
-                          color: 'var(--accent)',
-                          display: 'grid',
-                          placeItems: 'center',
-                          fontSize: 10,
-                          fontWeight: 700,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {company.name.slice(0, INITIALS_LENGTH).toUpperCase()}
-                      </div>
                     </div>
                   </td>
-                  <td
-                    className="text-right"
-                    style={{ color: 'var(--ink-500)' }}
-                  >
-                    {company.sector}
+                  <td className="font-mono text-xs text-ink-700">
+                    {deriveRic(company.name, company.country)}
                   </td>
-                  <td className="text-right">{company.country}</td>
+                  <td className="text-ink-500">{company.sector}</td>
+                  <td>{company.country}</td>
                   <td className="tnum text-right">
                     &pound;{company.mcap.toFixed(1)}bn
                   </td>
-                  <td className="tnum text-right">
-                    {company.weight.toFixed(2)}%
-                  </td>
-                  <td className="text-right">
-                    <span
-                      className="badge badge-neutral"
-                      style={{ textTransform: 'none' }}
-                    >
-                      {company.sourceListing || 'STOXX 600'}
-                    </span>
-                  </td>
-                  <td className="text-right">{getStatusBadge(company)}</td>
-                  {tab === 'shortlist' && (
-                    <td className="col-actions">
+                  <td>{getStatusBadge(company)}</td>
+                  <td className="col-actions">
+                    {company.deleted && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => restoreCo(company.id)}
+                        title="Restore"
+                        aria-label="Restore company"
+                      >
+                        <RefreshIcon width={11} height={11} />
+                        Restore
+                      </button>
+                    )}
+                    {!company.deleted && tab === 'shortlist' && (
                       <button
                         type="button"
                         className="btn btn-icon btn-ghost"
@@ -323,8 +356,8 @@ export const UniverseShortlist = () => {
                       >
                         <TrashIcon width={13} height={13} />
                       </button>
-                    </td>
-                  )}
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

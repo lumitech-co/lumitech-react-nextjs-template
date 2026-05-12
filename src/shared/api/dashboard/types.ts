@@ -72,6 +72,7 @@ export interface ICompany {
   website: string;
   sourceListing: string;
   reports: IReport[];
+  deleted?: boolean;
 }
 
 export type ActivityTone = 'default' | 'success' | 'warning' | 'danger';
