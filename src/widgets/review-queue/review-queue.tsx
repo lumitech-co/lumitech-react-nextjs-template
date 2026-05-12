@@ -40,7 +40,7 @@ const flagLabel = (flag: string) => {
   return 'Missing';
 };
 
-const pdfFieldHeading = (field: string) => {
+const sourceFieldHeading = (field: string) => {
   if (field === 'EBITDA') {
     return 'Group EBITDA';
   }
@@ -57,7 +57,7 @@ const pdfFieldHeading = (field: string) => {
     return 'Borrowings';
   }
 
-  return field;
+  return 'Financial highlights';
 };
 
 export const ReviewQueue = () => {
@@ -121,16 +121,8 @@ export const ReviewQueue = () => {
   };
 
   return (
-    <div
-      className="content"
-      style={{
-        paddingBottom: 0,
-        height: 'calc(100vh - 56px)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <div className="page-header between" style={{ flexShrink: 0 }}>
+    <div className="content flex h-[calc(100vh-56px)] flex-col pb-0">
+      <div className="page-header between shrink-0">
         <div>
           <div className="page-title">Review Queue</div>
           <div className="page-sub">
@@ -153,26 +145,10 @@ export const ReviewQueue = () => {
 
       <ReExtractionBanner run={run} />
 
-      <div
-        className="card"
-        style={{
-          flex: 1,
-          display: 'grid',
-          gridTemplateColumns: '400px 1fr',
-          minHeight: 0,
-          marginBottom: 24,
-        }}
-      >
+      <div className="card mb-6 grid min-h-0 flex-1 grid-cols-[400px_1fr]">
         {/* Queue list */}
-        <div
-          style={{
-            borderRight: '1px solid var(--line)',
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 0,
-          }}
-        >
-          <div className="tabs" style={{ padding: '0 8px' }}>
+        <div className="flex min-h-0 flex-col border-r border-line">
+          <div className="tabs px-2">
             <div
               className={cn('tab', filter === 'all' && 'active')}
               onClick={() => setFilter('all')}
@@ -198,13 +174,13 @@ export const ReviewQueue = () => {
               Missing <span className="count">{counts.missing}</span>
             </div>
           </div>
-          <div style={{ flex: 1, overflow: 'auto' }}>
+          <div className="flex-1 overflow-auto">
             {filtered.length === 0 ? (
               <div className="empty">
                 <CheckIcon
                   width={28}
                   height={28}
-                  style={{ color: 'var(--success)', marginBottom: 8 }}
+                  className="mb-2 text-success"
                 />
                 <div className="empty-title">All clear</div>
                 <div>No flagged items in this view.</div>
@@ -214,32 +190,25 @@ export const ReviewQueue = () => {
                 <div
                   key={reviewItem.id}
                   onClick={() => setSelectedId(reviewItem.id)}
-                  style={{
-                    padding: '12px 16px',
-                    borderBottom: '1px solid var(--line)',
-                    cursor: 'pointer',
-                    background:
-                      selected?.id === reviewItem.id
-                        ? 'var(--accent-50)'
-                        : 'transparent',
-                    borderLeft:
-                      selected?.id === reviewItem.id
-                        ? '3px solid var(--accent)'
-                        : '3px solid transparent',
-                  }}
+                  className={cn(
+                    'cursor-pointer border-b border-line px-4 py-3',
+                    selected?.id === reviewItem.id
+                      ? 'border-l-[3px] border-l-accent bg-accent-50'
+                      : 'border-l-[3px] border-l-transparent',
+                  )}
                 >
-                  <div className="row between" style={{ marginBottom: 4 }}>
+                  <div className="row between mb-1">
                     <Badge tone={flagBadgeTone(reviewItem.flag)}>
                       {flagLabel(reviewItem.flag)}
                     </Badge>
-                    <span style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                    <span className="text-[11px] text-ink-400">
                       FY{reviewItem.year}
                     </span>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>
+                  <div className="text-[13px] font-medium">
                     {reviewItem.company}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>
+                  <div className="text-xs text-ink-500">
                     {reviewItem.field} &middot;{' '}
                     <span className="tnum">
                       {reviewItem.value === ND_VALUE
@@ -247,14 +216,7 @@ export const ReviewQueue = () => {
                         : `${reviewItem.currency} ${reviewItem.value}m`}
                     </span>
                   </div>
-                  <div
-                    style={{
-                      fontSize: 11.5,
-                      color: 'var(--ink-400)',
-                      marginTop: 4,
-                      lineHeight: 1.4,
-                    }}
-                  >
+                  <div className="mt-1 text-[11.5px] leading-snug text-ink-400">
                     {reviewItem.reason}
                   </div>
                 </div>
@@ -264,90 +226,44 @@ export const ReviewQueue = () => {
         </div>
 
         {/* Detail / source */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 0,
-          }}
-        >
+        <div className="flex min-h-0 flex-col">
           {selected ? (
             <>
               {/* Detail header */}
-              <div
-                style={{
-                  padding: '14px 20px',
-                  borderBottom: '1px solid var(--line)',
-                  flexShrink: 0,
-                }}
-              >
-                <div className="row gap-8" style={{ marginBottom: 6 }}>
+              <div className="shrink-0 border-b border-line px-5 py-3.5">
+                <div className="row mb-1.5 gap-8">
                   <Badge tone={flagBadgeTone(selected.flag)}>
                     {flagLabel(selected.flag)}
                   </Badge>
-                  <span style={{ fontSize: 12, color: 'var(--ink-500)' }}>
+                  <span className="text-xs text-ink-500">
                     {selected.company} &middot; {selected.field} &middot; FY
                     {selected.year}
                   </span>
                 </div>
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                    letterSpacing: '-0.01em',
-                  }}
-                >
+                <div className="text-lg font-semibold tracking-tight">
                   {selected.value === ND_VALUE ? (
-                    <span style={{ color: 'var(--ink-400)' }}>
-                      No value extracted
-                    </span>
+                    <span className="text-ink-400">No value extracted</span>
                   ) : (
                     <>
                       <span className="tnum">{selected.value}</span>{' '}
-                      <span
-                        style={{
-                          color: 'var(--ink-500)',
-                          fontWeight: 500,
-                          fontSize: 14,
-                        }}
-                      >
+                      <span className="text-sm font-medium text-ink-500">
                         {selected.currency} (millions)
                       </span>
                     </>
                   )}
                 </div>
-                <div
-                  style={{
-                    fontSize: 12.5,
-                    color: 'var(--ink-500)',
-                    marginTop: 4,
-                  }}
-                >
+                <div className="mt-1 text-[12.5px] text-ink-500">
                   {selected.reason}
                 </div>
               </div>
 
-              {/* PDF mock */}
-              <div
-                style={{
-                  flex: 1,
-                  overflow: 'auto',
-                  padding: '16px 20px',
-                  background: 'var(--surface-2)',
-                  minHeight: 0,
-                }}
-              >
+              {/* Source reference (text-based) */}
+              <div className="min-h-0 flex-1 overflow-auto bg-surface-2 px-5 py-4">
                 {selected.page ? (
-                  <>
-                    <div className="row between" style={{ marginBottom: 10 }}>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: 'var(--ink-500)',
-                        }}
-                      >
-                        Source: <strong>Annual Report {selected.year}</strong>{' '}
-                        &middot; Page {selected.page}
+                  <div className="mx-auto max-w-[560px]">
+                    <div className="row between mb-3.5">
+                      <div className="text-xs text-ink-500">
+                        Source reference
                       </div>
                       <button
                         type="button"
@@ -357,81 +273,55 @@ export const ReviewQueue = () => {
                         Open Full PDF
                       </button>
                     </div>
-                    <div
-                      className="pdf-page"
-                      style={{ maxWidth: 540, margin: '0 auto' }}
-                    >
-                      <h2>{pdfFieldHeading(selected.field)}</h2>
-                      <p>
-                        The Group continued to deliver strong financial
-                        performance in {selected.year}, supported by sustained
-                        organic growth across all divisions and disciplined cost
-                        management. Underlying margin expansion in the second
-                        half offset transitory headwinds from input cost
-                        inflation in the first quarter.
-                      </p>
-                      <h3>Financial highlights</h3>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>{selected.currency} millions</th>
-                            <th style={{ textAlign: 'right' }}>
-                              FY{selected.year}
-                            </th>
-                            <th style={{ textAlign: 'right' }}>
-                              FY{selected.year - 1}
-                            </th>
-                            <th style={{ textAlign: 'right' }}>Change</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Revenue</td>
-                            <td style={{ textAlign: 'right' }}>43,480</td>
-                            <td style={{ textAlign: 'right' }}>40,612</td>
-                            <td style={{ textAlign: 'right' }}>+7.1%</td>
-                          </tr>
-                          <tr>
-                            <td>Gross profit</td>
-                            <td style={{ textAlign: 'right' }}>32,180</td>
-                            <td style={{ textAlign: 'right' }}>29,840</td>
-                            <td style={{ textAlign: 'right' }}>+7.8%</td>
-                          </tr>
-                          <tr style={{ background: '#FFF8DC' }}>
-                            <td>
-                              <strong>{selected.field}</strong>
-                            </td>
-                            <td style={{ textAlign: 'right' }}>
-                              <span className="pdf-highlight">
-                                {selected.value}
-                              </span>
-                            </td>
-                            <td style={{ textAlign: 'right' }}>7,820</td>
-                            <td style={{ textAlign: 'right' }}>+7.7%</td>
-                          </tr>
-                          <tr>
-                            <td>Net income</td>
-                            <td style={{ textAlign: 'right' }}>6,420</td>
-                            <td style={{ textAlign: 'right' }}>5,840</td>
-                            <td style={{ textAlign: 'right' }}>+9.9%</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      <h3>Commentary</h3>
-                      <p>{selected.evidence || '\u2014'}</p>
-                      <p
-                        style={{
-                          color: '#888',
-                          fontSize: 9,
-                          marginTop: 24,
-                          textAlign: 'center',
-                        }}
-                      >
-                        {selected.page} | {selected.company} Annual Report{' '}
-                        {selected.year}
-                      </p>
+
+                    <div className="mb-3 rounded-lg border border-line bg-white px-4 py-3.5">
+                      <div className="mb-1.5 text-[11px] font-medium uppercase tracking-widest text-ink-500">
+                        Location
+                      </div>
+                      <div className="text-[13px] leading-relaxed">
+                        <strong>Annual Report {selected.year}</strong>
+                        <br />
+                        Page {selected.page} &middot;{' '}
+                        {sourceFieldHeading(selected.field)} table
+                      </div>
                     </div>
-                  </>
+
+                    <div className="mb-3 rounded-lg border border-line bg-white px-4 py-3.5">
+                      <div className="mb-2 text-[11px] font-medium uppercase tracking-widest text-ink-500">
+                        Extracted value in context
+                      </div>
+                      <div className="text-[13px] leading-loose text-ink-700">
+                        <span className="text-ink-400">
+                          &hellip; {selected.field} for the year was{' '}
+                        </span>
+                        {selected.value === ND_VALUE ? (
+                          <span className="italic text-ink-400">
+                            (value not found in source)
+                          </span>
+                        ) : (
+                          <span className="rounded bg-[#FFF7E0] px-1.5 py-0.5 font-semibold text-ink-900">
+                            {selected.value} {selected.currency} millions
+                          </span>
+                        )}
+                        <span className="text-ink-400">
+                          , compared with the prior year. Changes were driven by
+                          organic growth across all divisions, partially offset
+                          by input cost inflation in the first quarter&hellip;
+                        </span>
+                      </div>
+                    </div>
+
+                    {selected.evidence && (
+                      <div className="rounded-lg border border-line bg-white px-4 py-3.5">
+                        <div className="mb-2 text-[11px] font-medium uppercase tracking-widest text-ink-500">
+                          AI evidence
+                        </div>
+                        <div className="text-[12.5px] italic leading-relaxed text-ink-700">
+                          &ldquo;{selected.evidence}&rdquo;
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="empty">
                     <div className="empty-title">No source page available</div>
@@ -445,17 +335,10 @@ export const ReviewQueue = () => {
               </div>
 
               {/* Actions */}
-              <div
-                style={{
-                  padding: '14px 20px',
-                  borderTop: '1px solid var(--line)',
-                  background: '#fff',
-                  flexShrink: 0,
-                }}
-              >
+              <div className="shrink-0 border-t border-line bg-white px-5 py-3.5">
                 <div className="col gap-12">
                   <div className="row gap-12">
-                    <div className="field" style={{ flex: 1 }}>
+                    <div className="field flex-1">
                       <label className="label">
                         Manual value (in millions, {selected.currency})
                       </label>
@@ -472,8 +355,7 @@ export const ReviewQueue = () => {
                     </div>
                     <button
                       type="button"
-                      className="btn btn-secondary"
-                      style={{ alignSelf: 'flex-end' }}
+                      className="btn btn-secondary self-end"
                       disabled={!manualValue}
                       onClick={() => handleAction('manual')}
                     >
@@ -511,15 +393,8 @@ export const ReviewQueue = () => {
               </div>
             </>
           ) : (
-            <div className="empty" style={{ margin: 'auto' }}>
-              <CheckIcon
-                width={40}
-                height={40}
-                style={{
-                  color: 'var(--success)',
-                  marginBottom: 12,
-                }}
-              />
+            <div className="empty m-auto">
+              <CheckIcon width={40} height={40} className="mb-3 text-success" />
               <div className="empty-title">Review queue is empty</div>
               <div>All flagged values have been reviewed.</div>
             </div>
