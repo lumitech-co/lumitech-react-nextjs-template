@@ -2,32 +2,23 @@
 
 import { useMemo, useState } from 'react';
 
-import {
-  DEFAULT_SCREENING,
-  ICompany,
-  ITemplateField,
-  MOCK_COMPANIES,
-  MOCK_TEMPLATE_FIELDS,
-} from 'shared/api';
-import {
-  CheckIcon,
-  RefreshIcon,
-  SearchIcon,
-  SparkleIcon,
-  XIcon,
-} from 'shared/icons';
+import { useGetExtractionFields } from 'entities';
+
+import { useConfidenceThreshold, useExtractionFieldForm } from 'features';
+import { ICompany, MOCK_COMPANIES } from 'shared/api';
+import { CheckIcon, RefreshIcon, SearchIcon, XIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
 import { Badge, Modal, useToast } from 'shared/ui';
 
 const RANGE_MIN = 50;
 const RANGE_MAX = 100;
 const RULES_ROWS = 6;
+const PAGE_LIMIT = 20;
 
 export const ExtractionFields = () => {
-  const [fields, setFields] = useState<ITemplateField[]>(MOCK_TEMPLATE_FIELDS);
-  const [selectedId, setSelectedId] = useState(MOCK_TEMPLATE_FIELDS[0]?.id);
-  const [threshold, setThreshold] = useState(DEFAULT_SCREENING.threshold);
-  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReExtract, setShowReExtract] = useState(false);
   const [reExtractMode, setReExtractMode] = useState<'all' | 'selected'>('all');
   const [reExtractSelected, setReExtractSelected] = useState<
@@ -36,19 +27,33 @@ export const ExtractionFields = () => {
   const [reExtractQuery, setReExtractQuery] = useState('');
   const toast = useToast();
 
-  const selected = fields.find(field => field.id === selectedId) ?? null;
+  const { data: fieldsResponse, isLoading: isFieldsLoading } =
+    useGetExtractionFields({
+      page,
+      limit: PAGE_LIMIT,
+      search: search || undefined,
+    });
 
-  const filteredFields = useMemo(() => {
-    if (!query.trim()) {
-      return fields;
-    }
+  const fields = fieldsResponse?.data ?? [];
+  const totalCount = fieldsResponse?.totalCount ?? 0;
+  const hasNextPage = fieldsResponse?.hasNextPage ?? false;
 
-    const lowerQuery = query.trim().toLowerCase();
+  const {
+    form,
+    field: selectedField,
+    allSynonyms,
+    addedSynonyms,
+    addSynonym,
+    removeSynonym,
+    onSubmit,
+    isSaving,
+  } = useExtractionFieldForm(selectedId);
 
-    return fields.filter(field =>
-      field.label.toLowerCase().includes(lowerQuery),
-    );
-  }, [fields, query]);
+  const { threshold, setThreshold, saveThreshold } = useConfidenceThreshold();
+
+  const handleFieldSelect = (id: string) => {
+    setSelectedId(id);
+  };
 
   const eligibleCompanies = useMemo(
     () =>
@@ -58,32 +63,6 @@ export const ExtractionFields = () => {
       ),
     [],
   );
-
-  const updateField = (patch: Partial<ITemplateField>) => {
-    setFields(current =>
-      current.map(field =>
-        field.id === selectedId ? { ...field, ...patch } : field,
-      ),
-    );
-  };
-
-  const addSynonym = (synonym: string) => {
-    if (!selected) {
-      return;
-    }
-
-    updateField({ synonyms: [...selected.synonyms, synonym] });
-  };
-
-  const removeSynonym = (synonym: string) => {
-    if (!selected) {
-      return;
-    }
-
-    updateField({
-      synonyms: selected.synonyms.filter(existing => existing !== synonym),
-    });
-  };
 
   const handleSynonymKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
@@ -142,6 +121,11 @@ export const ExtractionFields = () => {
   const reExtractSelectedCount =
     Object.values(reExtractSelected).filter(Boolean).length;
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
   return (
     <div className="content">
       <div className="page-header between">
@@ -155,7 +139,7 @@ export const ExtractionFields = () => {
         </div>
         <div className="page-actions">
           <Badge tone="info" withDot={false}>
-            {fields.length} fields from template
+            {totalCount} fields from template
           </Badge>
         </div>
       </div>
@@ -177,6 +161,8 @@ export const ExtractionFields = () => {
               step="1"
               value={threshold}
               onChange={event => setThreshold(parseInt(event.target.value, 10))}
+              onMouseUp={saveThreshold}
+              onTouchEnd={saveThreshold}
               className="flex-1 accent-accent"
             />
             <div className="min-w-[50px] text-right text-lg font-semibold tabular-nums">
@@ -197,27 +183,32 @@ export const ExtractionFields = () => {
               />
               <input
                 className="input h-8 pl-[30px] text-xs"
-                placeholder={`Search ${fields.length} fields\u2026`}
-                value={query}
-                onChange={event => setQuery(event.target.value)}
+                placeholder={`Search fields\u2026`}
+                value={search}
+                onChange={event => handleSearchChange(event.target.value)}
               />
             </div>
-            {query.trim() && (
+            {search.trim() && (
               <div className="mt-1.5 pl-0.5 text-[11px] text-ink-500">
-                {filteredFields.length} of {fields.length} fields
+                {fields.length} of {totalCount} fields
               </div>
             )}
           </div>
           <div className="flex-1 overflow-auto">
-            {filteredFields.length === 0 && (
-              <div className="p-5 px-4 text-center text-xs italic text-ink-400">
-                No fields match &ldquo;{query}&rdquo;
+            {isFieldsLoading && (
+              <div className="p-5 px-4 text-center text-xs text-ink-400">
+                Loading fields&hellip;
               </div>
             )}
-            {filteredFields.map(field => (
+            {!isFieldsLoading && fields.length === 0 && (
+              <div className="p-5 px-4 text-center text-xs italic text-ink-400">
+                No fields match &ldquo;{search}&rdquo;
+              </div>
+            )}
+            {fields.map(field => (
               <div
                 key={field.id}
-                onClick={() => setSelectedId(field.id)}
+                onClick={() => handleFieldSelect(field.id)}
                 className={cn(
                   'flex cursor-pointer items-center gap-2 border-b border-line px-4 py-2.5',
                   selectedId === field.id
@@ -227,63 +218,86 @@ export const ExtractionFields = () => {
               >
                 <div className="min-w-0 flex-1">
                   <div className="text-[12.5px] font-medium leading-snug">
-                    {field.label}
+                    {field.displayName}
                   </div>
                   <div className="mt-0.5 text-[11px] text-ink-500">
-                    {field.synonyms.length} synonym
-                    {field.synonyms.length === 1 ? '' : 's'} &middot;{' '}
-                    {field.rules.filter(rule => rule.trim()).length} rule
-                    {field.rules.filter(rule => rule.trim()).length === 1
-                      ? ''
-                      : 's'}
-                    {field.hint ? ' \u00B7 hint' : ''}
+                    {field.synonymsCount} synonym
+                    {field.synonymsCount === 1 ? '' : 's'} &middot;{' '}
+                    {field.rulesCount} rule
+                    {field.rulesCount === 1 ? '' : 's'}
                   </div>
                 </div>
-                {field.hint && (
-                  <SparkleIcon
-                    width={12}
-                    height={12}
-                    className="shrink-0 text-accent"
-                  />
-                )}
               </div>
             ))}
           </div>
+          {(hasNextPage || page > 1) && (
+            <div className="flex shrink-0 items-center justify-between border-t border-line px-3 py-2">
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                disabled={page <= 1}
+                onClick={() => setPage(current => current - 1)}
+              >
+                Prev
+              </button>
+              <span className="text-[11px] text-ink-500">Page {page}</span>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                disabled={!hasNextPage}
+                onClick={() => setPage(current => current + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="overflow-auto p-6">
-          {selected && (
-            <div className="col gap-4">
+          {selectedField && (
+            <form onSubmit={onSubmit} className="col gap-4">
               <div>
                 <div className="text-[11.5px] font-semibold uppercase tracking-wide text-ink-400">
                   Field
                 </div>
                 <div className="mt-1 text-xl font-semibold tracking-tight">
-                  {selected.label}
+                  {selectedField.displayName}
                 </div>
+                {selectedField.category && (
+                  <div className="mt-0.5 text-xs text-ink-500">
+                    {selectedField.category}
+                  </div>
+                )}
               </div>
 
               <div className="field">
                 <label className="label">Synonyms / alternative wording</label>
                 <div className="hint">
                   Terms that the AI should treat as equivalent to &ldquo;
-                  {selected.label}&rdquo;.
+                  {selectedField.displayName}&rdquo;.
                 </div>
                 <div className="flex min-h-[42px] flex-wrap gap-1.5 rounded-md border border-line-strong bg-white p-2">
-                  {selected.synonyms.map(synonym => (
+                  {allSynonyms.map(synonym => (
                     <span
                       key={synonym}
-                      className="badge badge-accent gap-1.5 py-[3px] pl-2.5 pr-1.5"
+                      className={cn(
+                        'badge gap-1.5 py-[3px] pl-2.5 pr-1.5',
+                        addedSynonyms.includes(synonym)
+                          ? 'badge-accent'
+                          : 'badge-accent opacity-70',
+                      )}
                     >
                       {synonym}
-                      <button
-                        type="button"
-                        onClick={() => removeSynonym(synonym)}
-                        className="flex cursor-pointer border-none bg-transparent p-0 text-inherit"
-                        aria-label={`Remove synonym ${synonym}`}
-                      >
-                        <XIcon width={10} height={10} />
-                      </button>
+                      {addedSynonyms.includes(synonym) && (
+                        <button
+                          type="button"
+                          onClick={() => removeSynonym(synonym)}
+                          className="flex cursor-pointer border-none bg-transparent p-0 text-inherit"
+                          aria-label={`Remove synonym ${synonym}`}
+                        >
+                          <XIcon width={10} height={10} />
+                        </button>
+                      )}
                     </span>
                   ))}
                   <input
@@ -302,8 +316,7 @@ export const ExtractionFields = () => {
                 </div>
                 <textarea
                   className="textarea"
-                  value={selected.hint}
-                  onChange={event => updateField({ hint: event.target.value })}
+                  {...form.register('aiHint')}
                   placeholder="e.g. Prefer reported figures over adjusted unless only adjusted is available."
                 />
               </div>
@@ -317,13 +330,10 @@ export const ExtractionFields = () => {
                 </div>
                 <textarea
                   className="textarea min-h-[120px] font-[inherit] text-[12.5px] leading-relaxed"
-                  value={selected.rules.join('\n')}
+                  {...form.register('validationRules')}
                   rows={RULES_ROWS}
                   placeholder={
                     'One rule per line. For example:\nSource: Income Statement section of the Annual Report.\nShould be \u2264 Revenue. If exceeded, flag as inconsistency.\nNegative values should be flagged as sign error.'
-                  }
-                  onChange={event =>
-                    updateField({ rules: event.target.value.split('\n') })
                   }
                 />
               </div>
@@ -338,18 +348,19 @@ export const ExtractionFields = () => {
                   Re-extract Companies
                 </button>
                 <button
-                  type="button"
+                  type="submit"
                   className="btn btn-primary"
-                  onClick={() =>
-                    toast('Saved \u00B7 applies to next extraction', {
-                      tone: 'success',
-                    })
-                  }
+                  disabled={isSaving}
                 >
                   <CheckIcon width={13} height={13} />
-                  Save Changes
+                  {isSaving ? 'Saving\u2026' : 'Save Changes'}
                 </button>
               </div>
+            </form>
+          )}
+          {!selectedField && !selectedId && (
+            <div className="flex h-full items-center justify-center text-sm text-ink-400">
+              Select a field from the list to edit its configuration
             </div>
           )}
         </div>
