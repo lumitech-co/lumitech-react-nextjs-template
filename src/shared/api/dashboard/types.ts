@@ -1,3 +1,5 @@
+import { ReportStatus, Sector } from 'shared/constants';
+
 export type Stage =
   | 'queued'
   | 'screening'
@@ -53,14 +55,14 @@ export type ExcludedReason =
 
 export interface IReport {
   year: number;
-  status: string;
+  status: ReportStatus | string;
   page: number;
 }
 
 export interface ICompany {
   id: string;
   name: string;
-  sector: string;
+  sector: Sector | string;
   country: string;
   weight: number;
   mcap: number;
@@ -108,7 +110,7 @@ export interface ISummaryRow {
 }
 
 export interface IScreeningRules {
-  excludedSectors: string[];
+  excludedSectors: (Sector | string)[];
   minMcap: number;
   threshold: number;
 }

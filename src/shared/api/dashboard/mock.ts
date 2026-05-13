@@ -1,4 +1,6 @@
 /* eslint-disable no-magic-numbers */
+import { Sector } from 'shared/constants';
+
 import {
   ExcludedReason,
   IActivityItem,
@@ -394,28 +396,7 @@ export const HISTORICAL_SUMMARY_ROWS: ISummaryRow[] = [
   { company: 'Nestlé', ric: 'NESN.S', total: 7.1, conviction: 85 },
 ];
 
-export const SUPERSECTORS = [
-  'Technology',
-  'Health Care',
-  'Industrial Goods & Services',
-  'Personal & Household Goods',
-  'Food, Beverage & Tobacco',
-  'Consumer Products & Services',
-  'Telecommunications',
-  'Utilities',
-  'Construction & Materials',
-  'Chemicals',
-  'Automobiles & Parts',
-  'Travel & Leisure',
-  'Retail',
-  'Media',
-  'Oil & Gas',
-  'Basic Resources',
-  'Banks',
-  'Insurance',
-  'Real Estate',
-  'Financial Services',
-];
+export const SUPERSECTORS = Object.values(Sector);
 
 export const DEFAULT_SCREENING: IScreeningRules = {
   excludedSectors: [...EXCLUDED_SECTORS],
