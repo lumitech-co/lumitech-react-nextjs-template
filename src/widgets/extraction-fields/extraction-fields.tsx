@@ -7,7 +7,7 @@ import { useGetExtractionFields } from 'entities';
 import { useConfidenceThreshold, useExtractionFieldForm } from 'features';
 import { ICompany, MOCK_COMPANIES } from 'shared/api';
 import { CheckIcon, RefreshIcon, SearchIcon, XIcon } from 'shared/icons';
-import { cn } from 'shared/lib';
+import { cn, useDebounce } from 'shared/lib';
 import { Badge, Modal, useToast } from 'shared/ui';
 
 const RANGE_MIN = 50;
@@ -18,6 +18,7 @@ const PAGE_LIMIT = 20;
 export const ExtractionFields = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReExtract, setShowReExtract] = useState(false);
   const [reExtractMode, setReExtractMode] = useState<'all' | 'selected'>('all');
@@ -31,7 +32,7 @@ export const ExtractionFields = () => {
     useGetExtractionFields({
       page,
       limit: PAGE_LIMIT,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
     });
 
   const fields = fieldsResponse?.data ?? [];

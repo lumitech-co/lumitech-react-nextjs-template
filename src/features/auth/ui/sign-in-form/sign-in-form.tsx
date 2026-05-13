@@ -62,7 +62,7 @@ export const SignInForm = ({
         </div>
       )}
 
-      <div className="col gap-12">
+      <div className="col gap-3">
         <Field label="Email">
           <IconInput
             icon={<MailIcon className="h-3.5 w-3.5" />}
