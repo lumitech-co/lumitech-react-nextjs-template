@@ -26,6 +26,8 @@ export const StageChip = ({ stage }: IStageChipProps) => {
   }
 
   return (
-    <span className={`pipe-stage ${cls}`}>{STAGE_LABELS[stage] || stage}</span>
+    <span className={`pipe-stage w-fit ${cls}`}>
+      {STAGE_LABELS[stage] || stage}
+    </span>
   );
 };
