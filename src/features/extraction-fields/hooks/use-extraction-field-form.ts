@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useGetExtractionField, useUpdateExtractionField } from 'entities';
@@ -19,7 +19,7 @@ export const useExtractionFieldForm = (selectedId: string | null) => {
   const updateMutation = useUpdateExtractionField();
   const toast = useToast();
 
-  const [addedSynonyms, setAddedSynonyms] = useState<string[]>([]);
+  const [synonyms, setSynonyms] = useState<string[]>([]);
 
   const form = useForm<ExtractionFieldFormData>({
     resolver: zodResolver(extractionFieldSchema),
@@ -35,34 +35,22 @@ export const useExtractionFieldForm = (selectedId: string | null) => {
           .map(rule => rule.ruleText)
           .join('\n'),
       });
-      setAddedSynonyms([]);
+      setSynonyms(field.fieldSynonyms.map(synonym => synonym.synonymText));
     }
   }, [field, form]);
-
-  const allSynonyms = useMemo(() => {
-    if (!field) {
-      return [];
-    }
-
-    const existing = field.fieldSynonyms.map(synonym => synonym.synonymText);
-
-    return [...existing, ...addedSynonyms];
-  }, [field, addedSynonyms]);
 
   const addSynonym = (synonym: string) => {
     const trimmed = synonym.trim();
 
-    if (!trimmed || allSynonyms.includes(trimmed)) {
+    if (!trimmed || synonyms.includes(trimmed)) {
       return;
     }
 
-    setAddedSynonyms(current => [...current, trimmed]);
+    setSynonyms(current => [...current, trimmed]);
   };
 
   const removeSynonym = (synonym: string) => {
-    setAddedSynonyms(current =>
-      current.filter(existing => existing !== synonym),
-    );
+    setSynonyms(current => current.filter(existing => existing !== synonym));
   };
 
   const onSubmit = form.handleSubmit(async (data: ExtractionFieldFormData) => {
@@ -79,12 +67,11 @@ export const useExtractionFieldForm = (selectedId: string | null) => {
       id: selectedId,
       data: {
         aiHint: data.aiHint || null,
-        ...(addedSynonyms.length > 0 && { synonyms: addedSynonyms }),
+        synonyms,
         validationRules,
       },
     });
 
-    setAddedSynonyms([]);
     toast('Saved \u00B7 applies to next extraction', { tone: 'success' });
   });
 
@@ -92,8 +79,7 @@ export const useExtractionFieldForm = (selectedId: string | null) => {
     form,
     field,
     isLoading,
-    allSynonyms,
-    addedSynonyms,
+    synonyms,
     addSynonym,
     removeSynonym,
     onSubmit,

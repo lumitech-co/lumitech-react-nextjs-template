@@ -42,8 +42,7 @@ export const ExtractionFields = () => {
   const {
     form,
     field: selectedField,
-    allSynonyms,
-    addedSynonyms,
+    synonyms,
     addSynonym,
     removeSynonym,
     onSubmit,
@@ -278,27 +277,20 @@ export const ExtractionFields = () => {
                   {selectedField.displayName}&rdquo;.
                 </div>
                 <div className="flex min-h-[42px] flex-wrap gap-1.5 rounded-md border border-line-strong bg-white p-2">
-                  {allSynonyms.map(synonym => (
+                  {synonyms.map(synonym => (
                     <span
                       key={synonym}
-                      className={cn(
-                        'badge gap-1.5 py-[3px] pl-2.5 pr-1.5',
-                        addedSynonyms.includes(synonym)
-                          ? 'badge-accent'
-                          : 'badge-accent opacity-70',
-                      )}
+                      className="badge badge-accent gap-1.5 py-[3px] pl-2.5 pr-1.5"
                     >
                       {synonym}
-                      {addedSynonyms.includes(synonym) && (
-                        <button
-                          type="button"
-                          onClick={() => removeSynonym(synonym)}
-                          className="flex cursor-pointer border-none bg-transparent p-0 text-inherit"
-                          aria-label={`Remove synonym ${synonym}`}
-                        >
-                          <XIcon width={10} height={10} />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeSynonym(synonym)}
+                        className="flex cursor-pointer border-none bg-transparent p-0 text-inherit"
+                        aria-label={`Remove synonym ${synonym}`}
+                      >
+                        <XIcon width={10} height={10} />
+                      </button>
                     </span>
                   ))}
                   <input
