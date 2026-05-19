@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { ICompany } from 'shared/api';
+import { IAddRunCompanyRequest, ISearchCompanyResult } from 'shared/api';
 import {
   AlertIcon,
   ArrowRightIcon,
@@ -16,47 +16,36 @@ import { Modal } from 'shared/ui';
 
 type Step = 0 | 1 | 2 | 99;
 
-interface IFoundCompany {
-  name: string;
-  website: string;
-  sharePrice: string;
-  sector: string;
-  country: string;
-  mcap: number;
-  weight: number;
-}
+const SCREENING_MIN_GBP = 2_000_000_000;
+const GBP_PER_BILLION = 1_000_000_000;
 
 interface IAddCompanyModalProps {
   open: boolean;
   onClose: () => void;
-  onAdd: (company: IFoundCompany) => void;
-  existing: ICompany[];
+  onAdd: (company: IAddRunCompanyRequest) => void | Promise<void>;
+  onSearch: (
+    name: string,
+    domain?: string,
+  ) => Promise<ISearchCompanyResult | null>;
+  isSearching: boolean;
+  isAdding: boolean;
+  existingNames: string[];
 }
-
-const SEARCH_DELAY = 1100;
-const FAKE_SECTORS = [
-  'Technology',
-  'Health Care',
-  'Industrial Goods & Services',
-  'Retail',
-];
-const MCAP_RANGE = 8;
-const MCAP_OFFSET = 0.5;
-const PRICE_RANGE = 80;
-const PRICE_OFFSET = 20;
-const SCREENING_MIN = 2;
 
 export const AddCompanyModal = ({
   open,
   onClose,
   onAdd,
-  existing,
+  onSearch,
+  isSearching,
+  isAdding,
+  existingNames,
 }: IAddCompanyModalProps) => {
   const [step, setStep] = useState<Step>(0);
   const [name, setName] = useState('');
   const [websiteHint, setWebsiteHint] = useState('');
-  const [found, setFound] = useState<IFoundCompany | null>(null);
-  const [searching, setSearching] = useState(false);
+  const [found, setFound] = useState<ISearchCompanyResult | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -64,17 +53,17 @@ export const AddCompanyModal = ({
       setName('');
       setWebsiteHint('');
       setFound(null);
-      setSearching(false);
+      setNotFound(false);
     }
   }, [open]);
 
-  const search = useCallback(() => {
+  const search = useCallback(async () => {
     if (!name.trim()) {
       return;
     }
 
-    const duplicate = existing.find(
-      company => company.name.toLowerCase() === name.trim().toLowerCase(),
+    const duplicate = existingNames.some(
+      existing => existing.toLowerCase() === name.trim().toLowerCase(),
     );
 
     if (duplicate) {
@@ -83,53 +72,110 @@ export const AddCompanyModal = ({
       return;
     }
 
-    setSearching(true);
-    setTimeout(() => {
-      const cleanedHint = websiteHint
-        .trim()
-        .replace(/^https?:\/\//, '')
-        .replace(/\/$/, '');
-      const fakeWeb =
-        cleanedHint || `${name.toLowerCase().replace(/[^a-z]/g, '')}.com`;
-      const fakeMcap = +(MCAP_OFFSET + Math.random() * MCAP_RANGE).toFixed(2);
+    setNotFound(false);
+    const domainHint = websiteHint
+      .trim()
+      .replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
 
-      setFound({
-        name: name.trim(),
-        website: fakeWeb,
-        sharePrice: `\u20AC${(PRICE_OFFSET + Math.random() * PRICE_RANGE).toFixed(2)}`,
-        sector:
-          FAKE_SECTORS[Math.floor(Math.random() * FAKE_SECTORS.length)] ??
-          'Technology',
-        country: 'DE',
-        mcap: fakeMcap,
-        weight: 0,
-      });
-      setSearching(false);
-      setStep(1);
-    }, SEARCH_DELAY);
-  }, [name, websiteHint, existing]);
+    const result = await onSearch(name.trim(), domainHint || undefined);
 
-  const confirm = useCallback(() => {
-    if (!found) {
+    if (!result?.name) {
+      setFound(null);
+      setNotFound(true);
+      setStep(0);
+
       return;
     }
 
-    if (found.mcap < SCREENING_MIN) {
+    setFound(result);
+    setStep(1);
+  }, [name, websiteHint, existingNames, onSearch]);
+
+  const buildAddPayload = useCallback((): IAddRunCompanyRequest | null => {
+    if (!found) {
+      return null;
+    }
+
+    const domain =
+      found.domain ??
+      websiteHint
+        .trim()
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+
+    if (!domain) {
+      return null;
+    }
+
+    const marketCapGbp = found.marketCapGbp
+      ? Number(found.marketCapGbp)
+      : undefined;
+
+    return {
+      name: found.name,
+      domain,
+      ric: found.ric ?? undefined,
+      country: found.country ?? undefined,
+      supersector: found.supersector ?? undefined,
+      marketCapGbp:
+        marketCapGbp && !Number.isNaN(marketCapGbp) ? marketCapGbp : undefined,
+    };
+  }, [found, websiteHint]);
+
+  const confirm = useCallback(async () => {
+    const payload = buildAddPayload();
+
+    if (!payload) {
+      return;
+    }
+
+    const marketCapGbp = payload.marketCapGbp ?? 0;
+
+    if (marketCapGbp > 0 && marketCapGbp < SCREENING_MIN_GBP) {
       setStep(2);
     } else {
-      onAdd(found);
+      await onAdd(payload);
       onClose();
     }
-  }, [found, onAdd, onClose]);
+  }, [buildAddPayload, onAdd, onClose]);
+
+  const includeAnyway = useCallback(async () => {
+    const payload = buildAddPayload();
+
+    if (!payload) {
+      return;
+    }
+
+    await onAdd(payload);
+    onClose();
+  }, [buildAddPayload, onAdd, onClose]);
+
+  const handleSearchClick = useCallback(() => {
+    search().catch(() => undefined);
+  }, [search]);
+
+  const handleConfirmClick = useCallback(() => {
+    confirm().catch(() => undefined);
+  }, [confirm]);
+
+  const handleIncludeAnywayClick = useCallback(() => {
+    includeAnyway().catch(() => undefined);
+  }, [includeAnyway]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === 'Enter') {
-        search();
+        handleSearchClick();
       }
     },
-    [search],
+    [handleSearchClick],
   );
+
+  const marketCapBillions =
+    found?.marketCapGbp == null
+      ? null
+      : Number(found.marketCapGbp) / GBP_PER_BILLION;
 
   const renderFooter = () => {
     if (step === 0) {
@@ -141,13 +187,13 @@ export const AddCompanyModal = ({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={search}
-            disabled={!name.trim() || searching}
+            onClick={handleSearchClick}
+            disabled={!name.trim() || isSearching}
           >
-            {searching ? (
+            {isSearching ? (
               <>
                 <RefreshIcon width={13} height={13} className="spin" />
-                Searching\u2026
+                Searching&hellip;
               </>
             ) : (
               <>
@@ -169,9 +215,14 @@ export const AddCompanyModal = ({
           >
             Back
           </button>
-          <button type="button" className="btn btn-primary" onClick={confirm}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleConfirmClick}
+            disabled={isAdding}
+          >
             <CheckIcon width={13} height={13} />
-            Yes, Add This Company
+            {isAdding ? 'Adding…' : 'Yes, Add This Company'}
           </button>
         </>
       );
@@ -186,16 +237,11 @@ export const AddCompanyModal = ({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => {
-              if (found) {
-                onAdd({ ...found });
-              }
-
-              onClose();
-            }}
+            onClick={handleIncludeAnywayClick}
+            disabled={isAdding}
           >
             <AlertIcon width={13} height={13} />
-            Include Anyway
+            {isAdding ? 'Adding…' : 'Include Anyway'}
           </button>
         </>
       );
@@ -219,11 +265,28 @@ export const AddCompanyModal = ({
       {step === 0 && (
         <div className="col gap-12">
           <div className="hint">
-            Enter the company name. We&apos;ll attempt to find its official
-            website and current share price online to confirm identity before
-            adding it to the shortlist. Optionally hint the website if multiple
-            companies share the same name.
+            Enter the company name. We&apos;ll look it up using the parser
+            service. Optionally hint the website if multiple companies share the
+            same name.
           </div>
+          {notFound && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                padding: 12,
+                borderRadius: 8,
+                background: 'var(--warning-bg)',
+                color: 'var(--warning)',
+              }}
+            >
+              <AlertIcon width={18} height={18} />
+              <div style={{ fontSize: 12.5 }}>
+                No company found for &quot;{name}&quot;. Try a different name or
+                add a website hint.
+              </div>
+            </div>
+          )}
           <div className="field">
             <label className="label">
               Company name<span className="req">*</span>
@@ -249,13 +312,9 @@ export const AddCompanyModal = ({
               className="input"
               value={websiteHint}
               onChange={event => setWebsiteHint(event.target.value)}
-              placeholder="e.g. spotify.com \u2014 helps disambiguate similar names"
+              placeholder="e.g. spotify.com — helps disambiguate similar names"
               onKeyDown={handleKeyDown}
             />
-            <div className="hint">
-              Leave blank if the company name is unique. Use this when there
-              might be multiple companies sharing the same or similar name.
-            </div>
           </div>
         </div>
       )}
@@ -263,7 +322,7 @@ export const AddCompanyModal = ({
       {step === 1 && found && (
         <div className="col gap-16">
           <div className="hint">
-            We found the following \u2014 please confirm this is the company you
+            We found the following — please confirm this is the company you
             meant.
           </div>
           <div
@@ -298,7 +357,7 @@ export const AddCompanyModal = ({
                     {found.name}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>
-                    {found.sector} \u00B7 {found.country}
+                    {found.supersector ?? '—'} · {found.country ?? '—'}
                   </div>
                 </div>
               </div>
@@ -306,12 +365,12 @@ export const AddCompanyModal = ({
                 <div>
                   <div className="hint">Official website</div>
                   <div style={{ fontSize: 13, marginTop: 2 }}>
-                    <a className="link">{found.website}</a>{' '}
-                    <ExternalIcon width={11} height={11} />
+                    <a className="link">{found.domain ?? '—'}</a>{' '}
+                    {found.domain && <ExternalIcon width={11} height={11} />}
                   </div>
                 </div>
                 <div>
-                  <div className="hint">Current share price</div>
+                  <div className="hint">Market cap (GBP)</div>
                   <div
                     style={{
                       fontSize: 13,
@@ -319,25 +378,16 @@ export const AddCompanyModal = ({
                       fontVariantNumeric: 'tabular-nums',
                     }}
                   >
-                    {found.sharePrice}
+                    {marketCapBillions != null &&
+                    !Number.isNaN(marketCapBillions)
+                      ? `£${marketCapBillions.toFixed(2)}bn`
+                      : '—'}
                   </div>
                 </div>
                 <div>
-                  <div className="hint">Estimated market cap</div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      marginTop: 2,
-                      fontVariantNumeric: 'tabular-nums',
-                    }}
-                  >
-                    \u00A3{found.mcap.toFixed(2)}bn
-                  </div>
-                </div>
-                <div>
-                  <div className="hint">Will be screened against</div>
+                  <div className="hint">RIC</div>
                   <div style={{ fontSize: 13, marginTop: 2 }}>
-                    Sector exclusions + \u00A32bn min
+                    {found.ric ?? '—'}
                   </div>
                 </div>
               </div>
@@ -346,7 +396,7 @@ export const AddCompanyModal = ({
         </div>
       )}
 
-      {step === 2 && found && (
+      {step === 2 && found && marketCapBillions != null && (
         <div className="col gap-12">
           <div
             style={{
@@ -364,10 +414,9 @@ export const AddCompanyModal = ({
                 Failed screening: market cap below threshold
               </div>
               <div style={{ fontSize: 12.5 }}>
-                {found.name} has an estimated market cap of \u00A3
-                {found.mcap.toFixed(2)}bn, below the \u00A32bn minimum. You can
-                override this rule and include it anyway with reason{' '}
-                <code className="mono">manual_override</code>.
+                {found.name} has an estimated market cap of £
+                {marketCapBillions.toFixed(2)}bn, below the £2bn minimum. You
+                can override this rule and include it anyway.
               </div>
             </div>
           </div>
