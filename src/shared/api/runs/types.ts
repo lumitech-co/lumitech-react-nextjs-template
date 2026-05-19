@@ -1,4 +1,5 @@
 export type RunItemStatus =
+  | 'initializing'
   | 'in_progress'
   | 'shortlist_pending'
   | 'shortlist_confirmed'
@@ -20,7 +21,17 @@ export interface IGetLatestRunResponse {
   data: IRunItem | null;
 }
 
+export interface ICreateRunRequest {
+  excludedSectors: string[];
+  marketCapThresholdMinGbp: number;
+}
+
+export interface ICreateRunResponse {
+  data: IRunItem;
+}
+
 export const isActiveRunStatus = (status: RunItemStatus): boolean =>
+  status === 'initializing' ||
   status === 'in_progress' ||
   status === 'shortlist_pending' ||
   status === 'shortlist_confirmed';

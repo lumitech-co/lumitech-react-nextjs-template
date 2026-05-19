@@ -1,8 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { ICompany, IReport, MOCK_COMPANIES } from 'shared/api';
+import {
+  mapAnnualReportStatus,
+  ReportDisplayStatus,
+  useReportRetrieval,
+} from 'features';
+import { IAnnualReportItem, IReportCompanyItem } from 'shared/api';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -19,12 +24,9 @@ import { EditWebsiteModal } from './edit-website-modal';
 import { ReuploadConfirmModal } from './reupload-confirm-modal';
 import { UploadReportModal } from './upload-report-modal';
 
-type Filter = 'all' | 'issues' | 'not_published' | 'manual';
+const TABLE_EXTRA_COLUMNS = 4;
 
-const WINDOW_SIZE = 3;
-const VISIBLE_LIMIT = 20;
-
-const statusBadge = (status: string) => {
+const statusBadge = (status: ReportDisplayStatus | null) => {
   if (status === 'Retrieved') {
     return <Badge tone="success">Retrieved</Badge>;
   }
@@ -45,106 +47,50 @@ const statusBadge = (status: string) => {
 };
 
 export const ReportRetrieval = () => {
-  const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
-  const [editWebsite, setEditWebsite] = useState<ICompany | null>(null);
+  const [editWebsite, setEditWebsite] = useState<IReportCompanyItem | null>(
+    null,
+  );
   const [uploadFor, setUploadFor] = useState<{
-    company: ICompany;
+    company: IReportCompanyItem;
     year: number;
   } | null>(null);
   const [reuploadConfirm, setReuploadConfirm] = useState<{
-    company: ICompany;
+    company: IReportCompanyItem;
     year: number;
   } | null>(null);
-  const [windowStart, setWindowStart] = useState(0);
 
-  const nonExcluded = useMemo(
-    () => MOCK_COMPANIES.filter(company => !company.excluded),
-    [],
-  );
+  const {
+    runId,
+    activeRun,
+    query,
+    setQuery,
+    filter,
+    setFilter,
+    companies,
+    isReportsLoading,
+    counts,
+    visibleYears,
+    setWindowStart,
+    canGoOlder,
+    canGoNewer,
+    uploadReport,
+    isUploading,
+  } = useReportRetrieval();
 
-  const allYears = useMemo(() => {
-    const years = new Set<number>();
-
-    nonExcluded.forEach(company => {
-      company.reports.forEach(report => years.add(report.year));
-    });
-
-    return Array.from(years).sort(
-      (leftYear, rightYear) => rightYear - leftYear,
-    );
-  }, [nonExcluded]);
-
-  const maxStart = Math.max(0, allYears.length - WINDOW_SIZE);
-  const safeStart = Math.min(windowStart, maxStart);
-  const visibleYears = allYears.slice(safeStart, safeStart + WINDOW_SIZE);
-  const canGoNewer = safeStart > 0;
-  const canGoOlder = safeStart < maxStart;
-
-  const issuesCount = useMemo(
-    () =>
-      nonExcluded.filter(company =>
-        company.reports.some(report => report.status === 'Not Retrieved'),
-      ).length,
-    [nonExcluded],
-  );
-
-  const notPublishedCount = useMemo(
-    () =>
-      nonExcluded.filter(company =>
-        company.reports.some(report => report.status === 'Not Published'),
-      ).length,
-    [nonExcluded],
-  );
-
-  const manualCount = useMemo(
-    () =>
-      nonExcluded.filter(company =>
-        company.reports.some(report => report.status === 'Manually Uploaded'),
-      ).length,
-    [nonExcluded],
-  );
-
-  const list = useMemo(() => {
-    let filtered = nonExcluded;
-
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-
-      filtered = filtered.filter(company =>
-        company.name.toLowerCase().includes(lowerQuery),
-      );
-    }
-
-    if (filter === 'issues') {
-      filtered = filtered.filter(company =>
-        company.reports.some(report => report.status === 'Not Retrieved'),
-      );
-    } else if (filter === 'not_published') {
-      filtered = filtered.filter(company =>
-        company.reports.some(report => report.status === 'Not Published'),
-      );
-    } else if (filter === 'manual') {
-      filtered = filtered.filter(company =>
-        company.reports.some(report => report.status === 'Manually Uploaded'),
-      );
-    }
-
-    return filtered;
-  }, [nonExcluded, query, filter]);
-
-  const renderYearCell = (company: ICompany, year: number) => {
-    const report: IReport | undefined = company.reports.find(
+  const renderYearCell = (company: IReportCompanyItem, year: number) => {
+    const report: IAnnualReportItem | undefined = company.reports.find(
       rep => rep.year === year,
     );
 
-    if (report) {
+    const displayStatus = mapAnnualReportStatus(report?.status ?? null);
+
+    if (report && displayStatus) {
       return (
         <td key={year} className="text-center">
           <div className="inline-flex flex-col items-center gap-0.5">
-            {statusBadge(report.status)}
-            {(report.status === 'Retrieved' ||
-              report.status === 'Manually Uploaded') && (
+            {statusBadge(displayStatus)}
+            {(displayStatus === 'Retrieved' ||
+              displayStatus === 'Manually Uploaded') && (
               <div className="flex gap-0.5">
                 <button
                   type="button"
@@ -163,8 +109,8 @@ export const ReportRetrieval = () => {
                 </button>
               </div>
             )}
-            {(report.status === 'Not Retrieved' ||
-              report.status === 'Not Published') && (
+            {(displayStatus === 'Not Retrieved' ||
+              displayStatus === 'Not Published') && (
               <button
                 type="button"
                 className="btn btn-ghost btn-sm h-5 px-1.5 text-[11px] text-accent"
@@ -196,17 +142,29 @@ export const ReportRetrieval = () => {
     );
   };
 
+  if (!runId) {
+    return (
+      <div className="content">
+        <div className="page-header">
+          <div className="page-title">Report Retrieval</div>
+          <div className="page-sub">
+            Start a run from Screening Rules to view annual reports.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="content">
       <div className="page-header between">
         <div>
           <div className="page-title">Report Retrieval</div>
           <div className="page-sub">
-            Annual reports for the last 3 reporting years are shown by default.
-            Earlier years can be revealed if available. Only PDF &quot;Annual
-            Report&quot; or &quot;Universal Registration Document&quot; sources
-            are accepted. Statuses: Retrieved &middot; Not Published &middot;
-            Not Retrieved &middot; Manually Uploaded.
+            {activeRun?.label ? `${activeRun.label} · ` : ''}
+            Annual reports for shortlisted companies. Statuses: Retrieved
+            &middot; Not Published &middot; Not Retrieved &middot; Manually
+            Uploaded.
           </div>
         </div>
       </div>
@@ -217,25 +175,28 @@ export const ReportRetrieval = () => {
             className={cn('tab', filter === 'all' && 'active')}
             onClick={() => setFilter('all')}
           >
-            All companies <span className="count">{nonExcluded.length}</span>
+            All companies <span className="count">{counts?.all ?? 0}</span>
           </div>
           <div
             className={cn('tab', filter === 'issues' && 'active')}
             onClick={() => setFilter('issues')}
           >
-            Not retrieved <span className="count">{issuesCount}</span>
+            Not retrieved{' '}
+            <span className="count">{counts?.notRetrieved ?? 0}</span>
           </div>
           <div
             className={cn('tab', filter === 'not_published' && 'active')}
             onClick={() => setFilter('not_published')}
           >
-            Not published <span className="count">{notPublishedCount}</span>
+            Not published{' '}
+            <span className="count">{counts?.notPublished ?? 0}</span>
           </div>
           <div
             className={cn('tab', filter === 'manual' && 'active')}
             onClick={() => setFilter('manual')}
           >
-            Manual uploads <span className="count">{manualCount}</span>
+            Manual uploads{' '}
+            <span className="count">{counts?.manualUploads ?? 0}</span>
           </div>
           <div className="spacer" />
           <div className="px-3 py-1.5">
@@ -270,14 +231,7 @@ export const ReportRetrieval = () => {
                     )}
                     disabled={!canGoOlder}
                     aria-label="View older years"
-                    title={
-                      canGoOlder
-                        ? `View older years (showing ${visibleYears[visibleYears.length - 1] ?? ''} \u2013 ${visibleYears[0] ?? ''})`
-                        : 'No earlier years available'
-                    }
-                    onClick={() =>
-                      setWindowStart(prev => Math.min(maxStart, prev + 1))
-                    }
+                    onClick={() => setWindowStart(prev => prev + 1)}
                   >
                     <ChevronLeftIcon width={13} height={13} />
                   </button>
@@ -296,11 +250,6 @@ export const ReportRetrieval = () => {
                     )}
                     disabled={!canGoNewer}
                     aria-label="View newer years"
-                    title={
-                      canGoNewer
-                        ? 'View newer years'
-                        : 'Showing the most recent years'
-                    }
                     onClick={() =>
                       setWindowStart(prev => Math.max(0, prev - 1))
                     }
@@ -311,47 +260,72 @@ export const ReportRetrieval = () => {
               </tr>
             </thead>
             <tbody>
-              {list.slice(0, VISIBLE_LIMIT).map(company => (
-                <tr key={company.id}>
-                  <td>
-                    <div className="flex items-center gap-1.5 font-medium">
-                      {company.name}
-                      {company.manuallyAdded && (
-                        <Badge tone="accent" withDot={false}>
-                          manual
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="text-[11px] text-ink-400">
-                      {company.country} &middot; {company.sector}
-                      {company.manuallyAdded && company.sourceListing
-                        ? ` \u00B7 ${company.sourceListing}`
-                        : ''}
-                    </div>
+              {isReportsLoading && (
+                <tr>
+                  <td
+                    colSpan={visibleYears.length + TABLE_EXTRA_COLUMNS}
+                    className="py-12 text-center text-[13px] text-ink-400"
+                  >
+                    Loading reports&hellip;
                   </td>
-                  <td>
-                    <div className="flex items-center gap-1.5">
-                      <GlobeIcon
-                        width={12}
-                        height={12}
-                        className="text-ink-400"
-                      />
-                      <a className="link text-[12.5px]">{company.website}</a>
-                      <button
-                        type="button"
-                        className="btn btn-icon btn-ghost size-[22px]"
-                        onClick={() => setEditWebsite(company)}
-                        aria-label="Edit website"
-                      >
-                        <EditIcon width={11} height={11} />
-                      </button>
-                    </div>
-                  </td>
-                  <td className="bg-surface-2 p-0" />
-                  {visibleYears.map(year => renderYearCell(company, year))}
-                  <td className="bg-surface-2 p-0" />
                 </tr>
-              ))}
+              )}
+              {!isReportsLoading && companies.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={visibleYears.length + TABLE_EXTRA_COLUMNS}
+                    className="py-12 text-center text-[13px] text-ink-400"
+                  >
+                    No companies match the current filters
+                  </td>
+                </tr>
+              )}
+              {!isReportsLoading &&
+                companies.map(company => {
+                  const profile = company.companyProfile;
+
+                  return (
+                    <tr key={company.id}>
+                      <td>
+                        <div className="flex items-center gap-1.5 font-medium">
+                          {profile.name}
+                          {company.isManuallyAdded && (
+                            <Badge tone="accent" withDot={false}>
+                              manual
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-ink-400">
+                          {profile.country ?? '—'} &middot;{' '}
+                          {profile.supersector ?? '—'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-1.5">
+                          <GlobeIcon
+                            width={12}
+                            height={12}
+                            className="text-ink-400"
+                          />
+                          <a className="link text-[12.5px]">
+                            {profile.domain ?? '—'}
+                          </a>
+                          <button
+                            type="button"
+                            className="btn btn-icon btn-ghost size-[22px]"
+                            onClick={() => setEditWebsite(company)}
+                            aria-label="Edit website"
+                          >
+                            <EditIcon width={11} height={11} />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="bg-surface-2 p-0" />
+                      {visibleYears.map(year => renderYearCell(company, year))}
+                      <td className="bg-surface-2 p-0" />
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
@@ -364,11 +338,20 @@ export const ReportRetrieval = () => {
 
       <UploadReportModal
         target={uploadFor}
+        isUploading={isUploading}
+        onUpload={uploadReport}
         onClose={() => setUploadFor(null)}
       />
 
       <ReuploadConfirmModal
-        target={reuploadConfirm}
+        target={
+          reuploadConfirm
+            ? {
+                companyName: reuploadConfirm.company.companyProfile.name,
+                year: reuploadConfirm.year,
+              }
+            : null
+        }
         onClose={() => setReuploadConfirm(null)}
         onConfirm={() => {
           const context = reuploadConfirm;

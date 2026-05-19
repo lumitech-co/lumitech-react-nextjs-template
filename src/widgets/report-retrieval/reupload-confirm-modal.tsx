@@ -1,11 +1,10 @@
 'use client';
 
-import { ICompany } from 'shared/api';
 import { UploadIcon } from 'shared/icons';
 import { Modal } from 'shared/ui';
 
 interface IReuploadTarget {
-  company: ICompany;
+  companyName: string;
   year: number;
 }
 
@@ -40,7 +39,7 @@ export const ReuploadConfirmModal = ({
       <div className="col gap-12">
         <div className="hint leading-relaxed">
           This will replace the existing PDF for{' '}
-          <strong>{target.company.name}</strong> &middot; reporting year{' '}
+          <strong>{target.companyName}</strong> &middot; reporting year{' '}
           <strong>{target.year}</strong>. Re-extraction will start automatically
           for this company once the new PDF is uploaded. Existing extracted
           values for this year will be re-evaluated and may change.

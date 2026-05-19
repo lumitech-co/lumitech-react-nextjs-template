@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useDropzone } from 'react-dropzone';
 
-import { ICompany } from 'shared/api';
+import { IReportCompanyItem } from 'shared/api';
 import { TrashIcon, UploadIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
-import { Modal, useToast } from 'shared/ui';
+import { Modal } from 'shared/ui';
 
 /* eslint-disable no-magic-numbers */
 
@@ -16,12 +16,18 @@ const KB = 1024;
 const MB = 1024 * 1024;
 
 interface IUploadTarget {
-  company: ICompany;
+  company: IReportCompanyItem;
   year: number;
 }
 
 interface IUploadReportModalProps {
   target: IUploadTarget | null;
+  isUploading: boolean;
+  onUpload: (
+    company: IReportCompanyItem,
+    year: number,
+    file: File,
+  ) => Promise<boolean>;
   onClose: () => void;
 }
 
@@ -35,9 +41,10 @@ const formatSize = (bytes: number): string => {
 
 export const UploadReportModal = ({
   target,
+  isUploading,
+  onUpload,
   onClose,
 }: IUploadReportModalProps) => {
-  const toast = useToast();
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -59,9 +66,16 @@ export const UploadReportModal = ({
     multiple: false,
   });
 
-  const handleUpload = () => {
-    toast('Report uploaded \u00B7 queued for parsing', { tone: 'success' });
-    onClose();
+  const handleUpload = async () => {
+    if (!target || !file) {
+      return;
+    }
+
+    const success = await onUpload(target.company, target.year, file);
+
+    if (success) {
+      onClose();
+    }
   };
 
   return (
@@ -77,11 +91,13 @@ export const UploadReportModal = ({
           <button
             type="button"
             className="btn btn-primary"
-            disabled={!file}
-            onClick={handleUpload}
+            disabled={!file || isUploading}
+            onClick={() => {
+              handleUpload().catch(() => undefined);
+            }}
           >
             <UploadIcon width={13} height={13} />
-            Upload PDF
+            {isUploading ? 'Uploading\u2026' : 'Upload PDF'}
           </button>
         </>
       }
@@ -90,7 +106,9 @@ export const UploadReportModal = ({
         <div className="col gap-12">
           <div className="field">
             <label className="label">Company</label>
-            <div className="font-medium">{target.company.name}</div>
+            <div className="font-medium">
+              {target.company.companyProfile.name}
+            </div>
           </div>
           <div className="field">
             <label className="label">Reporting year</label>
@@ -144,7 +162,7 @@ export const UploadReportModal = ({
                     ? 'Drop the PDF here'
                     : 'Drop PDF here or click to browse'}
                 </div>
-                <div className="hint">PDF only \u00B7 max 50MB</div>
+                <div className="hint">PDF only &middot; max 50MB</div>
               </div>
             )}
           </div>

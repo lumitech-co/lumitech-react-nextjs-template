@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 
 import { useRunStore } from 'entities';
 
+import { useStartRun } from 'features';
 import {
   DEFAULT_SCREENING,
   isActiveRunStatus,
@@ -18,6 +19,7 @@ export const ScreeningRules = () => {
   const [rules, setRules] = useState<IScreeningRules>(DEFAULT_SCREENING);
   const [draft, setDraft] = useState<IScreeningRules>(DEFAULT_SCREENING);
   const activeRun = useRunStore(state => state.activeRun);
+  const { startRun, isStarting } = useStartRun();
   const dirty = JSON.stringify(draft) !== JSON.stringify(rules);
   const isRunInProgress = activeRun
     ? isActiveRunStatus(activeRun.status)
@@ -37,9 +39,9 @@ export const ScreeningRules = () => {
     toast('Screening rules saved · applied on next run', { tone: 'success' });
   }, [draft, toast]);
 
-  const handleStartRun = useCallback(() => {
-    toast('Start run is not yet available', { tone: 'default' });
-  }, [toast]);
+  const handleStartRun = useCallback(async () => {
+    await startRun(draft);
+  }, [draft, startRun]);
 
   const handleCancel = useCallback(() => {
     toast('Cancel run is not yet available', { tone: 'default' });
@@ -226,6 +228,7 @@ export const ScreeningRules = () => {
                   type="button"
                   className="btn btn-primary btn-lg"
                   style={{ width: '100%' }}
+                  disabled={isStarting}
                   onClick={handleStartRun}
                 >
                   <PlayIcon width={14} height={14} />

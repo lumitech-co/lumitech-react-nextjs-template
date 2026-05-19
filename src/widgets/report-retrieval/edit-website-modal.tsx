@@ -1,10 +1,10 @@
 'use client';
 
-import { ICompany } from 'shared/api';
+import { IReportCompanyItem } from 'shared/api';
 import { Modal, useToast } from 'shared/ui';
 
 interface IEditWebsiteModalProps {
-  company: ICompany | null;
+  company: IReportCompanyItem | null;
   onClose: () => void;
 }
 
@@ -15,11 +15,13 @@ export const EditWebsiteModal = ({
   const toast = useToast();
 
   const handleSave = () => {
-    toast('Website updated \u00B7 will be reused on future runs', {
+    toast('Website updated · will be reused on future runs', {
       tone: 'success',
     });
     onClose();
   };
+
+  const domain = company?.companyProfile.domain ?? '';
 
   return (
     <Modal
@@ -49,13 +51,13 @@ export const EditWebsiteModal = ({
           </div>
           <div className="field">
             <label className="label">Company</label>
-            <div style={{ fontWeight: 500 }}>{company.name}</div>
+            <div style={{ fontWeight: 500 }}>{company.companyProfile.name}</div>
           </div>
           <div className="field">
             <label className="label">Official website</label>
             <input
               className="input"
-              defaultValue={`https://www.${company.website}`}
+              defaultValue={domain ? `https://${domain}` : ''}
             />
           </div>
         </div>
