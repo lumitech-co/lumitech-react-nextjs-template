@@ -11,6 +11,7 @@ jiti('./src/env');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // API traffic is proxied via src/app/api/[[...path]]/route.ts (first-party cookies for Safari ITP).
   webpack(config) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find(rule =>
