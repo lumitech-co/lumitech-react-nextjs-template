@@ -126,12 +126,48 @@ export const useUniverseShortlist = () => {
     activeStatuses,
   ]);
 
+  const filterOptionsParams = useMemo(():
+    | IListRunCompaniesParams
+    | undefined => {
+    if (!runId) {
+      return undefined;
+    }
+
+    return {
+      tab: TAB_MAP[tab],
+      isManuallyAdded: filterManualOnly || undefined,
+      supersectors: activeSectors.length > 0 ? activeSectors : undefined,
+      countries: activeCountries.length > 0 ? activeCountries : undefined,
+      marketCapMin:
+        filterMcapMin > MCAP_MIN_DEFAULT
+          ? filterMcapMin * GBP_PER_BILLION
+          : undefined,
+      marketCapMax:
+        filterMcapMax < MCAP_MAX_DEFAULT
+          ? filterMcapMax * GBP_PER_BILLION
+          : undefined,
+      statuses: activeStatuses.length > 0 ? activeStatuses : undefined,
+    };
+  }, [
+    runId,
+    tab,
+    filterManualOnly,
+    activeSectors,
+    activeCountries,
+    filterMcapMin,
+    filterMcapMax,
+    activeStatuses,
+  ]);
+
   const { data: companiesData, isLoading: isCompaniesLoading } =
     useListRunCompanies(runId, listParams);
 
   const { data: counts } = useRunCompanyCounts(runId);
 
-  const { data: filterOptions } = useRunCompanyFilterOptions(runId, listParams);
+  const { data: filterOptions } = useRunCompanyFilterOptions(
+    runId,
+    filterOptionsParams,
+  );
 
   const deleteMutation = useDeleteRunCompany();
   const restoreMutation = useRestoreRunCompany();
@@ -217,16 +253,21 @@ export const useUniverseShortlist = () => {
 
     try {
       const blob = await runCompaniesApi.exportCompanies(runId);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
       const ISO_DATE_LENGTH = 10;
       const isoDate = new Date().toISOString();
       const dateLabel = isoDate.slice(0, ISO_DATE_LENGTH);
+      const url = URL.createObjectURL(blob);
 
-      link.href = url;
-      link.download = `shortlist-${dateLabel}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
+      try {
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `shortlist-${dateLabel}.csv`;
+        link.click();
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+
       toast('CSV exported', { tone: 'success' });
     } catch {
       toast('Failed to export CSV', { tone: 'error' });
@@ -262,6 +303,7 @@ export const useUniverseShortlist = () => {
         toast('Company added to shortlist', { tone: 'success' });
       } catch {
         toast('Failed to add company', { tone: 'error' });
+        throw new Error('Failed to add company');
       }
     },
     [runId, addMutation, toast],

@@ -34,7 +34,7 @@ export const useReportRetrieval = () => {
   const [filter, setFilter] = useState<ReportFilter>('all');
   const [windowStart, setWindowStart] = useState(0);
 
-  const currentYear = new Date().getFullYear() - 1;
+  const currentYear = useMemo(() => new Date().getFullYear() - 1, []);
   const defaultFromYear = currentYear - (WINDOW_SIZE - 1);
 
   const listParams = useMemo(

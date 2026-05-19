@@ -28,6 +28,7 @@ interface IAddCompanyModalProps {
     domain?: string,
   ) => Promise<ISearchCompanyResult | null>;
   isSearching: boolean;
+  isAdding: boolean;
   existingNames: string[];
 }
 
@@ -37,6 +38,7 @@ export const AddCompanyModal = ({
   onAdd,
   onSearch,
   isSearching,
+  isAdding,
   existingNames,
 }: IAddCompanyModalProps) => {
   const [step, setStep] = useState<Step>(0);
@@ -90,7 +92,7 @@ export const AddCompanyModal = ({
     setStep(1);
   }, [name, websiteHint, existingNames, onSearch]);
 
-  const buildAddPayload = (): IAddRunCompanyRequest | null => {
+  const buildAddPayload = useCallback((): IAddRunCompanyRequest | null => {
     if (!found) {
       return null;
     }
@@ -119,7 +121,7 @@ export const AddCompanyModal = ({
       marketCapGbp:
         marketCapGbp && !Number.isNaN(marketCapGbp) ? marketCapGbp : undefined,
     };
-  };
+  }, [found, websiteHint]);
 
   const confirm = useCallback(async () => {
     const payload = buildAddPayload();
@@ -136,7 +138,18 @@ export const AddCompanyModal = ({
       await onAdd(payload);
       onClose();
     }
-  }, [found, websiteHint, onAdd, onClose]);
+  }, [buildAddPayload, onAdd, onClose]);
+
+  const includeAnyway = useCallback(async () => {
+    const payload = buildAddPayload();
+
+    if (!payload) {
+      return;
+    }
+
+    await onAdd(payload);
+    onClose();
+  }, [buildAddPayload, onAdd, onClose]);
 
   const handleSearchClick = useCallback(() => {
     search().catch(() => undefined);
@@ -145,6 +158,10 @@ export const AddCompanyModal = ({
   const handleConfirmClick = useCallback(() => {
     confirm().catch(() => undefined);
   }, [confirm]);
+
+  const handleIncludeAnywayClick = useCallback(() => {
+    includeAnyway().catch(() => undefined);
+  }, [includeAnyway]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
@@ -202,9 +219,10 @@ export const AddCompanyModal = ({
             type="button"
             className="btn btn-primary"
             onClick={handleConfirmClick}
+            disabled={isAdding}
           >
             <CheckIcon width={13} height={13} />
-            Yes, Add This Company
+            {isAdding ? 'Adding…' : 'Yes, Add This Company'}
           </button>
         </>
       );
@@ -219,18 +237,11 @@ export const AddCompanyModal = ({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => {
-              const payload = buildAddPayload();
-
-              if (payload) {
-                Promise.resolve(onAdd(payload)).catch(() => undefined);
-              }
-
-              onClose();
-            }}
+            onClick={handleIncludeAnywayClick}
+            disabled={isAdding}
           >
             <AlertIcon width={13} height={13} />
-            Include Anyway
+            {isAdding ? 'Adding…' : 'Include Anyway'}
           </button>
         </>
       );

@@ -91,6 +91,7 @@ export const UniverseShortlist = () => {
     addCompany,
     searchCompany,
     isSearching,
+    isAdding,
   } = useUniverseShortlist();
 
   const allSectors = filterOptions?.supersectors ?? [];
@@ -570,6 +571,7 @@ export const UniverseShortlist = () => {
         onAdd={addCompany}
         onSearch={searchCompany}
         isSearching={isSearching}
+        isAdding={isAdding}
         existingNames={companies.map(company => company.companyProfile.name)}
       />
     </div>
