@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { formatRunDateTime, useRunStore } from 'entities';
+
 import {
   HISTORICAL_SUMMARY_ROWS,
   HISTORICAL_WORKBOOK_ROWS,
@@ -24,17 +26,18 @@ import { ViewWorkbooksModal } from './view-workbooks-modal';
 export const Dashboard = () => {
   const [viewWorkbooks, setViewWorkbooks] = useState<IArchivedRun | null>(null);
   const [viewSummary, setViewSummary] = useState<IArchivedRun | null>(null);
+  const activeRun = useRunStore(state => state.activeRun);
+
+  const pageSubtitle = activeRun
+    ? `${activeRun.label ?? 'Latest run'} · Started ${formatRunDateTime(activeRun.startedAt)} · ${activeRun.companyCount} companies`
+    : 'No active run';
 
   return (
     <div className="content">
       <div className="page-header between">
         <div>
           <div className="page-title">Dashboard</div>
-          <div className="page-sub">
-            Run #2026-04-30-A · Started {MOCK_RUN.startedAt} ·{' '}
-            {MOCK_RUN.totals.processed}/{MOCK_RUN.totals.shortlisted} companies
-            processed
-          </div>
+          <div className="page-sub">{pageSubtitle}</div>
         </div>
       </div>
 

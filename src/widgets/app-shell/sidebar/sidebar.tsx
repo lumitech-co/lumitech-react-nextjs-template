@@ -2,7 +2,10 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 
+import { formatRunDateTime, useRunStore } from 'entities';
+
 import { useAuthStore } from 'features';
+import { IRunItem, isActiveRunStatus } from 'shared/api';
 import { LogoutIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
 
@@ -13,38 +16,67 @@ import {
   ROUTE_PATHS,
 } from './nav-config';
 
-type RunStatus = 'idle' | 'running' | 'complete' | 'cancelled';
+type SidebarRunStatus = 'idle' | 'running' | 'completed' | 'cancelled';
 
-interface ISidebarProps {
-  reviewCount?: number;
-  runStatus?: RunStatus;
-  runStartedAt?: string;
-}
+const getSidebarRunStatus = (activeRun: IRunItem | null): SidebarRunStatus => {
+  if (!activeRun) {
+    return 'idle';
+  }
 
-const RUN_DOT_COLOR: Record<RunStatus, string> = {
+  if (isActiveRunStatus(activeRun.status)) {
+    return 'running';
+  }
+
+  if (activeRun.status === 'completed') {
+    return 'completed';
+  }
+
+  return 'cancelled';
+};
+
+const RUN_DOT_COLOR: Record<SidebarRunStatus, string> = {
   running: '#6CA3FF',
-  complete: '#5DD39E',
+  completed: '#5DD39E',
   cancelled: '#98AED1',
   idle: '#98AED1',
 };
 
-const RUN_LABEL: Record<RunStatus, string> = {
+const RUN_LABEL: Record<SidebarRunStatus, string> = {
   running: 'Run in progress',
-  complete: 'Last run complete',
+  completed: 'Last run complete',
   cancelled: 'Run cancelled',
   idle: 'No active run',
 };
 
-export const Sidebar = ({
-  reviewCount,
-  runStatus = 'idle',
-  runStartedAt = '—',
-}: ISidebarProps) => {
+const getRunStartedAtLabel = (
+  isLoadingRun: boolean,
+  run: IRunItem | null,
+): string => {
+  if (isLoadingRun) {
+    return 'Loading...';
+  }
+
+  if (run) {
+    return formatRunDateTime(run.startedAt);
+  }
+
+  return '—';
+};
+
+interface ISidebarProps {
+  reviewCount?: number;
+}
+
+export const Sidebar = ({ reviewCount }: ISidebarProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const activeRoute = getRouteIdFromPath(pathname);
   const signOut = useAuthStore(state => state.signOut);
   const user = useAuthStore(state => state.user);
+  const activeRun = useRunStore(state => state.activeRun);
+  const isLoading = useRunStore(state => state.isLoading);
+  const runStatus = getSidebarRunStatus(activeRun);
+  const runStartedAt = getRunStartedAtLabel(isLoading, activeRun);
 
   const initials = user
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
