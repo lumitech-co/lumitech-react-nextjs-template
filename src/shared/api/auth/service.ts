@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { env } from 'env';
 
+import { getApiBaseUrl } from '../../lib/api-base-url';
 import {
   IAuthTokenResponse,
   IRequestPasswordResetRequest,
@@ -9,7 +9,7 @@ import {
 } from './types';
 
 const authAxios = axios.create({
-  baseURL: env.NEXT_PUBLIC_API_URL,
+  baseURL: getApiBaseUrl(),
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
