@@ -30,5 +30,6 @@ jobs:
       - name: Build application
         run: yarn build
         env:
-          API_UPSTREAM_URL: ${{ secrets.API_UPSTREAM_URL }}
-          NEXT_PUBLIC_NODE_ENV: ${{ secrets.NEXT_PUBLIC_NODE_ENV }}
+          # Fallback to dev API when the repo secret is unset (build only validates env shape).
+          API_UPSTREAM_URL: ${{ secrets.API_UPSTREAM_URL != '' && secrets.API_UPSTREAM_URL || 'https://dev-iron-blue-ldpia6skza-lm.a.run.app' }}
+          NEXT_PUBLIC_NODE_ENV: ${{ secrets.NEXT_PUBLIC_NODE_ENV != '' && secrets.NEXT_PUBLIC_NODE_ENV || 'development' }}
