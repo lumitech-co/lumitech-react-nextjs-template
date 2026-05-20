@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { useRunStore } from 'entities';
+import { useGetLatestRun } from 'entities';
 
 import { useStartRun } from 'features';
 import {
@@ -18,7 +18,8 @@ export const ScreeningRules = () => {
   const toast = useToast();
   const [rules, setRules] = useState<IScreeningRules>(DEFAULT_SCREENING);
   const [draft, setDraft] = useState<IScreeningRules>(DEFAULT_SCREENING);
-  const activeRun = useRunStore(state => state.activeRun);
+  const { data: latestRunResponse } = useGetLatestRun();
+  const activeRun = latestRunResponse?.data ?? null;
   const { startRun, isStarting } = useStartRun();
   const dirty = JSON.stringify(draft) !== JSON.stringify(rules);
   const isRunInProgress = activeRun

@@ -2,10 +2,10 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 
-import { formatRunDateTime, useRunStore } from 'entities';
+import { formatRunDateTime, useGetLatestRun } from 'entities';
 
 import { useAuthStore } from 'features';
-import { IRunItem, isActiveRunStatus } from 'shared/api';
+import { ILatestRunItem, isActiveRunStatus } from 'shared/api';
 import { LogoutIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
 
@@ -18,7 +18,9 @@ import {
 
 type SidebarRunStatus = 'idle' | 'running' | 'completed' | 'cancelled';
 
-const getSidebarRunStatus = (activeRun: IRunItem | null): SidebarRunStatus => {
+const getSidebarRunStatus = (
+  activeRun: ILatestRunItem | null,
+): SidebarRunStatus => {
   if (!activeRun) {
     return 'idle';
   }
@@ -50,7 +52,7 @@ const RUN_LABEL: Record<SidebarRunStatus, string> = {
 
 const getRunStartedAtLabel = (
   isLoadingRun: boolean,
-  run: IRunItem | null,
+  run: ILatestRunItem | null,
 ): string => {
   if (isLoadingRun) {
     return 'Loading...';
@@ -73,8 +75,8 @@ export const Sidebar = ({ reviewCount }: ISidebarProps) => {
   const activeRoute = getRouteIdFromPath(pathname);
   const signOut = useAuthStore(state => state.signOut);
   const user = useAuthStore(state => state.user);
-  const activeRun = useRunStore(state => state.activeRun);
-  const isLoading = useRunStore(state => state.isLoading);
+  const { data: latestRunResponse, isLoading } = useGetLatestRun();
+  const activeRun = latestRunResponse?.data ?? null;
   const runStatus = getSidebarRunStatus(activeRun);
   const runStartedAt = getRunStartedAtLabel(isLoading, activeRun);
 

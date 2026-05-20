@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { ICompany, IRun } from 'shared/api';
+import { IRunStats, RunItemStatus } from 'shared/api';
 import {
   CloudIcon,
   FileTextIcon,
@@ -12,8 +12,8 @@ import {
 import { Progress } from 'shared/ui';
 
 interface IPipelineProgressProps {
-  run: IRun;
-  companies: ICompany[];
+  stats: IRunStats;
+  runStatus: RunItemStatus;
 }
 
 type StageState = 'active' | 'done' | 'idle';
@@ -25,67 +25,85 @@ interface IStageCell {
   count: number;
 }
 
+const STAGE_COUNT = 6;
+const ACTIVE_STAGE_WEIGHT = 0.5;
+const PERCENT_MULTIPLIER = 100;
+
+const STAGE_DEFINITIONS = [
+  { key: 'screening' as const, label: 'Screening', icon: FilterIcon },
+  { key: 'retrieval' as const, label: 'Retrieval', icon: CloudIcon },
+  { key: 'parsing' as const, label: 'Parsing', icon: FileTextIcon },
+  { key: 'extraction' as const, label: 'Extraction', icon: SparkleIcon },
+  { key: 'review' as const, label: 'Review', icon: InboxIcon },
+  { key: 'output' as const, label: 'Output', icon: XlsIcon },
+];
+
+const deriveStageState = (args: {
+  count: number;
+  nextCount: number | null;
+  isLastStage: boolean;
+  isRunCompleted: boolean;
+}): StageState => {
+  const { count, nextCount, isLastStage, isRunCompleted } = args;
+
+  if (count === 0) {
+    return 'idle';
+  }
+
+  if (isLastStage) {
+    return isRunCompleted ? 'done' : 'active';
+  }
+
+  if (nextCount !== null && nextCount > 0) {
+    return 'done';
+  }
+
+  return 'active';
+};
+
 export const PipelineProgress = ({
-  run,
-  companies,
+  stats,
+  runStatus,
 }: IPipelineProgressProps) => {
-  const stageCount = useMemo(() => {
-    const counts: Record<string, number> = {
-      screening: 0,
-      retrieval: 0,
-      parsing: 0,
-      extraction: 0,
-      review: 0,
-      done: 0,
-      excluded: 0,
-      failed: 0,
+  const isRunCompleted = runStatus === 'completed';
+
+  const { stages, progressPct, currentStageLabel } = useMemo(() => {
+    const stageCells: IStageCell[] = STAGE_DEFINITIONS.map(
+      (stageDefinition, index) => {
+        const count = stats[stageDefinition.key];
+        const nextKey = STAGE_DEFINITIONS[index + 1]?.key;
+        const nextCount = nextKey ? stats[nextKey] : null;
+
+        return {
+          label: stageDefinition.label,
+          icon: stageDefinition.icon,
+          count,
+          state: deriveStageState({
+            count,
+            nextCount,
+            isLastStage: index === STAGE_DEFINITIONS.length - 1,
+            isRunCompleted,
+          }),
+        };
+      },
+    );
+
+    const doneCount = stageCells.filter(stage => stage.state === 'done').length;
+    const hasActive = stageCells.some(stage => stage.state === 'active');
+    const progress = Math.round(
+      ((doneCount + (hasActive ? ACTIVE_STAGE_WEIGHT : 0)) / STAGE_COUNT) *
+        PERCENT_MULTIPLIER,
+    );
+    const activeStage = stageCells.find(stage => stage.state === 'active');
+
+    return {
+      stages: stageCells,
+      progressPct: progress,
+      currentStageLabel:
+        activeStage?.label ??
+        (isRunCompleted ? 'Complete' : 'Waiting to start'),
     };
-
-    companies.forEach(company => {
-      counts[company.stage] = (counts[company.stage] || 0) + 1;
-    });
-
-    return counts;
-  }, [companies]);
-
-  const stages: IStageCell[] = [
-    {
-      label: 'Screening',
-      icon: FilterIcon,
-      state: 'done',
-      count: run.totals.screened,
-    },
-    {
-      label: 'Retrieval',
-      icon: CloudIcon,
-      state: 'done',
-      count: run.totals.shortlisted - stageCount.retrieval,
-    },
-    {
-      label: 'Parsing',
-      icon: FileTextIcon,
-      state: 'done',
-      count: 33,
-    },
-    {
-      label: 'Extraction',
-      icon: SparkleIcon,
-      state: 'active',
-      count: stageCount.extraction + stageCount.review,
-    },
-    {
-      label: 'Review',
-      icon: InboxIcon,
-      state: stageCount.review > 0 ? 'active' : 'idle',
-      count: stageCount.review,
-    },
-    {
-      label: 'Output',
-      icon: XlsIcon,
-      state: 'idle',
-      count: stageCount.done,
-    },
-  ];
+  }, [stats, isRunCompleted]);
 
   return (
     <div className="card" style={{ marginBottom: 16 }}>
@@ -93,7 +111,7 @@ export const PipelineProgress = ({
         <div className="between" style={{ marginBottom: 12 }}>
           <div>
             <div className="card-title">Pipeline progress</div>
-            <div className="card-sub">Currently in {run.currentStage}</div>
+            <div className="card-sub">Currently in {currentStageLabel}</div>
           </div>
           <div
             style={{
@@ -103,13 +121,10 @@ export const PipelineProgress = ({
               letterSpacing: '-0.02em',
             }}
           >
-            {run.progressPct}%
+            {progressPct}%
           </div>
         </div>
-        <Progress
-          value={run.progressPct}
-          style={{ height: 8, marginBottom: 14 }}
-        />
+        <Progress value={progressPct} style={{ height: 8, marginBottom: 14 }} />
         <div
           style={{
             display: 'grid',

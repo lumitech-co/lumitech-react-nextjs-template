@@ -166,3 +166,14 @@ export interface IReportCountsResponse {
 export interface IUploadReportResponse {
   data: IAnnualReportItem;
 }
+
+export interface IListPipelineCompaniesParams {
+  cursor?: string;
+  limit?: number;
+}
+
+export interface IListPipelineCompaniesResponse {
+  data: IRunCompanyItem[];
+  nextCursor: string | null;
+  total: number;
+}

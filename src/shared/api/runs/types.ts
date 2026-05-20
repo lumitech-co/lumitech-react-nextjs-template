@@ -1,5 +1,11 @@
 export type RunItemStatus =
   | 'initializing'
+  | 'screening'
+  | 'retrieval'
+  | 'parsing'
+  | 'extraction'
+  | 'review'
+  | 'output'
   | 'in_progress'
   | 'shortlist_pending'
   | 'shortlist_confirmed'
@@ -16,9 +22,57 @@ export interface IRunItem {
   companyCount: number;
 }
 
+export interface ILatestRunItem extends IRunItem {
+  flaggedCount: number;
+}
+
 export interface IGetLatestRunResponse {
   message: string;
-  data: IRunItem | null;
+  data: ILatestRunItem | null;
+}
+
+export interface IRunStats {
+  screening: number;
+  retrieval: number;
+  parsing: number;
+  extraction: number;
+  review: number;
+  output: number;
+  shortlisted: number;
+  processedDone: number;
+  needsReviewFlagCount: number;
+  avgConvictionPct: string | null;
+}
+
+export interface IGetRunStatsResponse {
+  message: string;
+  data: IRunStats;
+}
+
+export type ActivityType =
+  | 'run_started'
+  | 'report_uploaded'
+  | 'extraction_completed'
+  | 'flag_raised'
+  | 'workbook_generated';
+
+export interface IActivityItemResponse {
+  id: string;
+  type: ActivityType;
+  description: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface IListActivitiesParams {
+  cursor?: string;
+  limit?: number;
+}
+
+export interface IListActivitiesResponse {
+  data: IActivityItemResponse[];
+  nextCursor: string | null;
+  total: number;
 }
 
 export interface ICreateRunRequest {
@@ -31,7 +85,7 @@ export interface ICreateRunResponse {
 }
 
 export const isActiveRunStatus = (status: RunItemStatus): boolean =>
-  status === 'initializing' ||
-  status === 'in_progress' ||
-  status === 'shortlist_pending' ||
-  status === 'shortlist_confirmed';
+  status !== 'completed' && status !== 'cancelled';
+
+export const isCompletedRunStatus = (status: RunItemStatus): boolean =>
+  status === 'completed';

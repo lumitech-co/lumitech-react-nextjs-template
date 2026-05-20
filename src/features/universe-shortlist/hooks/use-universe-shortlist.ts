@@ -5,12 +5,12 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   useAddRunCompany,
   useDeleteRunCompany,
+  useGetLatestRun,
   useListRunCompanies,
   useRestoreRunCompany,
   useRetrievePendingCompanies,
   useRunCompanyCounts,
   useRunCompanyFilterOptions,
-  useRunStore,
   useSearchRunCompany,
 } from 'entities';
 
@@ -46,7 +46,8 @@ const TAB_MAP: Record<UniverseTab, CompanyTab> = {
 
 export const useUniverseShortlist = () => {
   const toast = useToast();
-  const activeRun = useRunStore(state => state.activeRun);
+  const { data: latestRunResponse } = useGetLatestRun();
+  const activeRun = latestRunResponse?.data ?? null;
   const runId = activeRun?.id ?? null;
 
   const [tab, setTab] = useState<UniverseTab>('shortlist');

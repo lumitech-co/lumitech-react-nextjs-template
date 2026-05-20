@@ -3,6 +3,8 @@ import { api } from 'shared/lib';
 import {
   IAddRunCompanyRequest,
   IAddRunCompanyResponse,
+  IListPipelineCompaniesParams,
+  IListPipelineCompaniesResponse,
   IListRunCompaniesParams,
   IListRunCompaniesResponse,
   IListRunReportsParams,
@@ -133,6 +135,18 @@ export const runCompaniesApi = {
   getReportCounts: async (runId: string): Promise<IReportCountsResponse> => {
     const response = await api.get<IReportCountsResponse>(
       `${buildReportsPath(runId)}/counts`,
+    );
+
+    return response.data;
+  },
+
+  listPipelineCompanies: async (
+    runId: string,
+    params?: IListPipelineCompaniesParams,
+  ): Promise<IListPipelineCompaniesResponse> => {
+    const response = await api.get<IListPipelineCompaniesResponse>(
+      `${buildCompaniesPath(runId)}/pipeline`,
+      { params },
     );
 
     return response.data;
