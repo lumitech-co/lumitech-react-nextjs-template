@@ -23,7 +23,7 @@ import { AddCompanyModal } from './add-company-modal';
 import { FilterDropdownPortal } from './filter-dropdown-portal';
 
 const INITIALS_LENGTH = 2;
-const TABLE_MIN_HEIGHT = 200;
+const TABLE_MIN_HEIGHT = 300;
 const TABLE_COL_SPAN = 7;
 
 const getStatusBadge = (company: IRunCompanyItem) => {

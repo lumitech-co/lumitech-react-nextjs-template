@@ -18,6 +18,15 @@ export const formatMarketCapBillions = (
   return `£${billions.toFixed(1)}bn`;
 };
 
+const isSectorExclusion = (normalized: string): boolean =>
+  normalized.includes('sector') || normalized.includes('excludedsector');
+
+const isMarketCapExclusion = (normalized: string): boolean =>
+  normalized.includes('threshold') ||
+  normalized.includes('marketcap') ||
+  normalized.includes('market_cap') ||
+  normalized.includes('belowthreshold');
+
 export const getExclusionBadgeLabel = (
   company: IRunCompanyItem,
 ): string | null => {
@@ -33,15 +42,15 @@ export const getExclusionBadgeLabel = (
 
   const normalized = reason.toLowerCase();
 
-  if (normalized.includes('sector')) {
+  if (isSectorExclusion(normalized) && isMarketCapExclusion(normalized)) {
+    return 'Excluded · sector / market cap';
+  }
+
+  if (isSectorExclusion(normalized)) {
     return 'Excluded · sector';
   }
 
-  if (
-    normalized.includes('threshold') ||
-    normalized.includes('marketcap') ||
-    normalized.includes('market_cap')
-  ) {
+  if (isMarketCapExclusion(normalized)) {
     return 'Excluded · market cap';
   }
 
