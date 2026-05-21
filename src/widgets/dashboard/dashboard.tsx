@@ -40,10 +40,24 @@ export const Dashboard = () => {
     runId,
     runStatus,
   );
-  const { data: activities = [], isLoading: isActivitiesLoading } =
-    useGetRunActivities(runId, runStatus);
-  const { data: pipelineCompanies = [], isLoading: isPipelineLoading } =
-    useListPipelineCompanies(runId, runStatus);
+  const {
+    data: activitiesData,
+    isLoading: isActivitiesLoading,
+    fetchNextPage: fetchNextActivities,
+    hasNextPage: hasNextActivities = false,
+    isFetchingNextPage: isFetchingNextActivities,
+  } = useGetRunActivities(runId, runStatus);
+  const activities = activitiesData?.pages.flatMap(page => page.data) ?? [];
+
+  const {
+    data: pipelineCompaniesData,
+    isLoading: isPipelineLoading,
+    fetchNextPage: fetchNextPipelineCompanies,
+    hasNextPage: hasNextPipelineCompanies = false,
+    isFetchingNextPage: isFetchingNextPipelineCompanies,
+  } = useListPipelineCompanies(runId, runStatus);
+  const pipelineCompanies =
+    pipelineCompaniesData?.pages.flatMap(page => page.data) ?? [];
 
   const pageSubtitle = (() => {
     if (activeRun) {
@@ -94,9 +108,18 @@ export const Dashboard = () => {
           <CompaniesPipeline
             companies={pipelineCompanies}
             isLoading={isPipelineLoading}
+            hasNextPage={hasNextPipelineCompanies}
+            isFetchingNextPage={isFetchingNextPipelineCompanies}
+            onLoadMore={() => fetchNextPipelineCompanies()}
           />
           <div className="col gap-16">
-            <ActivityFeed items={activities} isLoading={isActivitiesLoading} />
+            <ActivityFeed
+              items={activities}
+              isLoading={isActivitiesLoading}
+              hasNextPage={hasNextActivities}
+              isFetchingNextPage={isFetchingNextActivities}
+              onLoadMore={() => fetchNextActivities()}
+            />
           </div>
         </div>
       )}

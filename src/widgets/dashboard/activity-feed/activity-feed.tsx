@@ -1,3 +1,5 @@
+'use client';
+
 import { ActivityType, IActivityItemResponse } from 'shared/api';
 import {
   AlertIcon,
@@ -6,10 +8,16 @@ import {
   SparkleIcon,
   UploadIcon,
 } from 'shared/icons';
+import { useInfiniteScroll } from 'shared/lib';
+
+const SCROLL_BODY_MAX_HEIGHT = 320;
 
 interface IActivityFeedProps {
   items: IActivityItemResponse[];
   isLoading?: boolean;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onLoadMore: () => void;
 }
 
 const ICON_MAP: Record<ActivityType, React.FC<React.SVGProps<SVGElement>>> = {
@@ -65,65 +73,95 @@ const formatRelativeTime = (isoDate: string): string => {
 export const ActivityFeed = ({
   items,
   isLoading = false,
-}: IActivityFeedProps) => (
-  <div className="card">
-    <div className="card-header">
-      <div className="card-title">Activity</div>
-    </div>
-    <div className="card-body" style={{ padding: 0 }}>
-      {isLoading && (
-        <div
-          style={{ padding: '16px', fontSize: 12.5, color: 'var(--ink-400)' }}
-        >
-          Loading activity&hellip;
-        </div>
-      )}
-      {!isLoading && items.length === 0 && (
-        <div
-          style={{ padding: '16px', fontSize: 12.5, color: 'var(--ink-400)' }}
-        >
-          No activity yet
-        </div>
-      )}
-      {!isLoading &&
-        items.map((activity, index) => {
-          const IconComponent = ICON_MAP[activity.type] ?? SparkleIcon;
-          const iconColor = TONE_MAP[activity.type] ?? 'var(--ink-700)';
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
+}: IActivityFeedProps) => {
+  const sentinelRef = useInfiniteScroll<HTMLDivElement>({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage: onLoadMore,
+  });
 
-          return (
-            <div
-              key={activity.id}
-              style={{
-                display: 'flex',
-                gap: 10,
-                padding: '10px 16px',
-                borderBottom:
-                  index < items.length - 1 ? '1px solid var(--line)' : 'none',
-              }}
-            >
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title">Activity</div>
+      </div>
+      <div
+        className="card-body"
+        style={{
+          padding: 0,
+          maxHeight: SCROLL_BODY_MAX_HEIGHT,
+          overflowY: 'auto',
+        }}
+      >
+        {isLoading && (
+          <div
+            style={{ padding: '16px', fontSize: 12.5, color: 'var(--ink-400)' }}
+          >
+            Loading activity&hellip;
+          </div>
+        )}
+        {!isLoading && items.length === 0 && (
+          <div
+            style={{ padding: '16px', fontSize: 12.5, color: 'var(--ink-400)' }}
+          >
+            No activity yet
+          </div>
+        )}
+        {!isLoading &&
+          items.map((activity, index) => {
+            const IconComponent = ICON_MAP[activity.type] ?? SparkleIcon;
+            const iconColor = TONE_MAP[activity.type] ?? 'var(--ink-700)';
+
+            return (
               <div
+                key={activity.id}
                 style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 6,
-                  background: 'var(--ink-100)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  color: iconColor,
-                  flexShrink: 0,
+                  display: 'flex',
+                  gap: 10,
+                  padding: '10px 16px',
+                  borderBottom:
+                    index < items.length - 1 ? '1px solid var(--line)' : 'none',
                 }}
               >
-                <IconComponent width={12} height={12} />
-              </div>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 12.5 }}>{activity.description}</div>
-                <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
-                  {formatRelativeTime(activity.createdAt)}
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 6,
+                    background: 'var(--ink-100)',
+                    display: 'grid',
+                    placeItems: 'center',
+                    color: iconColor,
+                    flexShrink: 0,
+                  }}
+                >
+                  <IconComponent width={12} height={12} />
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 12.5 }}>{activity.description}</div>
+                  <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                    {formatRelativeTime(activity.createdAt)}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        {!isLoading && hasNextPage && (
+          <div
+            ref={sentinelRef}
+            style={{
+              padding: '10px 16px',
+              fontSize: 12.5,
+              color: 'var(--ink-400)',
+            }}
+          >
+            {isFetchingNextPage && 'Loading more\u2026'}
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};

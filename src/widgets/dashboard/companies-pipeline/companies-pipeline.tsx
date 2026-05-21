@@ -4,17 +4,21 @@ import { useRouter } from 'next/navigation';
 
 import { IRunCompanyItem } from 'shared/api';
 import { ArrowRightIcon } from 'shared/icons';
+import { useInfiniteScroll } from 'shared/lib';
 import { Badge } from 'shared/ui';
 
 import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
 
+const SCROLL_BODY_MAX_HEIGHT = 320;
+const GBP_PER_BILLION = 1_000_000_000;
+
 interface ICompaniesPipelineProps {
   companies: IRunCompanyItem[];
   isLoading?: boolean;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onLoadMore: () => void;
 }
-
-const VISIBLE_COUNT = 12;
-const GBP_PER_BILLION = 1_000_000_000;
 
 const formatMarketCap = (value: string | null): string => {
   if (!value) {
@@ -33,9 +37,16 @@ const formatMarketCap = (value: string | null): string => {
 export const CompaniesPipeline = ({
   companies,
   isLoading = false,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
 }: ICompaniesPipelineProps) => {
   const router = useRouter();
-  const recent = companies.slice(0, VISIBLE_COUNT);
+  const sentinelRef = useInfiniteScroll<HTMLTableRowElement>({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage: onLoadMore,
+  });
 
   return (
     <div className="card">
@@ -57,7 +68,10 @@ export const CompaniesPipeline = ({
           View all <ArrowRightIcon width={11} height={11} />
         </span>
       </div>
-      <div className="table-wrap">
+      <div
+        className="table-wrap"
+        style={{ maxHeight: SCROLL_BODY_MAX_HEIGHT, overflowY: 'auto' }}
+      >
         <table className="tbl">
           <thead>
             <tr>
@@ -75,7 +89,7 @@ export const CompaniesPipeline = ({
                 </td>
               </tr>
             )}
-            {!isLoading && recent.length === 0 && (
+            {!isLoading && companies.length === 0 && (
               <tr>
                 <td colSpan={4} className="dim">
                   No shortlisted companies yet
@@ -83,7 +97,7 @@ export const CompaniesPipeline = ({
               </tr>
             )}
             {!isLoading &&
-              recent.map(company => (
+              companies.map(company => (
                 <tr key={company.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>
@@ -105,6 +119,13 @@ export const CompaniesPipeline = ({
                   </td>
                 </tr>
               ))}
+            {!isLoading && hasNextPage && (
+              <tr ref={sentinelRef}>
+                <td colSpan={4} className="dim">
+                  {isFetchingNextPage && 'Loading more\u2026'}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
