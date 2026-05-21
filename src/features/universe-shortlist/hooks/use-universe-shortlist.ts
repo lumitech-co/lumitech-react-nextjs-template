@@ -21,6 +21,7 @@ import {
   runCompaniesApi,
   RunCompanyStatus,
 } from 'shared/api';
+import { useDebounce } from 'shared/lib';
 import { useToast } from 'shared/ui';
 
 const GBP_PER_BILLION = 1_000_000_000;
@@ -66,6 +67,10 @@ export const useUniverseShortlist = () => {
     {},
   );
 
+  const debouncedSearch = useDebounce(search);
+  const debouncedMcapMin = useDebounce(filterMcapMin);
+  const debouncedMcapMax = useDebounce(filterMcapMax);
+
   const activeSectors = useMemo(
     () =>
       Object.entries(filterSectors)
@@ -100,30 +105,30 @@ export const useUniverseShortlist = () => {
 
     return {
       tab: TAB_MAP[tab],
-      search: search.trim() || undefined,
+      search: debouncedSearch.trim() || undefined,
       limit: LIST_LIMIT,
       isManuallyAdded: filterManualOnly || undefined,
       supersectors: activeSectors.length > 0 ? activeSectors : undefined,
       countries: activeCountries.length > 0 ? activeCountries : undefined,
       marketCapMin:
-        filterMcapMin > MCAP_MIN_DEFAULT
-          ? filterMcapMin * GBP_PER_BILLION
+        debouncedMcapMin > MCAP_MIN_DEFAULT
+          ? debouncedMcapMin * GBP_PER_BILLION
           : undefined,
       marketCapMax:
-        filterMcapMax < MCAP_MAX_DEFAULT
-          ? filterMcapMax * GBP_PER_BILLION
+        debouncedMcapMax < MCAP_MAX_DEFAULT
+          ? debouncedMcapMax * GBP_PER_BILLION
           : undefined,
       statuses: activeStatuses.length > 0 ? activeStatuses : undefined,
     };
   }, [
     runId,
     tab,
-    search,
+    debouncedSearch,
     filterManualOnly,
     activeSectors,
     activeCountries,
-    filterMcapMin,
-    filterMcapMax,
+    debouncedMcapMin,
+    debouncedMcapMax,
     activeStatuses,
   ]);
 
@@ -140,12 +145,12 @@ export const useUniverseShortlist = () => {
       supersectors: activeSectors.length > 0 ? activeSectors : undefined,
       countries: activeCountries.length > 0 ? activeCountries : undefined,
       marketCapMin:
-        filterMcapMin > MCAP_MIN_DEFAULT
-          ? filterMcapMin * GBP_PER_BILLION
+        debouncedMcapMin > MCAP_MIN_DEFAULT
+          ? debouncedMcapMin * GBP_PER_BILLION
           : undefined,
       marketCapMax:
-        filterMcapMax < MCAP_MAX_DEFAULT
-          ? filterMcapMax * GBP_PER_BILLION
+        debouncedMcapMax < MCAP_MAX_DEFAULT
+          ? debouncedMcapMax * GBP_PER_BILLION
           : undefined,
       statuses: activeStatuses.length > 0 ? activeStatuses : undefined,
     };
@@ -155,8 +160,8 @@ export const useUniverseShortlist = () => {
     filterManualOnly,
     activeSectors,
     activeCountries,
-    filterMcapMin,
-    filterMcapMax,
+    debouncedMcapMin,
+    debouncedMcapMax,
     activeStatuses,
   ]);
 

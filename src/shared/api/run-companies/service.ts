@@ -22,6 +22,23 @@ const buildCompaniesPath = (runId: string) => `/api/runs/${runId}/companies`;
 
 const buildReportsPath = (runId: string) => `/api/runs/${runId}/reports`;
 
+const serializeListRunCompaniesParams = (
+  params?: IListRunCompaniesParams,
+): Record<string, string | number | boolean> | undefined => {
+  if (!params) {
+    return undefined;
+  }
+
+  const { supersectors, countries, statuses, ...rest } = params;
+
+  return {
+    ...rest,
+    ...(supersectors?.length ? { supersectors: supersectors.join(',') } : {}),
+    ...(countries?.length ? { countries: countries.join(',') } : {}),
+    ...(statuses?.length ? { statuses: statuses.join(',') } : {}),
+  };
+};
+
 export const runCompaniesApi = {
   listCompanies: async (
     runId: string,
@@ -29,7 +46,7 @@ export const runCompaniesApi = {
   ): Promise<IListRunCompaniesResponse> => {
     const response = await api.get<IListRunCompaniesResponse>(
       buildCompaniesPath(runId),
-      { params },
+      { params: serializeListRunCompaniesParams(params) },
     );
 
     return response.data;
@@ -49,7 +66,7 @@ export const runCompaniesApi = {
   ): Promise<IRunCompanyFilterOptionsResponse> => {
     const response = await api.get<IRunCompanyFilterOptionsResponse>(
       `${buildCompaniesPath(runId)}/filter-options`,
-      { params },
+      { params: serializeListRunCompaniesParams(params) },
     );
 
     return response.data;
