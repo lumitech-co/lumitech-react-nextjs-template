@@ -51,7 +51,9 @@ export const EditWebsiteModal = ({
           </div>
           <div className="field">
             <label className="label">Company</label>
-            <div style={{ fontWeight: 500 }}>{company.companyProfile.name}</div>
+            <div style={{ fontWeight: 500 }}>
+              {company.companyProfile.name ?? '—'}
+            </div>
           </div>
           <div className="field">
             <label className="label">Official website</label>

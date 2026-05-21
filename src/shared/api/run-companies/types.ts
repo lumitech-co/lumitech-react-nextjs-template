@@ -127,7 +127,7 @@ export interface IAnnualReportItem {
 
 export interface IReportCompanyProfile {
   id: string;
-  name: string;
+  name: string | null;
   ric: string | null;
   country: string | null;
   supersector: string | null;
