@@ -1,5 +1,7 @@
 import { ReportStatus, Sector } from 'shared/constants';
 
+import { RunItemStatus } from '../runs/types';
+
 export type Stage =
   | 'queued'
   | 'screening'
@@ -92,8 +94,9 @@ export interface IArchivedRun {
   label: string;
   period: string;
   companies: number;
-  conviction: number;
-  flags: number;
+  conviction: number | null;
+  flags: number | null;
+  status: RunItemStatus;
 }
 
 export interface IWorkbookRow {

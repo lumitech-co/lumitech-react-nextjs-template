@@ -56,7 +56,8 @@ export const ViewWorkbooksModal = ({
             }}
           >
             <strong>Read-only view.</strong> {run.period} · {run.companies}{' '}
-            companies · {run.conviction}% conviction
+            companies · {run.conviction === null ? '—' : `${run.conviction}%`}{' '}
+            conviction
           </div>
           <div
             style={{

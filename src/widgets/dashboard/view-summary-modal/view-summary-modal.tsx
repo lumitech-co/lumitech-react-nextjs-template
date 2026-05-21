@@ -24,9 +24,13 @@ export const ViewSummaryModal = ({
 
   const AVG_SCORE_BASE = 6.5;
   const AVG_SCORE_DIVISOR = 40;
-  const avgScore = run
-    ? (AVG_SCORE_BASE + run.conviction / AVG_SCORE_DIVISOR).toFixed(1)
-    : '0';
+  const avgScore = (() => {
+    if (!run || run.conviction === null) {
+      return '—';
+    }
+
+    return (AVG_SCORE_BASE + run.conviction / AVG_SCORE_DIVISOR).toFixed(1);
+  })();
 
   return (
     <Modal
@@ -109,7 +113,7 @@ export const ViewSummaryModal = ({
                 Conviction
               </div>
               <div style={{ fontSize: 18, fontWeight: 600, marginTop: 2 }}>
-                {run.conviction}%
+                {run.conviction === null ? '—' : `${run.conviction}%`}
               </div>
             </div>
             <div
@@ -130,7 +134,7 @@ export const ViewSummaryModal = ({
                   color: 'var(--danger)',
                 }}
               >
-                {run.flags}
+                {run.flags ?? '—'}
               </div>
             </div>
           </div>

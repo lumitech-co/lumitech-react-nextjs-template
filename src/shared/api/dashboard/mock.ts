@@ -348,6 +348,7 @@ export const MOCK_ARCHIVED_RUNS: IArchivedRun[] = [
     companies: 41,
     conviction: 79,
     flags: 9,
+    status: 'completed',
   },
   {
     id: '2025-Q4',
@@ -356,6 +357,7 @@ export const MOCK_ARCHIVED_RUNS: IArchivedRun[] = [
     companies: 38,
     conviction: 81,
     flags: 7,
+    status: 'completed',
   },
   {
     id: '2025-Q3',
@@ -364,6 +366,7 @@ export const MOCK_ARCHIVED_RUNS: IArchivedRun[] = [
     companies: 36,
     conviction: 78,
     flags: 11,
+    status: 'completed',
   },
 ];
 

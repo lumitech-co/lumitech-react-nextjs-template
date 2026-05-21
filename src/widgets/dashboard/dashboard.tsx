@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
   formatRunDateTime,
@@ -8,19 +8,16 @@ import {
   useGetRunActivities,
   useGetRunStats,
   useListPipelineCompanies,
+  useListPreviousRuns,
 } from 'entities';
 
-import {
-  HISTORICAL_SUMMARY_ROWS,
-  HISTORICAL_WORKBOOK_ROWS,
-  IArchivedRun,
-  MOCK_ARCHIVED_RUNS,
-} from 'shared/api';
+import { IArchivedRun } from 'shared/api';
 
 import { ActivityFeed } from './activity-feed';
 import { CompaniesPipeline } from './companies-pipeline';
 import { PipelineProgress } from './pipeline-progress';
 import { PreviousRuns } from './previous-runs';
+import { mapRunToPreviousRun } from './previous-runs/map-run-to-previous-run';
 import { RunCompletedBanner } from './run-completed-banner';
 import { RunStats } from './run-stats';
 import { ViewSummaryModal } from './view-summary-modal';
@@ -58,6 +55,23 @@ export const Dashboard = () => {
   } = useListPipelineCompanies(runId, runStatus);
   const pipelineCompanies =
     pipelineCompaniesData?.pages.flatMap(page => page.data) ?? [];
+
+  const {
+    data: previousRunsData,
+    isLoading: isPreviousRunsLoading,
+    fetchNextPage: fetchNextPreviousRuns,
+    hasNextPage: hasNextPreviousRuns = false,
+    isFetchingNextPage: isFetchingNextPreviousRuns,
+  } = useListPreviousRuns();
+
+  const previousRuns = useMemo(
+    () =>
+      previousRunsData?.pages
+        .flatMap(page => page.data)
+        .filter(run => run.id !== activeRun?.id)
+        .map(mapRunToPreviousRun) ?? [],
+    [previousRunsData, activeRun?.id],
+  );
 
   const pageSubtitle = (() => {
     if (activeRun) {
@@ -131,20 +145,22 @@ export const Dashboard = () => {
       )}
 
       <PreviousRuns
-        archivedRuns={MOCK_ARCHIVED_RUNS}
-        onViewWorkbooks={setViewWorkbooks}
-        onViewSummary={setViewSummary}
+        archivedRuns={previousRuns}
+        isLoading={isPreviousRunsLoading}
+        hasNextPage={hasNextPreviousRuns}
+        isFetchingNextPage={isFetchingNextPreviousRuns}
+        onLoadMore={() => fetchNextPreviousRuns()}
       />
 
       <ViewWorkbooksModal
         run={viewWorkbooks}
-        rows={HISTORICAL_WORKBOOK_ROWS}
+        rows={[]}
         onClose={() => setViewWorkbooks(null)}
       />
 
       <ViewSummaryModal
         run={viewSummary}
-        rows={HISTORICAL_SUMMARY_ROWS}
+        rows={[]}
         onClose={() => setViewSummary(null)}
       />
     </div>
