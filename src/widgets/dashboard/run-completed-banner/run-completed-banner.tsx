@@ -2,21 +2,32 @@
 
 import { useRouter } from 'next/navigation';
 
-import { IRun } from 'shared/api';
+import { formatRunDateTime } from 'entities';
+
+import { ILatestRunItem } from 'shared/api';
 import { CheckIcon, InboxIcon, LayersIcon } from 'shared/icons';
 
 import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
 
 interface IRunCompletedBannerProps {
-  run: IRun;
+  run: ILatestRunItem;
+  processedCount: number;
 }
 
-export const RunCompletedBanner = ({ run }: IRunCompletedBannerProps) => {
+export const RunCompletedBanner = ({
+  run,
+  processedCount,
+}: IRunCompletedBannerProps) => {
   const router = useRouter();
 
   if (run.status !== 'completed') {
     return null;
   }
+
+  const completedLabel = run.completedAt
+    ? formatRunDateTime(run.completedAt)
+    : 'Recently';
+  const convictionLabel = run.overallConvictionPct ?? '—';
 
   return (
     <div
@@ -59,14 +70,13 @@ export const RunCompletedBanner = ({ run }: IRunCompletedBannerProps) => {
           <div
             style={{ fontSize: 12.5, color: 'var(--ink-700)', marginTop: 2 }}
           >
-            Finished {run.completedAt || '2026-05-04 14:23 UTC'} ·{' '}
-            {run.totals.processed} companies processed ·{' '}
-            {run.totals.needsReview} flagged for review · Overall conviction{' '}
-            {run.overallConviction}%
+            Finished {completedLabel} · {processedCount} companies processed ·{' '}
+            {run.flaggedCount} flagged for review · Overall conviction{' '}
+            {convictionLabel}%
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-          {run.totals.needsReview > 0 && (
+          {run.flaggedCount > 0 && (
             <button
               type="button"
               className="btn btn-secondary"

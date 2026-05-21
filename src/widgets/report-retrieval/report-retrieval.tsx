@@ -288,7 +288,7 @@ export const ReportRetrieval = () => {
                     <tr key={company.id}>
                       <td>
                         <div className="flex items-center gap-1.5 font-medium">
-                          {profile.name}
+                          {profile.name ?? '—'}
                           {company.isManuallyAdded && (
                             <Badge tone="accent" withDot={false}>
                               manual
@@ -347,7 +347,7 @@ export const ReportRetrieval = () => {
         target={
           reuploadConfirm
             ? {
-                companyName: reuploadConfirm.company.companyProfile.name,
+                companyName: reuploadConfirm.company.companyProfile.name ?? '—',
                 year: reuploadConfirm.year,
               }
             : null

@@ -3,9 +3,9 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import {
+  useGetLatestRun,
   useListRunReports,
   useReportCounts,
-  useRunStore,
   useUploadReport,
 } from 'entities';
 
@@ -27,7 +27,8 @@ const FILTER_TAB_MAP: Record<ReportFilter, CompanyReportTab> = {
 
 export const useReportRetrieval = () => {
   const toast = useToast();
-  const activeRun = useRunStore(state => state.activeRun);
+  const { data: latestRunResponse } = useGetLatestRun();
+  const activeRun = latestRunResponse?.data ?? null;
   const runId = activeRun?.id ?? null;
 
   const [query, setQuery] = useState('');

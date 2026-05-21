@@ -107,7 +107,7 @@ export const UploadReportModal = ({
           <div className="field">
             <label className="label">Company</label>
             <div className="font-medium">
-              {target.company.companyProfile.name}
+              {target.company.companyProfile.name ?? '—'}
             </div>
           </div>
           <div className="field">

@@ -131,6 +131,22 @@
   .app.no-shell {
     display: block;
   }
+  .app-shell-loader {
+    display: grid;
+    grid-template-columns: 1fr;
+    place-items: center;
+    background: var(--bg);
+  }
+  .app-shell-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .app-shell-loader-label {
+    font-size: 13px;
+    color: var(--ink-500);
+  }
 
   /* ───── Sidebar ───── */
   .sidebar {

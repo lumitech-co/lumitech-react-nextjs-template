@@ -496,9 +496,9 @@ export const UniverseShortlist = () => {
                       <td>
                         <div className="flex items-center gap-2">
                           <div className="grid size-6 shrink-0 place-items-center rounded-[5px] bg-accent-50 text-[10px] font-bold text-accent">
-                            {profile.name
-                              .slice(0, INITIALS_LENGTH)
-                              .toUpperCase()}
+                            {(
+                              profile.name?.slice(0, INITIALS_LENGTH) ?? 'N/A'
+                            ).toUpperCase()}
                           </div>
                           <div>
                             <div
@@ -572,7 +572,9 @@ export const UniverseShortlist = () => {
         onSearch={searchCompany}
         isSearching={isSearching}
         isAdding={isAdding}
-        existingNames={companies.map(company => company.companyProfile.name)}
+        existingNames={companies
+          .map(company => company.companyProfile.name)
+          .filter((name): name is string => name !== null)}
       />
     </div>
   );

@@ -1,32 +1,68 @@
 'use client';
 
+import { useGetLatestRun } from 'entities';
+
+import { isActiveRunStatus } from 'shared/api';
 import { Badge } from 'shared/ui';
 
-interface ITopBarProps {
-  runLabel?: string;
-  status?: 'idle' | 'running' | 'completed';
-}
+type TopBarStatus = 'idle' | 'running' | 'completed';
 
-export const TopBar = ({
-  runLabel = 'Iron Blue · Run #2026-04-30-A',
-  status = 'idle',
-}: ITopBarProps) => (
-  <header className="topbar">
-    <div>
-      <div
-        className="text-sm font-semibold tracking-[-0.005em]"
-        style={{ color: 'var(--ink-900)' }}
-      >
-        {runLabel}
+const getTopBarStatus = (
+  status: ReturnType<typeof useGetLatestRun>['data'],
+): TopBarStatus => {
+  const run = status?.data;
+
+  if (!run) {
+    return 'idle';
+  }
+
+  if (isActiveRunStatus(run.status)) {
+    return 'running';
+  }
+
+  if (run.status === 'completed') {
+    return 'completed';
+  }
+
+  return 'idle';
+};
+
+export const TopBar = () => {
+  const { data: latestRunResponse } = useGetLatestRun();
+  const activeRun = latestRunResponse?.data ?? null;
+  const status = getTopBarStatus(latestRunResponse);
+  const runLabel = activeRun?.label
+    ? `Iron Blue · ${activeRun.label}`
+    : 'Iron Blue';
+
+  return (
+    <header className="topbar">
+      <div>
+        <div
+          className="text-sm font-semibold tracking-[-0.005em]"
+          style={{ color: 'var(--ink-900)' }}
+        >
+          {runLabel}
+        </div>
       </div>
-    </div>
-    <div className="topbar-spacer" />
-    <div className="row gap-8">
-      {status === 'idle' && (
-        <Badge tone="neutral" withDot>
-          No active run
-        </Badge>
-      )}
-    </div>
-  </header>
-);
+      <div className="topbar-spacer" />
+      <div className="row gap-8">
+        {status === 'idle' && (
+          <Badge tone="neutral" withDot>
+            No active run
+          </Badge>
+        )}
+        {status === 'running' && (
+          <Badge tone="info" withDot>
+            Run in progress
+          </Badge>
+        )}
+        {status === 'completed' && (
+          <Badge tone="success" withDot={false}>
+            Run completed
+          </Badge>
+        )}
+      </div>
+    </header>
+  );
+};

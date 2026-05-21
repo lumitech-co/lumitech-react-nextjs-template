@@ -27,12 +27,12 @@ export type AnnualReportStatus =
 
 export interface IRunCompanyProfile {
   id: string;
-  name: string;
+  name: string | null;
   ric: string | null;
   supersector: string | null;
   country: string | null;
   domain: string | null;
-  status: 'Active' | 'Inactive';
+  status: 'Active' | 'LeftIndex';
 }
 
 export interface IScreeningResult {
@@ -127,7 +127,7 @@ export interface IAnnualReportItem {
 
 export interface IReportCompanyProfile {
   id: string;
-  name: string;
+  name: string | null;
   ric: string | null;
   country: string | null;
   supersector: string | null;
@@ -165,4 +165,15 @@ export interface IReportCountsResponse {
 
 export interface IUploadReportResponse {
   data: IAnnualReportItem;
+}
+
+export interface IListPipelineCompaniesParams {
+  cursor?: string;
+  limit?: number;
+}
+
+export interface IListPipelineCompaniesResponse {
+  data: IRunCompanyItem[];
+  nextCursor: string | null;
+  total: number;
 }

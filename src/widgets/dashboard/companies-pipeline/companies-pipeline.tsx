@@ -2,19 +2,38 @@
 
 import { useRouter } from 'next/navigation';
 
-import { ICompany } from 'shared/api';
+import { IRunCompanyItem } from 'shared/api';
 import { ArrowRightIcon } from 'shared/icons';
-import { Conviction, StageChip } from 'shared/ui';
+import { Badge } from 'shared/ui';
 
 import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
 
 interface ICompaniesPipelineProps {
-  companies: ICompany[];
+  companies: IRunCompanyItem[];
+  isLoading?: boolean;
 }
 
 const VISIBLE_COUNT = 12;
+const GBP_PER_BILLION = 1_000_000_000;
 
-export const CompaniesPipeline = ({ companies }: ICompaniesPipelineProps) => {
+const formatMarketCap = (value: string | null): string => {
+  if (!value) {
+    return '—';
+  }
+
+  const billions = Number(value) / GBP_PER_BILLION;
+
+  if (Number.isNaN(billions)) {
+    return '—';
+  }
+
+  return `£${billions.toFixed(1)}bn`;
+};
+
+export const CompaniesPipeline = ({
+  companies,
+  isLoading = false,
+}: ICompaniesPipelineProps) => {
   const router = useRouter();
   const recent = companies.slice(0, VISIBLE_COUNT);
 
@@ -44,32 +63,48 @@ export const CompaniesPipeline = ({ companies }: ICompaniesPipelineProps) => {
             <tr>
               <th>Company</th>
               <th>Sector</th>
-              <th>Stage</th>
-              <th>Conviction</th>
+              <th>Market cap</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {recent.map(company => (
-              <tr key={company.id}>
-                <td>
-                  <div style={{ fontWeight: 500 }}>{company.name}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--ink-500)' }}>
-                    {company.country} · £{company.mcap}bn
-                  </div>
-                </td>
-                <td style={{ color: 'var(--ink-500)' }}>{company.sector}</td>
-                <td>
-                  <StageChip stage={company.stage} />
-                </td>
-                <td>
-                  {company.conviction == null ? (
-                    <span className="dim">—</span>
-                  ) : (
-                    <Conviction value={company.conviction} />
-                  )}
+            {isLoading && (
+              <tr>
+                <td colSpan={4} className="dim">
+                  Loading companies&hellip;
                 </td>
               </tr>
-            ))}
+            )}
+            {!isLoading && recent.length === 0 && (
+              <tr>
+                <td colSpan={4} className="dim">
+                  No shortlisted companies yet
+                </td>
+              </tr>
+            )}
+            {!isLoading &&
+              recent.map(company => (
+                <tr key={company.id}>
+                  <td>
+                    <div style={{ fontWeight: 500 }}>
+                      {company.companyProfile.name}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--ink-500)' }}>
+                      {company.companyProfile.country ?? '—'} ·{' '}
+                      {company.companyProfile.ric ?? '—'}
+                    </div>
+                  </td>
+                  <td style={{ color: 'var(--ink-500)' }}>
+                    {company.companyProfile.supersector ?? '—'}
+                  </td>
+                  <td>{formatMarketCap(company.marketCapGbp)}</td>
+                  <td>
+                    <Badge tone="neutral" withDot={false}>
+                      {company.status}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
