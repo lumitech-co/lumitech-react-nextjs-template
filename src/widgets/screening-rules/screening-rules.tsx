@@ -2,29 +2,29 @@
 
 import { useCallback, useState } from 'react';
 
-import { useGetLatestRun } from 'entities';
+// import { useGetLatestRun } from 'entities';
 
 import { useStartRun } from 'features';
 import {
   DEFAULT_SCREENING,
-  isActiveRunStatus,
+  // isActiveRunStatus,
   IScreeningRules,
   SUPERSECTORS,
 } from 'shared/api';
-import { CheckIcon, PlayIcon, RefreshIcon, StopIcon } from 'shared/icons';
+import { CheckIcon, PlayIcon } from 'shared/icons';
 import { Badge, Checkbox, useToast } from 'shared/ui';
 
 export const ScreeningRules = () => {
   const toast = useToast();
   const [rules, setRules] = useState<IScreeningRules>(DEFAULT_SCREENING);
   const [draft, setDraft] = useState<IScreeningRules>(DEFAULT_SCREENING);
-  const { data: latestRunResponse } = useGetLatestRun();
-  const activeRun = latestRunResponse?.data ?? null;
+  // const { data: latestRunResponse } = useGetLatestRun();
+  // const activeRun = latestRunResponse?.data ?? null;
   const { startRun, isStarting } = useStartRun();
   const dirty = JSON.stringify(draft) !== JSON.stringify(rules);
-  const isRunInProgress = activeRun
-    ? isActiveRunStatus(activeRun.status)
-    : false;
+  // const isRunInProgress = activeRun
+  //   ? isActiveRunStatus(activeRun.status)
+  //   : false;
 
   const toggle = useCallback((sector: string) => {
     setDraft(prev => ({
@@ -44,9 +44,9 @@ export const ScreeningRules = () => {
     await startRun(draft);
   }, [draft, startRun]);
 
-  const handleCancel = useCallback(() => {
-    toast('Cancel run is not yet available', { tone: 'default' });
-  }, [toast]);
+  // const handleCancel = useCallback(() => {
+  //   toast('Cancel run is not yet available', { tone: 'default' });
+  // }, [toast]);
 
   return (
     <div className="content">
@@ -194,7 +194,17 @@ export const ScreeningRules = () => {
                 processing further companies but preserves work already
                 completed.
               </div>
-              {isRunInProgress ? (
+              <button
+                type="button"
+                className="btn btn-primary btn-lg"
+                style={{ width: '100%' }}
+                disabled={isStarting}
+                onClick={handleStartRun}
+              >
+                <PlayIcon width={14} height={14} />
+                Start New Run
+              </button>
+              {/* {isRunInProgress ? (
                 <div className="col gap-8">
                   <div
                     className="badge badge-info"
@@ -235,7 +245,7 @@ export const ScreeningRules = () => {
                   <PlayIcon width={14} height={14} />
                   Start New Run
                 </button>
-              )}
+              )} */}
             </div>
           </div>
         </div>
