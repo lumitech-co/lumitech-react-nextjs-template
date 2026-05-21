@@ -150,9 +150,9 @@ export const ScreeningRules = () => {
               </div>
               <input
                 type="range"
-                min="0.5"
-                max="10"
-                step="0.1"
+                min="0"
+                max="100"
+                step="0.5"
                 value={draft.minMcap}
                 onChange={event =>
                   setDraft({
@@ -172,8 +172,8 @@ export const ScreeningRules = () => {
                   fontVariantNumeric: 'tabular-nums',
                 }}
               >
-                <span>£0.5bn</span>
-                <span>£10bn</span>
+                <span>£0bn</span>
+                <span>£100bn</span>
               </div>
             </div>
           </div>
