@@ -26,7 +26,7 @@ interface IStageCell {
 }
 
 const STAGE_COUNT = 6;
-const ACTIVE_STAGE_WEIGHT = 0.5;
+const ACTIVE_STAGE_WEIGHT = 1;
 const PERCENT_MULTIPLIER = 100;
 
 const STAGE_DEFINITIONS = [
