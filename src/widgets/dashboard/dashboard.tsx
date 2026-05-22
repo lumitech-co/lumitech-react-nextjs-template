@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
   formatRunDateTime,
@@ -8,19 +8,16 @@ import {
   useGetRunActivities,
   useGetRunStats,
   useListPipelineCompanies,
+  useListPreviousRuns,
 } from 'entities';
 
-import {
-  HISTORICAL_SUMMARY_ROWS,
-  HISTORICAL_WORKBOOK_ROWS,
-  IArchivedRun,
-  MOCK_ARCHIVED_RUNS,
-} from 'shared/api';
+import { IArchivedRun } from 'shared/api';
 
 import { ActivityFeed } from './activity-feed';
 import { CompaniesPipeline } from './companies-pipeline';
 import { PipelineProgress } from './pipeline-progress';
 import { PreviousRuns } from './previous-runs';
+import { mapRunToPreviousRun } from './previous-runs/map-run-to-previous-run';
 import { RunCompletedBanner } from './run-completed-banner';
 import { RunStats } from './run-stats';
 import { ViewSummaryModal } from './view-summary-modal';
@@ -40,10 +37,41 @@ export const Dashboard = () => {
     runId,
     runStatus,
   );
-  const { data: activities = [], isLoading: isActivitiesLoading } =
-    useGetRunActivities(runId, runStatus);
-  const { data: pipelineCompanies = [], isLoading: isPipelineLoading } =
-    useListPipelineCompanies(runId, runStatus);
+  const {
+    data: activitiesData,
+    isLoading: isActivitiesLoading,
+    fetchNextPage: fetchNextActivities,
+    hasNextPage: hasNextActivities = false,
+    isFetchingNextPage: isFetchingNextActivities,
+  } = useGetRunActivities(runId, runStatus);
+  const activities = activitiesData?.pages.flatMap(page => page.data) ?? [];
+
+  const {
+    data: pipelineCompaniesData,
+    isLoading: isPipelineLoading,
+    fetchNextPage: fetchNextPipelineCompanies,
+    hasNextPage: hasNextPipelineCompanies = false,
+    isFetchingNextPage: isFetchingNextPipelineCompanies,
+  } = useListPipelineCompanies(runId, runStatus);
+  const pipelineCompanies =
+    pipelineCompaniesData?.pages.flatMap(page => page.data) ?? [];
+
+  const {
+    data: previousRunsData,
+    isLoading: isPreviousRunsLoading,
+    fetchNextPage: fetchNextPreviousRuns,
+    hasNextPage: hasNextPreviousRuns = false,
+    isFetchingNextPage: isFetchingNextPreviousRuns,
+  } = useListPreviousRuns();
+
+  const previousRuns = useMemo(
+    () =>
+      previousRunsData?.pages
+        .flatMap(page => page.data)
+        .filter(run => run.id !== activeRun?.id)
+        .map(mapRunToPreviousRun) ?? [],
+    [previousRunsData, activeRun?.id],
+  );
 
   const pageSubtitle = (() => {
     if (activeRun) {
@@ -94,9 +122,18 @@ export const Dashboard = () => {
           <CompaniesPipeline
             companies={pipelineCompanies}
             isLoading={isPipelineLoading}
+            hasNextPage={hasNextPipelineCompanies}
+            isFetchingNextPage={isFetchingNextPipelineCompanies}
+            onLoadMore={() => fetchNextPipelineCompanies()}
           />
           <div className="col gap-16">
-            <ActivityFeed items={activities} isLoading={isActivitiesLoading} />
+            <ActivityFeed
+              items={activities}
+              isLoading={isActivitiesLoading}
+              hasNextPage={hasNextActivities}
+              isFetchingNextPage={isFetchingNextActivities}
+              onLoadMore={() => fetchNextActivities()}
+            />
           </div>
         </div>
       )}
@@ -108,20 +145,22 @@ export const Dashboard = () => {
       )}
 
       <PreviousRuns
-        archivedRuns={MOCK_ARCHIVED_RUNS}
-        onViewWorkbooks={setViewWorkbooks}
-        onViewSummary={setViewSummary}
+        archivedRuns={previousRuns}
+        isLoading={isPreviousRunsLoading}
+        hasNextPage={hasNextPreviousRuns}
+        isFetchingNextPage={isFetchingNextPreviousRuns}
+        onLoadMore={() => fetchNextPreviousRuns()}
       />
 
       <ViewWorkbooksModal
         run={viewWorkbooks}
-        rows={HISTORICAL_WORKBOOK_ROWS}
+        rows={[]}
         onClose={() => setViewWorkbooks(null)}
       />
 
       <ViewSummaryModal
         run={viewSummary}
-        rows={HISTORICAL_SUMMARY_ROWS}
+        rows={[]}
         onClose={() => setViewSummary(null)}
       />
     </div>

@@ -23,7 +23,7 @@ import { AddCompanyModal } from './add-company-modal';
 import { FilterDropdownPortal } from './filter-dropdown-portal';
 
 const INITIALS_LENGTH = 2;
-const TABLE_MIN_HEIGHT = 200;
+const TABLE_MIN_HEIGHT = 300;
 const TABLE_COL_SPAN = 7;
 
 const getStatusBadge = (company: IRunCompanyItem) => {
@@ -280,20 +280,26 @@ export const UniverseShortlist = () => {
                       onClose={closeFilter}
                     >
                       <div className="max-h-[280px] min-w-[220px] overflow-auto rounded-md border border-line bg-white px-3 py-2 shadow-[0_6px_20px_rgba(0,0,0,0.08)]">
-                        {allSectors.map(sector => (
-                          <label
-                            key={sector}
-                            className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] font-normal"
-                          >
-                            <Checkbox
-                              checked={!!filterSectors[sector]}
-                              onChange={checked =>
-                                toggleSector(sector, checked)
-                              }
-                            />
-                            {sector}
-                          </label>
-                        ))}
+                        {allSectors.length === 0 ? (
+                          <p className="py-2 text-[12.5px] text-ink-400">
+                            No filter options
+                          </p>
+                        ) : (
+                          allSectors.map(sector => (
+                            <label
+                              key={sector}
+                              className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] font-normal"
+                            >
+                              <Checkbox
+                                checked={!!filterSectors[sector]}
+                                onChange={checked =>
+                                  toggleSector(sector, checked)
+                                }
+                              />
+                              {sector}
+                            </label>
+                          ))
+                        )}
                       </div>
                     </FilterDropdownPortal>
                   )}
@@ -323,20 +329,26 @@ export const UniverseShortlist = () => {
                       onClose={closeFilter}
                     >
                       <div className="max-h-[280px] min-w-[160px] overflow-auto rounded-md border border-line bg-white px-3 py-2 shadow-[0_6px_20px_rgba(0,0,0,0.08)]">
-                        {allCountries.map(country => (
-                          <label
-                            key={country}
-                            className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] font-normal"
-                          >
-                            <Checkbox
-                              checked={!!filterCountries[country]}
-                              onChange={checked =>
-                                toggleCountry(country, checked)
-                              }
-                            />
-                            {country}
-                          </label>
-                        ))}
+                        {allCountries.length === 0 ? (
+                          <p className="py-2 text-[12.5px] text-ink-400">
+                            No filter options
+                          </p>
+                        ) : (
+                          allCountries.map(country => (
+                            <label
+                              key={country}
+                              className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] font-normal"
+                            >
+                              <Checkbox
+                                checked={!!filterCountries[country]}
+                                onChange={checked =>
+                                  toggleCountry(country, checked)
+                                }
+                              />
+                              {country}
+                            </label>
+                          ))
+                        )}
                       </div>
                     </FilterDropdownPortal>
                   )}
@@ -441,20 +453,26 @@ export const UniverseShortlist = () => {
                       onClose={closeFilter}
                     >
                       <div className="max-h-[280px] min-w-[220px] overflow-auto rounded-md border border-line bg-white px-3 py-2 shadow-[0_6px_20px_rgba(0,0,0,0.08)]">
-                        {availableStatuses.map(status => (
-                          <label
-                            key={status}
-                            className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] font-normal"
-                          >
-                            <Checkbox
-                              checked={!!filterStatuses[status]}
-                              onChange={checked =>
-                                toggleStatus(status, checked)
-                              }
-                            />
-                            {status}
-                          </label>
-                        ))}
+                        {availableStatuses.length === 0 ? (
+                          <p className="py-2 text-[12.5px] text-ink-400">
+                            No filter options
+                          </p>
+                        ) : (
+                          availableStatuses.map(status => (
+                            <label
+                              key={status}
+                              className="flex cursor-pointer items-center gap-2 py-1 text-[12.5px] font-normal"
+                            >
+                              <Checkbox
+                                checked={!!filterStatuses[status]}
+                                onChange={checked =>
+                                  toggleStatus(status, checked)
+                                }
+                              />
+                              {status}
+                            </label>
+                          ))
+                        )}
                       </div>
                     </FilterDropdownPortal>
                   )}
@@ -477,7 +495,8 @@ export const UniverseShortlist = () => {
                 <tr>
                   <td
                     colSpan={TABLE_COL_SPAN}
-                    className="py-12 text-center text-[13px] text-ink-400"
+                    className="!min-h-[300px] py-24 text-center text-[13px] text-ink-400"
+                    style={{ minHeight: TABLE_MIN_HEIGHT, padding: '140px' }}
                   >
                     No companies match the current filters
                   </td>

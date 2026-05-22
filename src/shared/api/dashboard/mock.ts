@@ -348,6 +348,7 @@ export const MOCK_ARCHIVED_RUNS: IArchivedRun[] = [
     companies: 41,
     conviction: 79,
     flags: 9,
+    status: 'completed',
   },
   {
     id: '2025-Q4',
@@ -356,6 +357,7 @@ export const MOCK_ARCHIVED_RUNS: IArchivedRun[] = [
     companies: 38,
     conviction: 81,
     flags: 7,
+    status: 'completed',
   },
   {
     id: '2025-Q3',
@@ -364,6 +366,7 @@ export const MOCK_ARCHIVED_RUNS: IArchivedRun[] = [
     companies: 36,
     conviction: 78,
     flags: 11,
+    status: 'completed',
   },
 ];
 
@@ -401,7 +404,7 @@ export const SUPERSECTORS = Object.values(Sector);
 export const DEFAULT_SCREENING: IScreeningRules = {
   excludedSectors: [...EXCLUDED_SECTORS],
   minMcap: 2.0,
-  threshold: 90,
+  maxMcap: null,
 };
 
 export const MOCK_TEMPLATE_FIELDS: ITemplateField[] = [

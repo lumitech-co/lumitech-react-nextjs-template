@@ -63,9 +63,9 @@ export const useReportRetrieval = () => {
     const years: number[] = [];
 
     for (
-      let year = listParams.toYear ?? currentYear;
-      year >= (listParams.fromYear ?? defaultFromYear);
-      year -= 1
+      let year = listParams.fromYear ?? defaultFromYear;
+      year <= (listParams.toYear ?? currentYear);
+      year += 1
     ) {
       years.push(year);
     }

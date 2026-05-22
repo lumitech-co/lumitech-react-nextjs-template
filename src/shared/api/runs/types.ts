@@ -5,10 +5,6 @@ export type RunItemStatus =
   | 'parsing'
   | 'extraction'
   | 'review'
-  | 'output'
-  | 'in_progress'
-  | 'shortlist_pending'
-  | 'shortlist_confirmed'
   | 'completed'
   | 'cancelled';
 
@@ -78,10 +74,22 @@ export interface IListActivitiesResponse {
 export interface ICreateRunRequest {
   excludedSectors: string[];
   marketCapThresholdMinGbp: number;
+  marketCapThresholdMaxGbp?: number;
 }
 
 export interface ICreateRunResponse {
   data: IRunItem;
+}
+
+export interface IListRunsParams {
+  cursor?: string;
+  limit?: number;
+}
+
+export interface IListRunsResponse {
+  data: IRunItem[];
+  nextCursor: string | null;
+  total: number;
 }
 
 export const isActiveRunStatus = (status: RunItemStatus): boolean =>

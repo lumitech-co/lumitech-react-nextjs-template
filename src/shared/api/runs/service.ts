@@ -1,5 +1,6 @@
 import { api } from 'shared/lib';
 
+import { normalizeRunItem } from './normalize-run-item';
 import {
   ICreateRunRequest,
   ICreateRunResponse,
@@ -7,19 +8,31 @@ import {
   IGetRunStatsResponse,
   IListActivitiesParams,
   IListActivitiesResponse,
+  IListRunsParams,
+  IListRunsResponse,
 } from './types';
 
 export const runsApi = {
   getLatest: async (): Promise<IGetLatestRunResponse> => {
     const response = await api.get<IGetLatestRunResponse>('/api/runs/latest');
 
-    return response.data;
+    return {
+      ...response.data,
+      data: response.data.data
+        ? {
+            ...normalizeRunItem(response.data.data),
+            flaggedCount: response.data.data.flaggedCount,
+          }
+        : null,
+    };
   },
 
   createRun: async (data: ICreateRunRequest): Promise<ICreateRunResponse> => {
     const response = await api.post<ICreateRunResponse>('/api/runs', data);
 
-    return response.data;
+    return {
+      data: normalizeRunItem(response.data.data),
+    };
   },
 
   getStats: async (runId: string): Promise<IGetRunStatsResponse> => {
@@ -40,5 +53,14 @@ export const runsApi = {
     );
 
     return response.data;
+  },
+
+  listRuns: async (params?: IListRunsParams): Promise<IListRunsResponse> => {
+    const response = await api.get<IListRunsResponse>('/api/runs', { params });
+
+    return {
+      ...response.data,
+      data: response.data.data.map(normalizeRunItem),
+    };
   },
 };

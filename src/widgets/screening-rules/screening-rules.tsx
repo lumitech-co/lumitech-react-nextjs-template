@@ -1,52 +1,23 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { Controller } from 'react-hook-form';
 
-// import { useGetLatestRun } from 'entities';
-
-import { useStartRun } from 'features';
-import {
-  DEFAULT_SCREENING,
-  // isActiveRunStatus,
-  IScreeningRules,
-  SUPERSECTORS,
-} from 'shared/api';
+import { useScreeningRules } from 'features';
+import { SUPERSECTORS } from 'shared/api';
 import { CheckIcon, PlayIcon } from 'shared/icons';
-import { Badge, Checkbox, useToast } from 'shared/ui';
+import { Badge, Checkbox } from 'shared/ui';
+
+const LOADING_OPACITY = 0.6;
 
 export const ScreeningRules = () => {
-  const toast = useToast();
-  const [rules, setRules] = useState<IScreeningRules>(DEFAULT_SCREENING);
-  const [draft, setDraft] = useState<IScreeningRules>(DEFAULT_SCREENING);
-  // const { data: latestRunResponse } = useGetLatestRun();
-  // const activeRun = latestRunResponse?.data ?? null;
-  const { startRun, isStarting } = useStartRun();
-  const dirty = JSON.stringify(draft) !== JSON.stringify(rules);
-  // const isRunInProgress = activeRun
-  //   ? isActiveRunStatus(activeRun.status)
-  //   : false;
-
-  const toggle = useCallback((sector: string) => {
-    setDraft(prev => ({
-      ...prev,
-      excludedSectors: prev.excludedSectors.includes(sector)
-        ? prev.excludedSectors.filter(existing => existing !== sector)
-        : [...prev.excludedSectors, sector],
-    }));
-  }, []);
-
-  const save = useCallback(() => {
-    setRules(draft);
-    toast('Screening rules saved · applied on next run', { tone: 'success' });
-  }, [draft, toast]);
-
-  const handleStartRun = useCallback(async () => {
-    await startRun(draft);
-  }, [draft, startRun]);
-
-  // const handleCancel = useCallback(() => {
-  //   toast('Cancel run is not yet available', { tone: 'default' });
-  // }, [toast]);
+  const { form, onSave, onStartRun, toggle, isSaving, isStarting, isLoading } =
+    useScreeningRules();
+  const {
+    control,
+    watch,
+    formState: { isDirty },
+  } = form;
+  const excludedSectors = watch('excludedSectors');
 
   return (
     <div className="content">
@@ -62,8 +33,8 @@ export const ScreeningRules = () => {
           <button
             type="button"
             className="btn btn-primary"
-            disabled={!dirty}
-            onClick={save}
+            disabled={!isDirty || isSaving || isLoading}
+            onClick={onSave}
           >
             <CheckIcon width={13} height={13} />
             Save Changes
@@ -83,7 +54,7 @@ export const ScreeningRules = () => {
             </div>
             <div className="spacer" />
             <Badge tone="neutral" withDot={false}>
-              {draft.excludedSectors.length} excluded
+              {excludedSectors.length} excluded
             </Badge>
           </div>
           <div
@@ -92,6 +63,8 @@ export const ScreeningRules = () => {
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
               gap: '8px 16px',
+              opacity: isLoading ? LOADING_OPACITY : 1,
+              pointerEvents: isLoading ? 'none' : 'auto',
             }}
           >
             {SUPERSECTORS.map(sector => (
@@ -106,7 +79,8 @@ export const ScreeningRules = () => {
                 }}
               >
                 <Checkbox
-                  checked={draft.excludedSectors.includes(sector)}
+                  checked={excludedSectors.includes(sector)}
+                  disabled={isLoading}
                   onChange={() => toggle(sector)}
                 />
                 <span style={{ fontSize: 13 }}>{sector}</span>
@@ -120,60 +94,76 @@ export const ScreeningRules = () => {
             <div className="card-header">
               <div className="card-title">Market cap threshold</div>
             </div>
-            <div className="card-body">
+            <div
+              className="card-body"
+              style={{
+                opacity: isLoading ? LOADING_OPACITY : 1,
+                pointerEvents: isLoading ? 'none' : 'auto',
+              }}
+            >
               <div className="hint" style={{ marginBottom: 14 }}>
-                Companies below this market cap (in GBP) will be excluded.
-                Reuters values are converted using the previous business
-                day&apos;s ECB reference rate.
+                Companies outside this market cap range (in GBP) will be
+                excluded. Reuters values are converted using the previous
+                business day&apos;s ECB reference rate. Leave Max empty to apply
+                no upper limit.
               </div>
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'baseline',
-                  gap: 6,
-                  marginBottom: 8,
+                  gap: 12,
+                  alignItems: 'flex-end',
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 32,
-                    fontWeight: 600,
-                    fontVariantNumeric: 'tabular-nums',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  £{draft.minMcap.toFixed(1)}
-                </span>
-                <span style={{ fontSize: 14, color: 'var(--ink-500)' }}>
-                  bn minimum
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="0.5"
-                value={draft.minMcap}
-                onChange={event =>
-                  setDraft({
-                    ...draft,
-                    minMcap: parseFloat(event.target.value),
-                  })
-                }
-                style={{ width: '100%', accentColor: 'var(--accent)' }}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: 11,
-                  color: 'var(--ink-500)',
-                  marginTop: 4,
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                <span>£0bn</span>
-                <span>£100bn</span>
+                <div style={{ flex: 1 }}>
+                  <div className="label">Min market cap (£bn)</div>
+                  <Controller
+                    control={control}
+                    name="minMcap"
+                    render={({ field }) => (
+                      <input
+                        type="number"
+                        className="input"
+                        min="0"
+                        step="0.1"
+                        value={field.value ?? ''}
+                        disabled={isLoading}
+                        onChange={event =>
+                          field.onChange(
+                            event.target.value === ''
+                              ? null
+                              : parseFloat(event.target.value),
+                          )
+                        }
+                        placeholder="e.g. 2"
+                      />
+                    )}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="label">Max market cap (£bn)</div>
+                  <Controller
+                    control={control}
+                    name="maxMcap"
+                    render={({ field }) => (
+                      <input
+                        type="number"
+                        className="input"
+                        min="0"
+                        step="0.1"
+                        value={field.value ?? ''}
+                        disabled={isLoading}
+                        onChange={event =>
+                          field.onChange(
+                            event.target.value === ''
+                              ? null
+                              : parseFloat(event.target.value),
+                          )
+                        }
+                        placeholder="No upper limit"
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -198,54 +188,12 @@ export const ScreeningRules = () => {
                 type="button"
                 className="btn btn-primary btn-lg"
                 style={{ width: '100%' }}
-                disabled={isStarting}
-                onClick={handleStartRun}
+                disabled={isStarting || isLoading}
+                onClick={onStartRun}
               >
                 <PlayIcon width={14} height={14} />
                 Start New Run
               </button>
-              {/* {isRunInProgress ? (
-                <div className="col gap-8">
-                  <div
-                    className="badge badge-info"
-                    style={{ alignSelf: 'flex-start' }}
-                  >
-                    <span className="badge-dot" />
-                    Running
-                    {activeRun?.label ? ` · ${activeRun.label}` : ''}
-                  </div>
-                  <div className="row gap-8">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      disabled
-                      style={{ flex: 1 }}
-                    >
-                      <RefreshIcon width={13} height={13} className="spin" />
-                      Running
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={handleCancel}
-                    >
-                      <StopIcon width={13} height={13} />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-lg"
-                  style={{ width: '100%' }}
-                  disabled={isStarting}
-                  onClick={handleStartRun}
-                >
-                  <PlayIcon width={14} height={14} />
-                  Start New Run
-                </button>
-              )} */}
             </div>
           </div>
         </div>
