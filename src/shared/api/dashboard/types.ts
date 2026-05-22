@@ -114,7 +114,8 @@ export interface ISummaryRow {
 
 export interface IScreeningRules {
   excludedSectors: (Sector | string)[];
-  minMcap: number;
+  minMcap: number | null;
+  maxMcap: number | null;
   threshold: number;
 }
 

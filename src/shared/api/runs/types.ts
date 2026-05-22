@@ -74,6 +74,7 @@ export interface IListActivitiesResponse {
 export interface ICreateRunRequest {
   excludedSectors: string[];
   marketCapThresholdMinGbp: number;
+  marketCapThresholdMaxGbp?: number;
 }
 
 export interface ICreateRunResponse {

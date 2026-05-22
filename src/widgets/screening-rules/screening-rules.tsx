@@ -41,8 +41,18 @@ export const ScreeningRules = () => {
   }, [draft, toast]);
 
   const handleStartRun = useCallback(async () => {
+    if (draft.minMcap === null) {
+      toast('Min market cap is required', { tone: 'error' });
+
+      return;
+    }
+    if (draft.maxMcap !== null && draft.maxMcap < draft.minMcap) {
+      toast('Max market cap must be greater than min', { tone: 'error' });
+
+      return;
+    }
     await startRun(draft);
-  }, [draft, startRun]);
+  }, [draft, startRun, toast]);
 
   // const handleCancel = useCallback(() => {
   //   toast('Cancel run is not yet available', { tone: 'default' });
@@ -122,58 +132,58 @@ export const ScreeningRules = () => {
             </div>
             <div className="card-body">
               <div className="hint" style={{ marginBottom: 14 }}>
-                Companies below this market cap (in GBP) will be excluded.
-                Reuters values are converted using the previous business
-                day&apos;s ECB reference rate.
+                Companies outside this market cap range (in GBP) will be
+                excluded. Reuters values are converted using the previous
+                business day&apos;s ECB reference rate. Leave Max empty to apply
+                no upper limit.
               </div>
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'baseline',
-                  gap: 6,
-                  marginBottom: 8,
+                  gap: 12,
+                  alignItems: 'flex-end',
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 32,
-                    fontWeight: 600,
-                    fontVariantNumeric: 'tabular-nums',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  £{draft.minMcap.toFixed(1)}
-                </span>
-                <span style={{ fontSize: 14, color: 'var(--ink-500)' }}>
-                  bn minimum
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="0.5"
-                value={draft.minMcap}
-                onChange={event =>
-                  setDraft({
-                    ...draft,
-                    minMcap: parseFloat(event.target.value),
-                  })
-                }
-                style={{ width: '100%', accentColor: 'var(--accent)' }}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: 11,
-                  color: 'var(--ink-500)',
-                  marginTop: 4,
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                <span>£0bn</span>
-                <span>£100bn</span>
+                <div style={{ flex: 1 }}>
+                  <div className="label">Min market cap (£bn)</div>
+                  <input
+                    type="number"
+                    className="input"
+                    min="0"
+                    step="0.1"
+                    value={draft.minMcap ?? ''}
+                    onChange={event =>
+                      setDraft({
+                        ...draft,
+                        minMcap:
+                          event.target.value === ''
+                            ? null
+                            : parseFloat(event.target.value),
+                      })
+                    }
+                    placeholder="e.g. 2"
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="label">Max market cap (£bn)</div>
+                  <input
+                    type="number"
+                    className="input"
+                    min="0"
+                    step="0.1"
+                    value={draft.maxMcap ?? ''}
+                    onChange={event =>
+                      setDraft({
+                        ...draft,
+                        maxMcap:
+                          event.target.value === ''
+                            ? null
+                            : parseFloat(event.target.value),
+                      })
+                    }
+                    placeholder="No upper limit"
+                  />
+                </div>
               </div>
             </div>
           </div>

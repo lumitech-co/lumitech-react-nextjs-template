@@ -404,6 +404,7 @@ export const SUPERSECTORS = Object.values(Sector);
 export const DEFAULT_SCREENING: IScreeningRules = {
   excludedSectors: [...EXCLUDED_SECTORS],
   minMcap: 2.0,
+  maxMcap: null,
   threshold: 90,
 };
 

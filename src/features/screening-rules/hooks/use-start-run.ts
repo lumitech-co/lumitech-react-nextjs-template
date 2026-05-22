@@ -5,9 +5,8 @@ import { useCreateRun } from 'entities';
 
 import { IScreeningRules } from 'shared/api';
 import { QueryKeys } from 'shared/constants';
+import { GBP_PER_BILLION } from 'shared/lib';
 import { useToast } from 'shared/ui';
-
-const GBP_PER_BILLION = 1_000_000_000;
 
 export const useStartRun = () => {
   const toast = useToast();
@@ -16,10 +15,18 @@ export const useStartRun = () => {
 
   const startRun = useCallback(
     async (rules: IScreeningRules) => {
+      if (rules.minMcap == null) {
+        toast('Min market cap is required', { tone: 'error' });
+
+        return;
+      }
+
       try {
         await createRunMutation.mutateAsync({
           excludedSectors: rules.excludedSectors,
           marketCapThresholdMinGbp: rules.minMcap * GBP_PER_BILLION,
+          marketCapThresholdMaxGbp:
+            rules.maxMcap == null ? undefined : rules.maxMcap * GBP_PER_BILLION,
         });
         await queryClient.invalidateQueries({
           queryKey: [QueryKeys.RUN_LATEST],
