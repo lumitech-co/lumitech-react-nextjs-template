@@ -405,7 +405,6 @@ export const DEFAULT_SCREENING: IScreeningRules = {
   excludedSectors: [...EXCLUDED_SECTORS],
   minMcap: 2.0,
   maxMcap: null,
-  threshold: 90,
 };
 
 export const MOCK_TEMPLATE_FIELDS: ITemplateField[] = [

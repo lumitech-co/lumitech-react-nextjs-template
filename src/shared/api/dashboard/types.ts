@@ -116,7 +116,6 @@ export interface IScreeningRules {
   excludedSectors: (Sector | string)[];
   minMcap: number | null;
   maxMcap: number | null;
-  threshold: number;
 }
 
 export interface ITemplateField {
