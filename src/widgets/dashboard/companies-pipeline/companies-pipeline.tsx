@@ -8,8 +8,8 @@ import { useInfiniteScroll } from 'shared/lib';
 import { Badge } from 'shared/ui';
 
 import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
+import { DASHBOARD_PANEL_HEIGHT } from '../constants';
 
-const SCROLL_BODY_MAX_HEIGHT = 320;
 const GBP_PER_BILLION = 1_000_000_000;
 
 interface ICompaniesPipelineProps {
@@ -49,8 +49,11 @@ export const CompaniesPipeline = ({
   });
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div
+      className="card flex flex-col"
+      style={{ height: DASHBOARD_PANEL_HEIGHT }}
+    >
+      <div className="card-header shrink-0">
         <div className="card-title">Companies in pipeline</div>
         <div className="spacer" />
         <span
@@ -68,10 +71,7 @@ export const CompaniesPipeline = ({
           View all <ArrowRightIcon width={11} height={11} />
         </span>
       </div>
-      <div
-        className="table-wrap"
-        style={{ maxHeight: SCROLL_BODY_MAX_HEIGHT, overflowY: 'auto' }}
-      >
+      <div className="table-wrap min-h-0 flex-1 overflow-y-auto">
         <table className="tbl">
           <thead>
             <tr>

@@ -10,7 +10,7 @@ import {
 } from 'shared/icons';
 import { useInfiniteScroll } from 'shared/lib';
 
-const SCROLL_BODY_MAX_HEIGHT = 320;
+import { DASHBOARD_PANEL_HEIGHT } from '../constants';
 
 interface IActivityFeedProps {
   items: IActivityItemResponse[];
@@ -84,17 +84,16 @@ export const ActivityFeed = ({
   });
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div
+      className="card flex flex-col"
+      style={{ height: DASHBOARD_PANEL_HEIGHT }}
+    >
+      <div className="card-header shrink-0">
         <div className="card-title">Activity</div>
       </div>
       <div
-        className="card-body"
-        style={{
-          padding: 0,
-          maxHeight: SCROLL_BODY_MAX_HEIGHT,
-          overflowY: 'auto',
-        }}
+        className="card-body min-h-0 flex-1 overflow-y-auto"
+        style={{ padding: 0 }}
       >
         {isLoading && (
           <div
