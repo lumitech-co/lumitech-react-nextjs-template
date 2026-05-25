@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 
 import {
   formatRunDateTime,
+  useGetActivities,
   useGetLatestRun,
-  useGetRunActivities,
   useGetRunStats,
   useListPipelineCompanies,
   useListPreviousRuns,
@@ -43,7 +43,7 @@ export const Dashboard = () => {
     fetchNextPage: fetchNextActivities,
     hasNextPage: hasNextActivities = false,
     isFetchingNextPage: isFetchingNextActivities,
-  } = useGetRunActivities(runId, runStatus);
+  } = useGetActivities();
   const activities = activitiesData?.pages.flatMap(page => page.data) ?? [];
 
   const {
@@ -136,6 +136,16 @@ export const Dashboard = () => {
             />
           </div>
         </div>
+      )}
+
+      {!activeRun && !isLatestRunLoading && (
+        <ActivityFeed
+          items={activities}
+          isLoading={isActivitiesLoading}
+          hasNextPage={hasNextActivities}
+          isFetchingNextPage={isFetchingNextActivities}
+          onLoadMore={() => fetchNextActivities()}
+        />
       )}
 
       {!activeRun && !isLatestRunLoading && (

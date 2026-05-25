@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { formatRunDateTime, useGetLatestRun } from 'entities';
 
 import { useAuthStore } from 'features';
-import { ILatestRunItem, isActiveRunStatus } from 'shared/api';
+import { IRunItem, isActiveRunStatus } from 'shared/api';
 import { LogoutIcon } from 'shared/icons';
 import { cn } from 'shared/lib';
 
@@ -18,9 +18,7 @@ import {
 
 type SidebarRunStatus = 'idle' | 'running' | 'completed' | 'cancelled';
 
-const getSidebarRunStatus = (
-  activeRun: ILatestRunItem | null,
-): SidebarRunStatus => {
+const getSidebarRunStatus = (activeRun: IRunItem | null): SidebarRunStatus => {
   if (!activeRun) {
     return 'idle';
   }
@@ -52,7 +50,7 @@ const RUN_LABEL: Record<SidebarRunStatus, string> = {
 
 const getRunStartedAtLabel = (
   isLoadingRun: boolean,
-  run: ILatestRunItem | null,
+  run: IRunItem | null,
 ): string => {
   if (isLoadingRun) {
     return 'Loading...';

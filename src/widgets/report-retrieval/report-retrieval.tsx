@@ -75,6 +75,8 @@ export const ReportRetrieval = () => {
     canGoNewer,
     uploadReport,
     isUploading,
+    openReport,
+    isOpeningReport,
   } = useReportRetrieval();
 
   const renderYearCell = (company: IReportCompanyItem, year: number) => {
@@ -95,6 +97,8 @@ export const ReportRetrieval = () => {
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm h-5 px-1.5 text-[11px] text-accent"
+                  disabled={!report.filePath || isOpeningReport}
+                  onClick={() => openReport(report.filePath)}
                 >
                   <EyeIcon width={10} height={10} />
                   View

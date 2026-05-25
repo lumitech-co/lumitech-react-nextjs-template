@@ -18,12 +18,7 @@ export const runsApi = {
 
     return {
       ...response.data,
-      data: response.data.data
-        ? {
-            ...normalizeRunItem(response.data.data),
-            flaggedCount: response.data.data.flaggedCount,
-          }
-        : null,
+      data: response.data.data ? normalizeRunItem(response.data.data) : null,
     };
   },
 

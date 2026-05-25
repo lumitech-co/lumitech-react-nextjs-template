@@ -45,11 +45,10 @@
   --info-bg: #e5f0fb;
 
   /* Type */
-  --font-sans:
-    var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
-    sans-serif;
-  --font-mono:
-    'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Consolas,
+    monospace;
 
   /* Radii */
   --r-sm: 4px;
@@ -356,7 +355,10 @@
     font-weight: 500;
     line-height: 1;
     height: 34px;
-    transition: background 120ms, border-color 120ms, color 120ms;
+    transition:
+      background 120ms,
+      border-color 120ms,
+      color 120ms;
     white-space: nowrap;
   }
   .btn-primary {
@@ -445,7 +447,9 @@
     font-size: 13px;
     color: var(--ink-900);
     height: 36px;
-    transition: border-color 120ms, box-shadow 120ms;
+    transition:
+      border-color 120ms,
+      box-shadow 120ms;
     width: 100%;
   }
   .textarea {
@@ -512,8 +516,7 @@
     background: #fff;
   }
   .signin-left {
-    background:
-      radial-gradient(
+    background: radial-gradient(
         1200px 700px at 0% 0%,
         rgba(108, 163, 255, 0.18),
         transparent 50%
@@ -536,24 +539,18 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(
-        90deg,
+    background-image: linear-gradient(
         rgba(255, 255, 255, 0.05) 1px,
         transparent 1px
-      );
+      ),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
     -webkit-mask-image: radial-gradient(
       ellipse at 30% 50%,
       #000 30%,
       transparent 70%
     );
-    mask-image: radial-gradient(
-      ellipse at 30% 50%,
-      #000 30%,
-      transparent 70%
-    );
+    mask-image: radial-gradient(ellipse at 30% 50%, #000 30%, transparent 70%);
     pointer-events: none;
   }
   .signin-right {
@@ -781,7 +778,7 @@
     border-spacing: 0;
     font-size: 13px;
   }
-  .tbl thead th {
+  :where(.tbl) thead th {
     text-align: left;
     font-weight: 600;
     font-size: 11px;
@@ -795,7 +792,7 @@
     top: 0;
     z-index: 1;
   }
-  .tbl tbody td {
+  :where(.tbl) tbody td {
     padding: 11px 14px;
     border-bottom: 1px solid var(--line);
     vertical-align: middle;

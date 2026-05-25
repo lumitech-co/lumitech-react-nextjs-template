@@ -16,15 +16,12 @@ export interface IRunItem {
   completedAt: string | null;
   overallConvictionPct: string | null;
   companyCount: number;
-}
-
-export interface ILatestRunItem extends IRunItem {
   flaggedCount: number;
 }
 
 export interface IGetLatestRunResponse {
   message: string;
-  data: ILatestRunItem | null;
+  data: IRunItem | null;
 }
 
 export interface IRunStats {
@@ -74,7 +71,7 @@ export interface IListActivitiesResponse {
 export interface ICreateRunRequest {
   excludedSectors: string[];
   marketCapThresholdMinGbp: number;
-  marketCapThresholdMaxGbp?: number;
+  marketCapThresholdMaxGbp: number;
 }
 
 export interface ICreateRunResponse {
