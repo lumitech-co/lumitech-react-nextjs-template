@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation';
 
 import { formatRunDateTime } from 'entities';
 
-import { ILatestRunItem } from 'shared/api';
+import { IRunItem } from 'shared/api';
 import { CheckIcon, InboxIcon, LayersIcon } from 'shared/icons';
 
 import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
 
 interface IRunCompletedBannerProps {
-  run: ILatestRunItem;
+  run: IRunItem;
   processedCount: number;
 }
 

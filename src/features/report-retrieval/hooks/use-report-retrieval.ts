@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import {
   useGetLatestRun,
+  useGetSignedUrl,
   useListRunReports,
   useReportCounts,
   useUploadReport,
@@ -56,6 +57,7 @@ export const useReportRetrieval = () => {
 
   const { data: counts } = useReportCounts(runId);
   const uploadMutation = useUploadReport();
+  const signedUrlMutation = useGetSignedUrl();
 
   const companies = reportsData?.data ?? [];
 
@@ -105,6 +107,25 @@ export const useReportRetrieval = () => {
     [runId, uploadMutation, toast],
   );
 
+  const openReport = useCallback(
+    async (filePath: string | null) => {
+      if (!filePath) {
+        toast('Report file is unavailable', { tone: 'error' });
+
+        return;
+      }
+
+      try {
+        const { url } = await signedUrlMutation.mutateAsync(filePath);
+
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } catch {
+        toast('Failed to open report', { tone: 'error' });
+      }
+    },
+    [signedUrlMutation, toast],
+  );
+
   return {
     runId,
     activeRun,
@@ -122,5 +143,7 @@ export const useReportRetrieval = () => {
     canGoNewer,
     uploadReport,
     isUploading: uploadMutation.isPending,
+    openReport,
+    isOpeningReport: signedUrlMutation.isPending,
   };
 };
