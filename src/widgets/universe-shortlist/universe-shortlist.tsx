@@ -111,8 +111,8 @@ export const UniverseShortlist = () => {
   }
 
   return (
-    <div className="content">
-      <div className="page-header between">
+    <div className="content flex h-[calc(100vh-56px)] flex-col overflow-hidden pb-6">
+      <div className="page-header between shrink-0">
         <div>
           <div className="page-title">Universe &amp; Shortlist</div>
           <div className="page-sub">
@@ -153,8 +153,8 @@ export const UniverseShortlist = () => {
         </div>
       </div>
 
-      <div className="card">
-        <div className="tabs">
+      <div className="card flex min-h-0 flex-1 flex-col">
+        <div className="tabs shrink-0">
           <div
             className={cn('tab', tab === 'shortlist' && 'active')}
             onClick={() => setTab('shortlist')}
@@ -198,7 +198,7 @@ export const UniverseShortlist = () => {
         </div>
 
         {activeFilterCount > 0 && (
-          <div className="flex items-center gap-2.5 border-b border-t border-line bg-accent-50 px-4 py-2.5 text-[12.5px]">
+          <div className="flex shrink-0 items-center gap-2.5 border-b border-t border-line bg-accent-50 px-4 py-2.5 text-[12.5px]">
             <FilterIcon width={12} height={12} className="text-accent" />
             <span className="text-ink-700">
               {activeFilterCount} filter
@@ -215,7 +215,7 @@ export const UniverseShortlist = () => {
           </div>
         )}
 
-        <div className="table-wrap min-h-[300px]">
+        <div className="table-wrap min-h-0 flex-1 overflow-auto">
           <table className="tbl">
             <thead>
               <tr>
@@ -494,7 +494,7 @@ export const UniverseShortlist = () => {
                 <tr>
                   <td
                     colSpan={TABLE_COL_SPAN}
-                    className="!min-h-[300px] p-[140px] text-center text-[13px] text-ink-400"
+                    className="py-24 text-center text-[13px] text-ink-400"
                   >
                     No companies match the current filters
                   </td>
