@@ -71,7 +71,7 @@ export const ConsolidatedSummary = () => {
 
       <ReExtractionBanner run={run} />
 
-      <div className="stat-grid" style={{ marginBottom: 16 }}>
+      <div className="stat-grid mb-4">
         <div className="stat">
           <div className="stat-label">Companies</div>
           <div className="stat-value">{done.length}</div>
@@ -82,9 +82,7 @@ export const ConsolidatedSummary = () => {
         </div>
         <div className="stat">
           <div className="stat-label">Outlier flags</div>
-          <div className="stat-value" style={{ color: 'var(--danger)' }}>
-            {outlierCount}
-          </div>
+          <div className="stat-value text-danger">{outlierCount}</div>
         </div>
         <div className="stat">
           <div className="stat-label">Overall conviction</div>
@@ -96,7 +94,7 @@ export const ConsolidatedSummary = () => {
         <div className="card-header">
           <div className="card-title">summary.xlsx &middot; preview</div>
         </div>
-        <div style={{ padding: 16, background: 'var(--surface-2)' }}>
+        <div className="bg-surface-2 p-4">
           <XlsxViewer data={summaryBuffer} />
         </div>
       </div>

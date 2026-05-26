@@ -34,26 +34,14 @@ export const SignInForm = ({
       </p>
 
       {passwordReset && (
-        <div
-          className="mb-4 flex items-center gap-2 rounded-md px-3 py-2.5 text-[12.5px]"
-          style={{
-            background: 'var(--success-bg)',
-            color: 'var(--success)',
-          }}
-        >
+        <div className="mb-4 flex items-center gap-2 rounded-md bg-success-bg px-3 py-2.5 text-[12.5px] text-success">
           <CheckIcon className="h-3.5 w-3.5 shrink-0" />
           <span>Password has been updated. Please sign in.</span>
         </div>
       )}
 
       {sessionExpired && (
-        <div
-          className="mb-4 flex items-center gap-2 rounded-md px-3 py-2.5 text-[12.5px]"
-          style={{
-            background: 'var(--warning-bg)',
-            color: 'var(--warning)',
-          }}
-        >
+        <div className="mb-4 flex items-center gap-2 rounded-md bg-warning-bg px-3 py-2.5 text-[12.5px] text-warning">
           <ClockIcon className="h-3.5 w-3.5 shrink-0" />
           <span>
             Your session expired after 30 minutes of inactivity. Please sign in
@@ -108,13 +96,7 @@ export const SignInForm = ({
         </Button>
       </div>
 
-      <div
-        className="mt-6 border-t pt-5 text-xs"
-        style={{
-          borderColor: 'var(--line)',
-          color: 'var(--ink-500)',
-        }}
-      >
+      <div className="mt-6 border-t border-line pt-5 text-xs text-ink-500">
         Sessions expire after 30 minutes of inactivity. Iron Blue does not offer
         self-service registration — accounts are provisioned by the project
         team.

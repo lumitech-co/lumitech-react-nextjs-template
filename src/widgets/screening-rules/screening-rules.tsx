@@ -5,9 +5,8 @@ import { Controller } from 'react-hook-form';
 import { useScreeningRules } from 'features';
 import { SUPERSECTORS } from 'shared/api';
 import { CheckIcon, PlayIcon } from 'shared/icons';
+import { cn } from 'shared/lib';
 import { Badge, Checkbox } from 'shared/ui';
-
-const LOADING_OPACITY = 0.6;
 
 export const ScreeningRules = () => {
   const { form, onSave, onStartRun, toggle, isSaving, isStarting, isLoading } =
@@ -42,7 +41,7 @@ export const ScreeningRules = () => {
         </div>
       </div>
 
-      <div className="grid-2" style={{ gridTemplateColumns: '1.4fr 1fr' }}>
+      <div className="grid-2 grid-cols-[1.4fr_1fr]">
         <div className="card">
           <div className="card-header">
             <div>
@@ -58,32 +57,22 @@ export const ScreeningRules = () => {
             </Badge>
           </div>
           <div
-            className="card-body"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '8px 16px',
-              opacity: isLoading ? LOADING_OPACITY : 1,
-              pointerEvents: isLoading ? 'none' : 'auto',
-            }}
+            className={cn(
+              'card-body grid grid-cols-2 gap-x-4 gap-y-2',
+              isLoading && 'pointer-events-none opacity-60',
+            )}
           >
             {SUPERSECTORS.map(sector => (
               <label
                 key={sector}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  cursor: 'pointer',
-                  padding: '4px 0',
-                }}
+                className="flex cursor-pointer items-center gap-2 py-1"
               >
                 <Checkbox
                   checked={excludedSectors.includes(sector)}
                   disabled={isLoading}
                   onChange={() => toggle(sector)}
                 />
-                <span style={{ fontSize: 13 }}>{sector}</span>
+                <span className="text-[13px]">{sector}</span>
               </label>
             ))}
           </div>
@@ -95,26 +84,19 @@ export const ScreeningRules = () => {
               <div className="card-title">Market cap threshold</div>
             </div>
             <div
-              className="card-body"
-              style={{
-                opacity: isLoading ? LOADING_OPACITY : 1,
-                pointerEvents: isLoading ? 'none' : 'auto',
-              }}
+              className={cn(
+                'card-body',
+                isLoading && 'pointer-events-none opacity-60',
+              )}
             >
-              <div className="hint" style={{ marginBottom: 14 }}>
+              <div className="hint mb-3.5">
                 Companies outside this market cap range (in GBP) will be
                 excluded. Reuters values are converted using the previous
                 business day&apos;s ECB reference rate. Leave Max empty to apply
                 no upper limit.
               </div>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 12,
-                  alignItems: 'flex-end',
-                }}
-              >
-                <div style={{ flex: 1 }}>
+              <div className="flex items-end gap-3">
+                <div className="flex-1">
                   <div className="label">Min market cap (£bn)</div>
                   <Controller
                     control={control}
@@ -139,7 +121,7 @@ export const ScreeningRules = () => {
                     )}
                   />
                 </div>
-                <div style={{ flex: 1 }}>
+                <div className="flex-1">
                   <div className="label">Max market cap (£bn)</div>
                   <Controller
                     control={control}
@@ -173,21 +155,14 @@ export const ScreeningRules = () => {
               <div className="card-title">Run controls</div>
             </div>
             <div className="card-body">
-              <div
-                style={{
-                  fontSize: 12.5,
-                  color: 'var(--ink-500)',
-                  marginBottom: 12,
-                }}
-              >
+              <div className="mb-3 text-[12.5px] text-ink-500">
                 Only one run can be active at a time. Cancelling stops
                 processing further companies but preserves work already
                 completed.
               </div>
               <button
                 type="button"
-                className="btn btn-primary btn-lg"
-                style={{ width: '100%' }}
+                className="btn btn-primary btn-lg w-full"
                 disabled={isStarting || isLoading}
                 onClick={onStartRun}
               >

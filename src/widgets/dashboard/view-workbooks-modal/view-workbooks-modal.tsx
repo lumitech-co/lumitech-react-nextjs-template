@@ -46,28 +46,13 @@ export const ViewWorkbooksModal = ({
     >
       {run && (
         <div className="col gap-12">
-          <div
-            style={{
-              padding: '10px 12px',
-              background: 'var(--surface-2)',
-              borderRadius: 6,
-              fontSize: 12,
-              color: 'var(--ink-700)',
-            }}
-          >
+          <div className="rounded-md bg-surface-2 px-3 py-2.5 text-xs text-ink-700">
             <strong>Read-only view.</strong> {run.period} · {run.companies}{' '}
             companies · {run.conviction === null ? '—' : `${run.conviction}%`}{' '}
             conviction
           </div>
-          <div
-            style={{
-              maxHeight: 380,
-              overflow: 'auto',
-              border: '1px solid var(--line)',
-              borderRadius: 6,
-            }}
-          >
-            <table className="tbl" style={{ margin: 0 }}>
+          <div className="max-h-[380px] overflow-auto rounded-md border border-line">
+            <table className="tbl m-0">
               <thead>
                 <tr>
                   <th>Company</th>
@@ -80,15 +65,9 @@ export const ViewWorkbooksModal = ({
                 {rows.map(row => (
                   <tr key={row.company}>
                     <td>
-                      <div style={{ fontWeight: 500 }}>{row.company}</div>
+                      <div className="font-medium">{row.company}</div>
                     </td>
-                    <td
-                      style={{
-                        fontFamily: 'var(--font-mono, monospace)',
-                        fontSize: 11.5,
-                        color: 'var(--ink-500)',
-                      }}
-                    >
+                    <td className="font-mono text-[11.5px] text-ink-500">
                       {row.ric}
                     </td>
                     <td className="tnum text-right">{row.conviction}%</td>

@@ -6,11 +6,10 @@ interface IProgressProps {
   value: number;
   tone?: ProgressTone;
   className?: string;
-  style?: React.CSSProperties;
 }
 
-export const Progress = ({ value, tone, className, style }: IProgressProps) => (
-  <div className={cn('progress', tone, className)} style={style}>
+export const Progress = ({ value, tone, className }: IProgressProps) => (
+  <div className={cn('progress', tone, className)}>
     <span style={{ width: `${value}%` }} />
   </div>
 );

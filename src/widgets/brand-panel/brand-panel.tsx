@@ -12,37 +12,25 @@ const STATS: IBrandStat[] = [
 export const BrandPanel = () => (
   <div className="signin-left">
     <div className="relative z-[1] flex items-center gap-3">
-      <div
-        className="grid h-9 w-9 place-items-center rounded-lg text-sm font-bold backdrop-blur"
-        style={{ background: 'rgba(255,255,255,0.12)' }}
-      >
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-sm font-bold backdrop-blur">
         IB
       </div>
       <div>
         <div className="text-base font-semibold leading-tight">Iron Blue</div>
-        <div
-          className="text-xs leading-tight"
-          style={{ color: 'rgba(255,255,255,0.65)' }}
-        >
+        <div className="text-xs leading-tight text-white/65">
           Equity Research Platform
         </div>
       </div>
     </div>
 
     <div className="relative z-[1] max-w-[460px]">
-      <div
-        className="mb-3.5 text-[13px] font-semibold uppercase tracking-[0.12em]"
-        style={{ color: '#A8C4F0' }}
-      >
+      <div className="mb-3.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#A8C4F0]">
         STOXX 600 Coverage
       </div>
       <h2 className="m-0 mb-4 text-[38px] font-semibold leading-[1.15] tracking-[-0.02em]">
         From annual report to scored workbook — without the manual work.
       </h2>
-      <p
-        className="m-0 text-[15px] leading-[1.55]"
-        style={{ color: 'rgba(255,255,255,0.75)' }}
-      >
+      <p className="m-0 text-[15px] leading-[1.55] text-white/75">
         Iron Blue ingests the live STOXX 600 universe, screens it against your
         house rules, retrieves and parses 3-year annual reports, and populates
         your scoring template — flagging only the rows that need a human eye.
@@ -51,18 +39,13 @@ export const BrandPanel = () => (
         {STATS.map(stat => (
           <div key={stat.label}>
             <div className="text-2xl font-semibold">{stat.value}</div>
-            <div className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {stat.label}
-            </div>
+            <div className="text-xs text-white/60">{stat.label}</div>
           </div>
         ))}
       </div>
     </div>
 
-    <div
-      className="relative z-[1] text-xs"
-      style={{ color: 'rgba(255,255,255,0.55)' }}
-    >
+    <div className="relative z-[1] text-xs text-white/55">
       © 2026 Iron Blue Capital · Confidential
     </div>
   </div>

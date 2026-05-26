@@ -10,13 +10,7 @@ interface IResetSentPanelProps {
 
 export const ResetSentPanel = ({ email, onBack }: IResetSentPanelProps) => (
   <div>
-    <div
-      className="mb-4 grid h-12 w-12 place-items-center rounded-full"
-      style={{
-        background: 'var(--success-bg)',
-        color: 'var(--success)',
-      }}
-    >
+    <div className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-success-bg text-success">
       <CheckIcon className="h-[22px] w-[22px]" />
     </div>
     <h1>Check your email</h1>

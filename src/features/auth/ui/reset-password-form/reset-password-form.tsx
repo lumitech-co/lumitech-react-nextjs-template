@@ -35,13 +35,7 @@ export const ResetPasswordForm = ({
       </p>
 
       {resetError && (
-        <div
-          className="mb-4 flex items-center gap-2 rounded-md px-3 py-2.5 text-[12.5px]"
-          style={{
-            background: 'var(--danger-bg)',
-            color: 'var(--danger)',
-          }}
-        >
+        <div className="mb-4 flex items-center gap-2 rounded-md bg-danger-bg px-3 py-2.5 text-[12.5px] text-danger">
           <AlertIcon className="h-3.5 w-3.5 shrink-0" />
           <span>{resetError}</span>
         </div>

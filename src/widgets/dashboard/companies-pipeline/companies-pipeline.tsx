@@ -8,7 +8,6 @@ import { useInfiniteScroll } from 'shared/lib';
 import { Badge } from 'shared/ui';
 
 import { ROUTE_PATHS } from '../../app-shell/sidebar/nav-config';
-import { DASHBOARD_PANEL_HEIGHT } from '../constants';
 
 const GBP_PER_BILLION = 1_000_000_000;
 
@@ -49,16 +48,12 @@ export const CompaniesPipeline = ({
   });
 
   return (
-    <div
-      className="card flex flex-col"
-      style={{ height: DASHBOARD_PANEL_HEIGHT }}
-    >
+    <div className="card flex h-[370px] flex-col">
       <div className="card-header shrink-0">
         <div className="card-title">Companies in pipeline</div>
         <div className="spacer" />
         <span
-          className="link"
-          style={{ fontSize: 12, cursor: 'pointer' }}
+          className="link cursor-pointer text-xs"
           onClick={() => router.push(ROUTE_PATHS.universe)}
           role="button"
           tabIndex={0}
@@ -100,15 +95,15 @@ export const CompaniesPipeline = ({
               companies.map(company => (
                 <tr key={company.id}>
                   <td>
-                    <div style={{ fontWeight: 500 }}>
+                    <div className="font-medium">
                       {company.companyProfile.name}
                     </div>
-                    <div style={{ fontSize: 11.5, color: 'var(--ink-500)' }}>
+                    <div className="text-[11.5px] text-ink-500">
                       {company.companyProfile.country ?? '—'} ·{' '}
                       {company.companyProfile.ric ?? '—'}
                     </div>
                   </td>
-                  <td style={{ color: 'var(--ink-500)' }}>
+                  <td className="text-ink-500">
                     {company.companyProfile.supersector ?? '—'}
                   </td>
                   <td>{formatMarketCap(company.marketCapGbp)}</td>

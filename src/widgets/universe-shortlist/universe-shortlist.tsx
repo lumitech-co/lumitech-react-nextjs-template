@@ -23,7 +23,6 @@ import { AddCompanyModal } from './add-company-modal';
 import { FilterDropdownPortal } from './filter-dropdown-portal';
 
 const INITIALS_LENGTH = 2;
-const TABLE_MIN_HEIGHT = 300;
 const TABLE_COL_SPAN = 7;
 
 const getStatusBadge = (company: IRunCompanyItem) => {
@@ -216,7 +215,7 @@ export const UniverseShortlist = () => {
           </div>
         )}
 
-        <div className="table-wrap" style={{ minHeight: TABLE_MIN_HEIGHT }}>
+        <div className="table-wrap min-h-[300px]">
           <table className="tbl">
             <thead>
               <tr>
@@ -495,8 +494,7 @@ export const UniverseShortlist = () => {
                 <tr>
                   <td
                     colSpan={TABLE_COL_SPAN}
-                    className="!min-h-[300px] py-24 text-center text-[13px] text-ink-400"
-                    style={{ minHeight: TABLE_MIN_HEIGHT, padding: '140px' }}
+                    className="!min-h-[300px] p-[140px] text-center text-[13px] text-ink-400"
                   >
                     No companies match the current filters
                   </td>
