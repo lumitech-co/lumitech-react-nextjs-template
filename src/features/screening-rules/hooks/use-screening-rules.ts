@@ -36,6 +36,12 @@ const screeningRulesSchema = z
 
 type ScreeningRulesFormData = z.infer<typeof screeningRulesSchema>;
 
+const emptyFormValues: ScreeningRulesFormData = {
+  excludedSectors: [],
+  minMcap: null,
+  maxMcap: null,
+};
+
 const defaultFormValues: ScreeningRulesFormData = {
   excludedSectors: DEFAULT_SCREENING.excludedSectors.map(String),
   minMcap: DEFAULT_SCREENING.minMcap,
@@ -62,18 +68,13 @@ const mapApiToForm = (
 
 export const useScreeningRules = () => {
   const toast = useToast();
-  const {
-    data: configResponse,
-    isLoading,
-    isError,
-    isFetching,
-  } = useGetScreeningConfig();
+  const { data: configResponse, isPending, isError } = useGetScreeningConfig();
   const updateMutation = useUpdateScreeningConfig();
   const { startRun, isStarting } = useStartRun();
 
   const form = useForm<ScreeningRulesFormData>({
     resolver: zodResolver(screeningRulesSchema),
-    defaultValues: defaultFormValues,
+    defaultValues: emptyFormValues,
   });
 
   useEffect(() => {
@@ -151,6 +152,6 @@ export const useScreeningRules = () => {
     toggle,
     isSaving: updateMutation.isPending,
     isStarting,
-    isLoading: isLoading || (isFetching && !configResponse),
+    isLoading: isPending,
   };
 };
