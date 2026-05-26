@@ -222,7 +222,7 @@ export const AddCompanyModal = ({
             disabled={isAdding}
           >
             <CheckIcon width={13} height={13} />
-            {isAdding ? 'Adding…' : 'Yes, Add This Company'}
+            {isAdding ? 'Adding...' : 'Yes, Add This Company'}
           </button>
         </>
       );
@@ -241,7 +241,7 @@ export const AddCompanyModal = ({
             disabled={isAdding}
           >
             <AlertIcon width={13} height={13} />
-            {isAdding ? 'Adding…' : 'Include Anyway'}
+            {isAdding ? 'Adding...' : 'Include Anyway'}
           </button>
         </>
       );
@@ -270,18 +270,9 @@ export const AddCompanyModal = ({
             same name.
           </div>
           {notFound && (
-            <div
-              style={{
-                display: 'flex',
-                gap: 10,
-                padding: 12,
-                borderRadius: 8,
-                background: 'var(--warning-bg)',
-                color: 'var(--warning)',
-              }}
-            >
+            <div className="flex gap-2.5 rounded-lg bg-warning-bg p-3 text-warning">
               <AlertIcon width={18} height={18} />
-              <div style={{ fontSize: 12.5 }}>
+              <div className="text-[12.5px]">
                 No company found for &quot;{name}&quot;. Try a different name or
                 add a website hint.
               </div>
@@ -304,9 +295,7 @@ export const AddCompanyModal = ({
           <div className="field">
             <label className="label">
               Company website{' '}
-              <span style={{ color: 'var(--ink-400)', fontWeight: 400 }}>
-                (optional)
-              </span>
+              <span className="font-normal text-ink-400">(optional)</span>
             </label>
             <input
               className="input"
@@ -325,38 +314,15 @@ export const AddCompanyModal = ({
             We found the following — please confirm this is the company you
             meant.
           </div>
-          <div
-            className="card"
-            style={{ boxShadow: 'none', background: 'var(--surface-2)' }}
-          >
+          <div className="card bg-surface-2 shadow-none">
             <div className="card-body">
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  marginBottom: 14,
-                }}
-              >
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 8,
-                    background: 'var(--accent-50)',
-                    color: 'var(--accent)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    fontWeight: 700,
-                  }}
-                >
+              <div className="mb-3.5 flex items-center gap-3">
+                <div className="grid size-10 place-items-center rounded-lg bg-accent-50 font-bold text-accent">
                   {found.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 600 }}>
-                    {found.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>
+                  <div className="text-base font-semibold">{found.name}</div>
+                  <div className="text-xs text-ink-500">
                     {found.supersector ?? '—'} · {found.country ?? '—'}
                   </div>
                 </div>
@@ -364,20 +330,14 @@ export const AddCompanyModal = ({
               <div className="grid-2">
                 <div>
                   <div className="hint">Official website</div>
-                  <div style={{ fontSize: 13, marginTop: 2 }}>
+                  <div className="mt-0.5 text-[13px]">
                     <a className="link">{found.domain ?? '—'}</a>{' '}
                     {found.domain && <ExternalIcon width={11} height={11} />}
                   </div>
                 </div>
                 <div>
                   <div className="hint">Market cap (GBP)</div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      marginTop: 2,
-                      fontVariantNumeric: 'tabular-nums',
-                    }}
-                  >
+                  <div className="mt-0.5 text-[13px] [font-variant-numeric:tabular-nums]">
                     {marketCapBillions != null &&
                     !Number.isNaN(marketCapBillions)
                       ? `£${marketCapBillions.toFixed(2)}bn`
@@ -386,9 +346,7 @@ export const AddCompanyModal = ({
                 </div>
                 <div>
                   <div className="hint">RIC</div>
-                  <div style={{ fontSize: 13, marginTop: 2 }}>
-                    {found.ric ?? '—'}
-                  </div>
+                  <div className="mt-0.5 text-[13px]">{found.ric ?? '—'}</div>
                 </div>
               </div>
             </div>
@@ -398,22 +356,13 @@ export const AddCompanyModal = ({
 
       {step === 2 && found && marketCapBillions != null && (
         <div className="col gap-12">
-          <div
-            style={{
-              display: 'flex',
-              gap: 10,
-              padding: 12,
-              borderRadius: 8,
-              background: 'var(--warning-bg)',
-              color: 'var(--warning)',
-            }}
-          >
+          <div className="flex gap-2.5 rounded-lg bg-warning-bg p-3 text-warning">
             <AlertIcon width={18} height={18} />
             <div>
-              <div style={{ fontWeight: 600, marginBottom: 2 }}>
+              <div className="mb-0.5 font-semibold">
                 Failed screening: market cap below threshold
               </div>
-              <div style={{ fontSize: 12.5 }}>
+              <div className="text-[12.5px]">
                 {found.name} has an estimated market cap of £
                 {marketCapBillions.toFixed(2)}bn, below the £2bn minimum. You
                 can override this rule and include it anyway.
@@ -424,20 +373,11 @@ export const AddCompanyModal = ({
       )}
 
       {step === 99 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: 10,
-            padding: 12,
-            borderRadius: 8,
-            background: 'var(--danger-bg)',
-            color: 'var(--danger)',
-          }}
-        >
+        <div className="flex gap-2.5 rounded-lg bg-danger-bg p-3 text-danger">
           <AlertIcon width={18} height={18} />
           <div>
             <strong>Company already exists</strong>
-            <div style={{ fontSize: 12.5, marginTop: 2 }}>
+            <div className="mt-0.5 text-[12.5px]">
               &quot;{name}&quot; is already in the shortlist.
             </div>
           </div>

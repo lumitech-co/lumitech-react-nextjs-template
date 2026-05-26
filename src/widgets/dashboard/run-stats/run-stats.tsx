@@ -12,7 +12,7 @@ export const RunStats = ({ stats }: IRunStatsProps) => {
     : '—';
 
   return (
-    <StatGrid style={{ marginBottom: 16 }}>
+    <StatGrid className="mb-4">
       <Stat label="Universe loaded" delta="Companies in run">
         {stats.screening}
       </Stat>
@@ -21,9 +21,7 @@ export const RunStats = ({ stats }: IRunStatsProps) => {
       </Stat>
       <Stat label="Processed" delta={`${remaining} remaining`}>
         {stats.processedDone}
-        <span
-          style={{ fontSize: 14, color: 'var(--ink-500)', fontWeight: 500 }}
-        >
+        <span className="text-sm font-medium text-ink-500">
           {' '}
           / {stats.shortlisted}
         </span>
@@ -32,9 +30,7 @@ export const RunStats = ({ stats }: IRunStatsProps) => {
         label="Needs review"
         delta={`${stats.needsReviewFlagCount} flagged values`}
       >
-        <span style={{ color: 'var(--warning)' }}>
-          {stats.needsReviewFlagCount}
-        </span>
+        <span className="text-warning">{stats.needsReviewFlagCount}</span>
       </Stat>
       <Stat label="Avg conviction" delta="Across processed companies">
         {convictionLabel}

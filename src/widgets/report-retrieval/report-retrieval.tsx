@@ -212,7 +212,7 @@ export const ReportRetrieval = () => {
               />
               <input
                 className="input h-[30px] text-[12.5px]"
-                placeholder="Search company\u2026"
+                placeholder="Search company..."
                 value={query}
                 onChange={event => setQuery(event.target.value)}
               />

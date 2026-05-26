@@ -8,8 +8,6 @@ import { QueryKeys } from 'shared/constants';
 import { GBP_PER_BILLION } from 'shared/lib';
 import { useToast } from 'shared/ui';
 
-const DEFAULT_MAX_MCAP_BILLIONS = 100;
-
 export const useStartRun = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -28,7 +26,7 @@ export const useStartRun = () => {
           excludedSectors: rules.excludedSectors,
           marketCapThresholdMinGbp: rules.minMcap * GBP_PER_BILLION,
           marketCapThresholdMaxGbp:
-            (rules.maxMcap ?? DEFAULT_MAX_MCAP_BILLIONS) * GBP_PER_BILLION,
+            rules.maxMcap == null ? null : rules.maxMcap * GBP_PER_BILLION,
         });
         await queryClient.invalidateQueries({
           queryKey: [QueryKeys.RUN_LATEST],

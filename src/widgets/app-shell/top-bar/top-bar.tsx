@@ -38,10 +38,7 @@ export const TopBar = () => {
   return (
     <header className="topbar">
       <div>
-        <div
-          className="text-sm font-semibold tracking-[-0.005em]"
-          style={{ color: 'var(--ink-900)' }}
-        >
+        <div className="text-sm font-semibold tracking-[-0.005em] text-ink-900">
           {runLabel}
         </div>
       </div>

@@ -2,10 +2,8 @@
 
 import { IArchivedRun, isCompletedRunStatus } from 'shared/api';
 import { ArchiveIcon, LayersIcon, XlsIcon } from 'shared/icons';
-import { useInfiniteScroll } from 'shared/lib';
+import { cn, useInfiniteScroll } from 'shared/lib';
 import { Badge, useToast } from 'shared/ui';
-
-const SCROLL_BODY_MAX_HEIGHT = 320;
 
 interface IPreviousRunsProps {
   archivedRuns: IArchivedRun[];
@@ -33,7 +31,7 @@ export const PreviousRuns = ({
   });
 
   return (
-    <div className="card" style={{ marginTop: 16 }}>
+    <div className="card mt-4">
       <div className="card-header between">
         <div>
           <div className="card-title">Previous Runs</div>
@@ -43,32 +41,14 @@ export const PreviousRuns = ({
           </div>
         </div>
       </div>
-      <div
-        style={{
-          padding: 0,
-          maxHeight: SCROLL_BODY_MAX_HEIGHT,
-          overflowY: 'auto',
-        }}
-      >
+      <div className="max-h-[320px] overflow-y-auto p-0">
         {isLoading && (
-          <div
-            style={{
-              padding: '12px 16px',
-              fontSize: 12.5,
-              color: 'var(--ink-400)',
-            }}
-          >
+          <div className="px-4 py-3 text-[12.5px] text-ink-400">
             Loading previous runs&hellip;
           </div>
         )}
         {!isLoading && archivedRuns.length === 0 && (
-          <div
-            style={{
-              padding: '12px 16px',
-              fontSize: 12.5,
-              color: 'var(--ink-400)',
-            }}
-          >
+          <div className="px-4 py-3 text-[12.5px] text-ink-400">
             No previous completed runs
           </div>
         )}
@@ -76,33 +56,17 @@ export const PreviousRuns = ({
           archivedRuns.map((archivedRun, index) => (
             <div
               key={archivedRun.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                padding: '12px 16px',
-                borderBottom:
-                  index < archivedRuns.length - 1 || hasNextPage
-                    ? '1px solid var(--line)'
-                    : 'none',
-              }}
+              className={cn(
+                'flex items-center gap-3.5 px-4 py-3',
+                (index < archivedRuns.length - 1 || hasNextPage) &&
+                  'border-b border-line',
+              )}
             >
-              <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  background: 'var(--ink-100)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  color: 'var(--ink-600)',
-                  flexShrink: 0,
-                }}
-              >
+              <div className="grid size-[34px] shrink-0 place-items-center rounded-lg bg-ink-100 text-ink-500">
                 <ArchiveIcon width={14} height={14} />
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 13.5 }}>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13.5px] font-semibold">
                   {archivedRun.label}{' '}
                   <Badge
                     tone={
@@ -110,18 +74,12 @@ export const PreviousRuns = ({
                         ? 'success'
                         : 'neutral'
                     }
-                    style={{ marginLeft: 8, fontSize: 10 }}
+                    className="ml-2 text-[10px]"
                   >
                     {formatRunStatusLabel(archivedRun.status)}
                   </Badge>
                 </div>
-                <div
-                  style={{
-                    fontSize: 11.5,
-                    color: 'var(--ink-500)',
-                    marginTop: 2,
-                  }}
-                >
+                <div className="mt-0.5 text-[11.5px] text-ink-500">
                   {archivedRun.period} · {archivedRun.companies} companies ·{' '}
                   {archivedRun.conviction === null
                     ? '—'
@@ -129,7 +87,7 @@ export const PreviousRuns = ({
                   conviction · {archivedRun.flags ?? '—'} flagged
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <div className="flex shrink-0 gap-1.5">
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
@@ -158,13 +116,9 @@ export const PreviousRuns = ({
         {!isLoading && hasNextPage && (
           <div
             ref={sentinelRef}
-            style={{
-              padding: '10px 16px',
-              fontSize: 12.5,
-              color: 'var(--ink-400)',
-            }}
+            className="px-4 py-2.5 text-[12.5px] text-ink-400"
           >
-            {isFetchingNextPage && 'Loading more\u2026'}
+            {isFetchingNextPage && 'Loading more...'}
           </div>
         )}
       </div>

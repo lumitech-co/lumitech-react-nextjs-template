@@ -183,7 +183,7 @@ export const ExtractionFields = () => {
               />
               <input
                 className="input h-8 pl-[30px] text-xs"
-                placeholder={`Search fields\u2026`}
+                placeholder="Search fields..."
                 value={search}
                 onChange={event => handleSearchChange(event.target.value)}
               />
@@ -346,7 +346,7 @@ export const ExtractionFields = () => {
                   disabled={isSaving}
                 >
                   <CheckIcon width={13} height={13} />
-                  {isSaving ? 'Saving\u2026' : 'Save Changes'}
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
@@ -457,7 +457,7 @@ export const ExtractionFields = () => {
                 />
                 <input
                   className="input h-8 pl-[30px] text-xs"
-                  placeholder="Search companies\u2026"
+                  placeholder="Search companies..."
                   value={reExtractQuery}
                   onChange={event => setReExtractQuery(event.target.value)}
                 />

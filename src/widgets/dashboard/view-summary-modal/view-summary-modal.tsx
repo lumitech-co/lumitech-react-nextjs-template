@@ -56,97 +56,35 @@ export const ViewSummaryModal = ({
     >
       {run && (
         <div className="col gap-12">
-          <div
-            style={{
-              padding: '10px 12px',
-              background: 'var(--surface-2)',
-              borderRadius: 6,
-              fontSize: 12,
-              color: 'var(--ink-700)',
-            }}
-          >
+          <div className="rounded-md bg-surface-2 px-3 py-2.5 text-xs text-ink-700">
             <strong>Read-only view.</strong> {run.period}
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                padding: '10px 12px',
-                border: '1px solid var(--line)',
-                borderRadius: 6,
-              }}
-            >
-              <div style={{ fontSize: 11, color: 'var(--ink-500)' }}>
-                Companies
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 600, marginTop: 2 }}>
+          <div className="grid grid-cols-4 gap-2.5">
+            <div className="rounded-md border border-line px-3 py-2.5">
+              <div className="text-[11px] text-ink-500">Companies</div>
+              <div className="mt-0.5 text-lg font-semibold">
                 {run.companies}
               </div>
             </div>
-            <div
-              style={{
-                padding: '10px 12px',
-                border: '1px solid var(--line)',
-                borderRadius: 6,
-              }}
-            >
-              <div style={{ fontSize: 11, color: 'var(--ink-500)' }}>
-                Avg score
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 600, marginTop: 2 }}>
-                {avgScore}
-              </div>
+            <div className="rounded-md border border-line px-3 py-2.5">
+              <div className="text-[11px] text-ink-500">Avg score</div>
+              <div className="mt-0.5 text-lg font-semibold">{avgScore}</div>
             </div>
-            <div
-              style={{
-                padding: '10px 12px',
-                border: '1px solid var(--line)',
-                borderRadius: 6,
-              }}
-            >
-              <div style={{ fontSize: 11, color: 'var(--ink-500)' }}>
-                Conviction
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 600, marginTop: 2 }}>
+            <div className="rounded-md border border-line px-3 py-2.5">
+              <div className="text-[11px] text-ink-500">Conviction</div>
+              <div className="mt-0.5 text-lg font-semibold">
                 {run.conviction === null ? '—' : `${run.conviction}%`}
               </div>
             </div>
-            <div
-              style={{
-                padding: '10px 12px',
-                border: '1px solid var(--line)',
-                borderRadius: 6,
-              }}
-            >
-              <div style={{ fontSize: 11, color: 'var(--ink-500)' }}>
-                Flagged
-              </div>
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  marginTop: 2,
-                  color: 'var(--danger)',
-                }}
-              >
+            <div className="rounded-md border border-line px-3 py-2.5">
+              <div className="text-[11px] text-ink-500">Flagged</div>
+              <div className="mt-0.5 text-lg font-semibold text-danger">
                 {run.flags ?? '—'}
               </div>
             </div>
           </div>
-          <div
-            style={{
-              maxHeight: 280,
-              overflow: 'auto',
-              border: '1px solid var(--line)',
-              borderRadius: 6,
-            }}
-          >
-            <table className="tbl" style={{ margin: 0, fontSize: 12 }}>
+          <div className="max-h-[280px] overflow-auto rounded-md border border-line">
+            <table className="tbl m-0 text-xs">
               <thead>
                 <tr>
                   <th>Company</th>
@@ -159,16 +97,10 @@ export const ViewSummaryModal = ({
                 {rows.map(row => (
                   <tr key={row.company}>
                     <td>{row.company}</td>
-                    <td
-                      style={{
-                        fontFamily: 'var(--font-mono, monospace)',
-                        fontSize: 11,
-                        color: 'var(--ink-500)',
-                      }}
-                    >
+                    <td className="font-mono text-[11px] text-ink-500">
                       {row.ric}
                     </td>
-                    <td className="tnum text-right" style={{ fontWeight: 600 }}>
+                    <td className="tnum text-right font-semibold">
                       {row.total}
                     </td>
                     <td className="tnum text-right">{row.conviction}%</td>

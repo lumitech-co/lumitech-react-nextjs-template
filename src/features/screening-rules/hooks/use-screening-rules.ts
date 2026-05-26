@@ -15,16 +15,14 @@ import { useToast } from 'shared/ui';
 
 import { useStartRun } from './use-start-run';
 
-const MCAP_MAX_BILLIONS = 100;
-
-const mcapMinSchema = z.number().min(0);
-const mcapNumberSchema = mcapMinSchema.max(MCAP_MAX_BILLIONS);
+const mcapNumberSchema = z.number().min(0);
+const mcapSchema = mcapNumberSchema.nullable();
 
 const screeningRulesSchema = z
   .object({
     excludedSectors: z.array(z.string()),
-    minMcap: mcapNumberSchema.nullable(),
-    maxMcap: mcapNumberSchema.nullable(),
+    minMcap: mcapSchema,
+    maxMcap: mcapSchema,
   })
   .refine(
     data =>
@@ -35,6 +33,12 @@ const screeningRulesSchema = z
   );
 
 type ScreeningRulesFormData = z.infer<typeof screeningRulesSchema>;
+
+const emptyFormValues: ScreeningRulesFormData = {
+  excludedSectors: [],
+  minMcap: null,
+  maxMcap: null,
+};
 
 const defaultFormValues: ScreeningRulesFormData = {
   excludedSectors: DEFAULT_SCREENING.excludedSectors.map(String),
@@ -62,18 +66,13 @@ const mapApiToForm = (
 
 export const useScreeningRules = () => {
   const toast = useToast();
-  const {
-    data: configResponse,
-    isLoading,
-    isError,
-    isFetching,
-  } = useGetScreeningConfig();
+  const { data: configResponse, isPending, isError } = useGetScreeningConfig();
   const updateMutation = useUpdateScreeningConfig();
   const { startRun, isStarting } = useStartRun();
 
   const form = useForm<ScreeningRulesFormData>({
     resolver: zodResolver(screeningRulesSchema),
-    defaultValues: defaultFormValues,
+    defaultValues: emptyFormValues,
   });
 
   useEffect(() => {
@@ -151,6 +150,6 @@ export const useScreeningRules = () => {
     toggle,
     isSaving: updateMutation.isPending,
     isStarting,
-    isLoading: isLoading || (isFetching && !configResponse),
+    isLoading: isPending,
   };
 };

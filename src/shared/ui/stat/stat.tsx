@@ -20,11 +20,8 @@ export const Stat = ({ label, children, delta, className }: IStatProps) => (
 interface IStatGridProps {
   children: ReactNode;
   className?: string;
-  style?: React.CSSProperties;
 }
 
-export const StatGrid = ({ children, className, style }: IStatGridProps) => (
-  <div className={cn('stat-grid', className)} style={style}>
-    {children}
-  </div>
+export const StatGrid = ({ children, className }: IStatGridProps) => (
+  <div className={cn('stat-grid', className)}>{children}</div>
 );

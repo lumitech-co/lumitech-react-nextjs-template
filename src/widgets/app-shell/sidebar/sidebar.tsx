@@ -34,11 +34,11 @@ const getSidebarRunStatus = (activeRun: IRunItem | null): SidebarRunStatus => {
   return 'cancelled';
 };
 
-const RUN_DOT_COLOR: Record<SidebarRunStatus, string> = {
-  running: '#6CA3FF',
-  completed: '#5DD39E',
-  cancelled: '#98AED1',
-  idle: '#98AED1',
+const RUN_DOT_CLASS: Record<SidebarRunStatus, string> = {
+  running: 'bg-[#6CA3FF]',
+  completed: 'bg-[#5DD39E]',
+  cancelled: 'bg-sidebar-muted',
+  idle: 'bg-sidebar-muted',
 };
 
 const RUN_LABEL: Record<SidebarRunStatus, string> = {
@@ -127,16 +127,10 @@ export const Sidebar = ({ reviewCount }: ISidebarProps) => {
         ))}
       </nav>
       <div className="sidebar-spacer" />
-      <div
-        className="px-2 py-2.5 text-[11.5px]"
-        style={{ color: 'var(--sidebar-muted)' }}
-      >
+      <div className="px-2 py-2.5 text-[11.5px] text-sidebar-muted">
         <div className="mb-1.5 flex items-center gap-1.5">
-          <span
-            className="badge-dot"
-            style={{ background: RUN_DOT_COLOR[runStatus] }}
-          />
-          <span style={{ color: '#E8EEF8', fontWeight: 500 }}>
+          <span className={cn('badge-dot', RUN_DOT_CLASS[runStatus])} />
+          <span className="font-medium text-sidebar-fg">
             {RUN_LABEL[runStatus]}
           </span>
         </div>
@@ -157,12 +151,8 @@ export const Sidebar = ({ reviewCount }: ISidebarProps) => {
         <button
           type="button"
           aria-label="Sign out"
-          className="btn btn-icon btn-ghost"
+          className="btn btn-icon btn-ghost bg-transparent text-sidebar-muted"
           title="Sign out"
-          style={{
-            color: 'var(--sidebar-muted)',
-            background: 'transparent',
-          }}
           onClick={event => {
             event.stopPropagation();
             signOut();

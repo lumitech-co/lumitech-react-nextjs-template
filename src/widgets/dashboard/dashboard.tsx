@@ -79,7 +79,7 @@ export const Dashboard = () => {
     }
 
     if (isLatestRunLoading) {
-      return 'Loading run…';
+      return 'Loading run...';
     }
 
     return 'No active run';
@@ -115,10 +115,7 @@ export const Dashboard = () => {
       )}
 
       {activeRun && (
-        <div
-          className="grid-2"
-          style={{ gridTemplateColumns: '2fr 1fr', alignItems: 'stretch' }}
-        >
+        <div className="grid-2 grid-cols-[2fr_1fr] items-stretch">
           <CompaniesPipeline
             companies={pipelineCompanies}
             isLoading={isPipelineLoading}

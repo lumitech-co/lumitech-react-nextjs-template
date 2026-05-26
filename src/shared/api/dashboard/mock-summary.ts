@@ -43,7 +43,7 @@ export const buildMockSummary = (
       'Score 1',
       'Score 2',
       'Score 3',
-      '\u2026',
+      '...',
       'Total',
       'Conviction',
     ],
@@ -64,7 +64,7 @@ export const buildMockSummary = (
       Number(pseudoRandom(companyIdx).toFixed(1)),
       Number(pseudoRandom(companyIdx + 7).toFixed(1)),
       Number(pseudoRandom(companyIdx + 13).toFixed(1)),
-      '\u2026',
+      '...',
       Number(totalScore),
       `${conviction}%`,
     ]);

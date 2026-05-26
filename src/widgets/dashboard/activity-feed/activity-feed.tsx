@@ -8,9 +8,7 @@ import {
   SparkleIcon,
   UploadIcon,
 } from 'shared/icons';
-import { useInfiniteScroll } from 'shared/lib';
-
-import { DASHBOARD_PANEL_HEIGHT } from '../constants';
+import { cn, useInfiniteScroll } from 'shared/lib';
 
 interface IActivityFeedProps {
   items: IActivityItemResponse[];
@@ -28,12 +26,12 @@ const ICON_MAP: Record<ActivityType, React.FC<React.SVGProps<SVGElement>>> = {
   workbook_generated: CheckIcon,
 };
 
-const TONE_MAP: Record<ActivityType, string | undefined> = {
-  run_started: undefined,
-  report_uploaded: undefined,
-  extraction_completed: 'var(--success)',
-  flag_raised: 'var(--warning)',
-  workbook_generated: 'var(--success)',
+const TONE_CLASS: Record<ActivityType, string> = {
+  run_started: 'text-ink-700',
+  report_uploaded: 'text-ink-700',
+  extraction_completed: 'text-success',
+  flag_raised: 'text-warning',
+  workbook_generated: 'text-success',
 };
 
 const formatRelativeTime = (isoDate: string): string => {
@@ -84,64 +82,43 @@ export const ActivityFeed = ({
   });
 
   return (
-    <div
-      className="card flex flex-col"
-      style={{ height: DASHBOARD_PANEL_HEIGHT }}
-    >
+    <div className="card flex h-[370px] flex-col">
       <div className="card-header shrink-0">
         <div className="card-title">Activity</div>
       </div>
-      <div
-        className="card-body min-h-0 flex-1 overflow-y-auto"
-        style={{ padding: 0 }}
-      >
+      <div className="card-body min-h-0 flex-1 overflow-y-auto p-0">
         {isLoading && (
-          <div
-            style={{ padding: '16px', fontSize: 12.5, color: 'var(--ink-400)' }}
-          >
+          <div className="p-4 text-[12.5px] text-ink-400">
             Loading activity&hellip;
           </div>
         )}
         {!isLoading && items.length === 0 && (
-          <div
-            style={{ padding: '16px', fontSize: 12.5, color: 'var(--ink-400)' }}
-          >
-            No activity yet
-          </div>
+          <div className="p-4 text-[12.5px] text-ink-400">No activity yet</div>
         )}
         {!isLoading &&
           items.map((activity, index) => {
             const IconComponent = ICON_MAP[activity.type] ?? SparkleIcon;
-            const iconColor = TONE_MAP[activity.type] ?? 'var(--ink-700)';
+            const iconToneClass = TONE_CLASS[activity.type];
 
             return (
               <div
                 key={activity.id}
-                style={{
-                  display: 'flex',
-                  gap: 10,
-                  padding: '10px 16px',
-                  borderBottom:
-                    index < items.length - 1 ? '1px solid var(--line)' : 'none',
-                }}
+                className={cn(
+                  'flex gap-2.5 px-4 py-2.5',
+                  index < items.length - 1 && 'border-b border-line',
+                )}
               >
                 <div
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 6,
-                    background: 'var(--ink-100)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: iconColor,
-                    flexShrink: 0,
-                  }}
+                  className={cn(
+                    'grid size-6 shrink-0 place-items-center rounded-md bg-ink-100',
+                    iconToneClass,
+                  )}
                 >
                   <IconComponent width={12} height={12} />
                 </div>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 12.5 }}>{activity.description}</div>
-                  <div style={{ fontSize: 11, color: 'var(--ink-400)' }}>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px]">{activity.description}</div>
+                  <div className="text-[11px] text-ink-400">
                     {formatRelativeTime(activity.createdAt)}
                   </div>
                 </div>
@@ -151,13 +128,9 @@ export const ActivityFeed = ({
         {!isLoading && hasNextPage && (
           <div
             ref={sentinelRef}
-            style={{
-              padding: '10px 16px',
-              fontSize: 12.5,
-              color: 'var(--ink-400)',
-            }}
+            className="px-4 py-2.5 text-[12.5px] text-ink-400"
           >
-            {isFetchingNextPage && 'Loading more\u2026'}
+            {isFetchingNextPage && 'Loading more...'}
           </div>
         )}
       </div>

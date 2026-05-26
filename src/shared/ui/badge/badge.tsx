@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 import { cn } from 'shared/lib';
 
@@ -14,7 +14,6 @@ interface IBadgeProps {
   tone?: BadgeTone;
   withDot?: boolean;
   className?: string;
-  style?: CSSProperties;
   children: ReactNode;
 }
 
@@ -22,10 +21,9 @@ export const Badge = ({
   tone = 'neutral',
   withDot = true,
   className,
-  style,
   children,
 }: IBadgeProps) => (
-  <span className={cn('badge', `badge-${tone}`, className)} style={style}>
+  <span className={cn('badge', `badge-${tone}`, className)}>
     {withDot && <span className="badge-dot" />}
     {children}
   </span>
