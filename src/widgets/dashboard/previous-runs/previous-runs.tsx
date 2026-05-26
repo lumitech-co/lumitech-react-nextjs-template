@@ -164,7 +164,7 @@ export const PreviousRuns = ({
               color: 'var(--ink-400)',
             }}
           >
-            {isFetchingNextPage && 'Loading more\u2026'}
+            {isFetchingNextPage && 'Loading more...'}
           </div>
         )}
       </div>

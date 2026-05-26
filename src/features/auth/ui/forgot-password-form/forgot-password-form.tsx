@@ -52,7 +52,7 @@ export const ForgotPasswordForm = ({
         disabled={isLoading}
         className="mt-4 w-full"
       >
-        {isLoading ? 'Sending…' : 'Send Reset Link'}
+        {isLoading ? 'Sending...' : 'Send Reset Link'}
       </Button>
     </form>
   );

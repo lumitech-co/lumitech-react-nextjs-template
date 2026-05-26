@@ -348,7 +348,7 @@ export const ReviewQueue = () => {
                         onChange={event => setManualValue(event.target.value)}
                         placeholder={
                           selected.value === ND_VALUE
-                            ? 'Enter value\u2026'
+                            ? 'Enter value...'
                             : selected.value
                         }
                       />

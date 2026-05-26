@@ -79,7 +79,7 @@ export const Dashboard = () => {
     }
 
     if (isLatestRunLoading) {
-      return 'Loading run…';
+      return 'Loading run...';
     }
 
     return 'No active run';

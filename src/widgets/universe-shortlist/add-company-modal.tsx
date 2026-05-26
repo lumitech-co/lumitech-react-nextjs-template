@@ -222,7 +222,7 @@ export const AddCompanyModal = ({
             disabled={isAdding}
           >
             <CheckIcon width={13} height={13} />
-            {isAdding ? 'Adding…' : 'Yes, Add This Company'}
+            {isAdding ? 'Adding...' : 'Yes, Add This Company'}
           </button>
         </>
       );
@@ -241,7 +241,7 @@ export const AddCompanyModal = ({
             disabled={isAdding}
           >
             <AlertIcon width={13} height={13} />
-            {isAdding ? 'Adding…' : 'Include Anyway'}
+            {isAdding ? 'Adding...' : 'Include Anyway'}
           </button>
         </>
       );

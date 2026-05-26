@@ -122,7 +122,7 @@ export const CompaniesPipeline = ({
             {!isLoading && hasNextPage && (
               <tr ref={sentinelRef}>
                 <td colSpan={4} className="dim">
-                  {isFetchingNextPage && 'Loading more\u2026'}
+                  {isFetchingNextPage && 'Loading more...'}
                 </td>
               </tr>
             )}

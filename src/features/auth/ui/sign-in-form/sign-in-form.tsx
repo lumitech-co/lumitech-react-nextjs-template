@@ -103,7 +103,7 @@ export const SignInForm = ({
           disabled={isLoading}
           className="mt-2 w-full"
         >
-          {isLoading ? 'Signing in…' : 'Sign in'}
+          {isLoading ? 'Signing in...' : 'Sign in'}
           <ArrowRightIcon className="h-3.5 w-3.5" />
         </Button>
       </div>

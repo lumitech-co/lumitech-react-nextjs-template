@@ -78,7 +78,7 @@ export const ResetPasswordForm = ({
           disabled={isLoading}
           className="mt-2 w-full"
         >
-          {isLoading ? 'Resetting…' : 'Reset Password'}
+          {isLoading ? 'Resetting...' : 'Reset Password'}
         </Button>
       </div>
     </form>

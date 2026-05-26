@@ -97,7 +97,7 @@ export const UploadReportModal = ({
             }}
           >
             <UploadIcon width={13} height={13} />
-            {isUploading ? 'Uploading\u2026' : 'Upload PDF'}
+            {isUploading ? 'Uploading...' : 'Upload PDF'}
           </button>
         </>
       }
