@@ -15,16 +15,14 @@ import { useToast } from 'shared/ui';
 
 import { useStartRun } from './use-start-run';
 
-const MCAP_MAX_BILLIONS = 100;
-
-const mcapMinSchema = z.number().min(0);
-const mcapNumberSchema = mcapMinSchema.max(MCAP_MAX_BILLIONS);
+const mcapNumberSchema = z.number().min(0);
+const mcapSchema = mcapNumberSchema.nullable();
 
 const screeningRulesSchema = z
   .object({
     excludedSectors: z.array(z.string()),
-    minMcap: mcapNumberSchema.nullable(),
-    maxMcap: mcapNumberSchema.nullable(),
+    minMcap: mcapSchema,
+    maxMcap: mcapSchema,
   })
   .refine(
     data =>
