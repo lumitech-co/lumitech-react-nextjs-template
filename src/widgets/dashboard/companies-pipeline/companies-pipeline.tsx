@@ -53,7 +53,7 @@ export const CompaniesPipeline = ({
         <div className="card-title">Companies in pipeline</div>
         <div className="spacer" />
         <span
-          className="link cursor-pointer text-xs"
+          className="link flex cursor-pointer items-center justify-center gap-0.5 text-xs"
           onClick={() => router.push(ROUTE_PATHS.universe)}
           role="button"
           tabIndex={0}
