@@ -6,4 +6,5 @@ export * from './files';
 export * from './run-companies';
 export * from './runs';
 export * from './screening-config';
+export * from './review-flags';
 export * from './users';
