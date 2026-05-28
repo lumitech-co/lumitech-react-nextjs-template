@@ -10,6 +10,7 @@ import {
   ExternalIcon,
   RefreshIcon,
 } from 'shared/icons';
+import { toWebsiteUrl } from 'shared/lib';
 import { Modal } from 'shared/ui';
 
 /* eslint-disable no-magic-numbers */
@@ -339,7 +340,18 @@ export const AddCompanyModal = ({
                 <div>
                   <div className="hint">Official website</div>
                   <div className="mt-0.5 text-[13px]">
-                    <a className="link">{found.domain ?? '—'}</a>{' '}
+                    {found.domain ? (
+                      <a
+                        className="link"
+                        href={toWebsiteUrl(found.domain) ?? undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {found.domain}
+                      </a>
+                    ) : (
+                      '—'
+                    )}{' '}
                     {found.domain && <ExternalIcon width={11} height={11} />}
                   </div>
                 </div>

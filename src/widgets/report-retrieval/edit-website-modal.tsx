@@ -50,7 +50,7 @@ export const EditWebsiteModal = ({
       }
     >
       {company && (
-        <form className="col gap-12" onSubmit={onSubmit}>
+        <form className="col gap-3" onSubmit={onSubmit}>
           <div className="hint">
             Once saved, this website is reused on all future runs without
             re-discovery.
@@ -67,7 +67,7 @@ export const EditWebsiteModal = ({
             </label>
             <input
               className="input"
-              placeholder="e.g. https://spotify.com"
+              placeholder="e.g. spotify.com"
               {...register('domain')}
             />
             {errors.domain?.message && (

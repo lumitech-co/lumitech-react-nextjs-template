@@ -17,7 +17,7 @@ import {
   SearchIcon,
   UploadIcon,
 } from 'shared/icons';
-import { cn } from 'shared/lib';
+import { cn, toWebsiteUrl } from 'shared/lib';
 import { Badge } from 'shared/ui';
 
 import { EditWebsiteModal } from './edit-website-modal';
@@ -311,9 +311,18 @@ export const ReportRetrieval = () => {
                             height={12}
                             className="text-ink-400"
                           />
-                          <a className="link text-[12.5px]">
-                            {profile.domain ?? '—'}
-                          </a>
+                          {profile.domain ? (
+                            <a
+                              className="link text-[12.5px]"
+                              href={toWebsiteUrl(profile.domain) ?? undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {profile.domain}
+                            </a>
+                          ) : (
+                            <span className="text-[12.5px]">—</span>
+                          )}
                           <button
                             type="button"
                             className="btn btn-icon btn-ghost size-[22px]"

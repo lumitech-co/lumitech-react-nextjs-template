@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-The Curation is an invite only social media with ability to create events and posts selling rare expensive items built with Next.js 16+ App Router, TypeScript, and Feature-Sliced Design architecture.
+**Iron Blue** is an equity research platform (screening runs, universe/shortlist, report retrieval, extraction fields, review, workbooks) built with Next.js App Router, TypeScript, and Feature-Sliced Design.
+
+**Cursor rules (local, gitignored):** see `.cursor/rules/` for navigation map, decomposition, and styling specs.
 
 ## Essential Commands
 
@@ -35,12 +37,10 @@ yarn commit       # Use Commitizen for conventional commits
 src/
 ├── app/           # Next.js App Router pages
 ├── entities/      # Business entities with React Query hooks
-│   ├── user/           # User entity
-│   │   ├── api/        # React Query hooks (useUpdateUser, etc.)
-│   │   └── index.ts
-│   ├── user-preferences/
-│   │   ├── api/        # React Query hooks (useUpsertPreferences, etc.)
-│   │   └── index.ts
+│   ├── run/            # Run entity
+│   ├── run-company/
+│   ├── screening-config/
+│   ├── extraction-field/
 │   ├── general/        # Shared hooks used across multiple features/widgets
 │   │   └── <entity>/   # Place shared hooks here when needed
 │   └── index.ts        # Re-exports all entities
@@ -48,7 +48,7 @@ src/
 │   └── <feature>/
 │       └── hooks/      # Feature-specific orchestration hooks only
 ├── shared/        # Reusable code
-│   ├── ui/       # UI components (shadcn/ui + custom)
+│   ├── ui/       # Custom UI wrappers (not shadcn)
 │   ├── icons/    # SVG icons as React components
 │   ├── api/      # API services (HTTP methods only, no hooks)
 │   └── lib/      # Utilities and helpers
@@ -62,12 +62,12 @@ src/
 - `features` → can import from `entities`, `shared`
 - `entities` → can import from `shared`
 - `shared` → cannot import from other layers
-- **Use narrow imports** — import from the specific subfolder, not the barrel: `import { Foo } from 'shared/ui/foo'` instead of `import { Foo } from 'shared/ui'`
+- **Use barrel imports** — ESLint blocks subpaths (`shared/ui/*`, `entities/*`, etc.): `import { Button } from 'shared/ui'`, `import { usePatchRunCompany } from 'entities'`
 
 ### State Management
 
 - **Authentication**: Zustand store in `features/auth/model/store.ts`
-- **Server State**: TanStack Query with mock data in `shared/api/mock/`
+- **Server State**: TanStack Query; some widgets still use mock data (review, workbooks, summary)
 - **UI State**: Local React state or Zustand for complex cases
 
 ### API Architecture
@@ -81,10 +81,10 @@ This separation keeps services reusable and places React-specific code in the en
 
 ### UI Development
 
-- **Component Library**: shadcn/ui components in `shared/ui/`
+- **Component Library**: Custom wrappers in `shared/ui/` (map to global CSS classes like `.btn`, `.card`)
 - **Icons**: SVG icons in `shared/icons/`, imported as React components
-- **Theme**: Purple color system with HSL tokens in `tailwind.config.ts`
-- **Styling**: Tailwind CSS with custom utilities
+- **Theme**: CSS variables in `src/app/styles/global.css`, mapped in `tailwind.config.ts` (`bg-surface`, `text-ink-900`, `text-accent`, etc.)
+- **Styling**: New code — Tailwind utilities + `cn()`; legacy global CSS classes OK in untouched files. No CSS Modules. Avoid new `global.css` blocks unless cross-app primitives
 
 ## Key Technical Decisions
 
@@ -147,8 +147,8 @@ const onSubmit = async (data: FormData) => {
 **IMPORTANT:** All form business logic must be encapsulated in custom hooks. UI components should only contain render logic.
 
 ```typescript
-// features/settings/hooks/use-profile-form.ts
-import { useUpdateUser } from 'entities/user';
+// features/<feature>/hooks/use-example-form.ts
+import { usePatchRunCompany } from 'entities';
 
 export const useProfileForm = () => {
   const { user } = useAuthStore();
@@ -211,9 +211,9 @@ yarn generate:entity entity-name    # Creates entity with CRUD
 ### Working with UI Components
 
 1. Check existing components in `shared/ui/` before creating new ones
-2. Follow shadcn/ui patterns for consistency
-3. Use design tokens from Tailwind config
-4. Always use shadcn for new components and try avoiding custom components
+2. Prefer `Button`, `Modal`, `Input`, etc. from `shared/ui` over raw `<button className="btn">`
+3. Use Tailwind design tokens from `tailwind.config.ts` for new layout/spacing
+4. Split large widgets like `dashboard/` (subfolders); avoid growing `universe-shortlist.tsx`-sized files
 
 ### API Integration
 
@@ -280,7 +280,7 @@ entities/
 **Hook Rules:**
 
 - **Always use `mutateAsync()` instead of `mutate()`** for mutations
-- Import hooks from `entities` layer: `import { useUpdateUser } from 'entities/user'`
+- Import hooks from `entities` barrel: `import { usePatchRunCompany } from 'entities'`
 - Feature-specific orchestration hooks stay in `features/<feature>/hooks/` but import entity hooks
 
 ### Common Patterns
@@ -288,9 +288,8 @@ entities/
 ```typescript
 // Import UI components
 
-// Use React Query hooks from entities
-import { useUpdateUser } from 'entities/user';
-import { useUpsertPreferences } from 'entities/user-preferences';
+// Use React Query hooks from entities (barrel)
+import { usePatchRunCompany, useListRunCompanies } from 'entities';
 
 // Access auth state
 import { useAuthStore } from 'features/auth';
@@ -316,7 +315,7 @@ Currently no test framework configured. When adding tests, update this section w
 
 - [ ] Uses barrel exports (`index.ts`) at every folder level
 - [ ] Respects FSD layer boundaries (no upward imports)
-- [ ] Uses narrow imports from specific subfolders (not top-level barrels)
+- [ ] Uses barrel imports (`entities`, `shared/ui`, etc.) — not blocked subpaths
 - [ ] Client components marked with `'use client'`
 - [ ] Single component/hook per file (split into separate files if needed)
 - [ ] API services placed in `shared/api/<service-name>/`

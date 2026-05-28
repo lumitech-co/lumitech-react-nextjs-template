@@ -6,13 +6,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { IReportCompanyItem } from 'shared/api';
+import { normalizeDomain } from 'shared/lib';
 import { useToast } from 'shared/ui';
-
-const normalizeDomain = (value: string): string =>
-  value
-    .trim()
-    .replace(/^https?:\/\//, '')
-    .replace(/\/$/, '');
 
 const editWebsiteSchema = z.object({
   domain: z.string().min(1, 'Website is required'),
@@ -44,7 +39,7 @@ export const useEditWebsiteForm = ({
       const domain = company.companyProfile.domain ?? '';
 
       form.reset({
-        domain: domain ? `https://${domain}` : '',
+        domain: domain || '',
       });
     }
   }, [company, form]);
