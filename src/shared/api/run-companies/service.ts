@@ -10,6 +10,8 @@ import {
   IListRunReportsParams,
   IListRunReportsResponse,
   IMessageResponse,
+  IPatchRunCompanyRequest,
+  IPatchRunCompanyResponse,
   IReportCountsResponse,
   IRunCompanyCountsResponse,
   IRunCompanyFilterOptionsResponse,
@@ -101,6 +103,19 @@ export const runCompaniesApi = {
   ): Promise<IAddRunCompanyResponse> => {
     const response = await api.post<IAddRunCompanyResponse>(
       buildCompaniesPath(runId),
+      data,
+    );
+
+    return response.data;
+  },
+
+  patchRunCompany: async (
+    runId: string,
+    runCompanyId: string,
+    data: IPatchRunCompanyRequest,
+  ): Promise<IPatchRunCompanyResponse> => {
+    const response = await api.patch<IPatchRunCompanyResponse>(
+      `${buildCompaniesPath(runId)}/${runCompanyId}`,
       data,
     );
 

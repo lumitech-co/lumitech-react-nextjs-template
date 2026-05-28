@@ -4,6 +4,7 @@ import { Controller } from 'react-hook-form';
 
 import { useScreeningRules } from 'features';
 import { SUPERSECTORS } from 'shared/api';
+import { Sector, SECTOR_DESCRIPTIONS } from 'shared/constants';
 import { CheckIcon, PlayIcon } from 'shared/icons';
 import { Badge, Checkbox } from 'shared/ui';
 
@@ -70,7 +71,12 @@ export const ScreeningRules = () => {
                     checked={excludedSectors.includes(sector)}
                     onChange={() => toggle(sector)}
                   />
-                  <span className="text-[13px]">{sector}</span>
+                  <span className="flex flex-col">
+                    <span className="text-[13px]">{sector}</span>
+                    <span className="text-[11px] text-ink-400">
+                      {SECTOR_DESCRIPTIONS[sector as Sector]}
+                    </span>
+                  </span>
                 </label>
               ))}
             </div>

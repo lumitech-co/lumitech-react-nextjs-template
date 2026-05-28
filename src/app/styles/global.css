@@ -5,19 +5,22 @@
 /* Iron Blue Portal — design tokens & base styles */
 
 :root {
-  /* Brand — light theme, blue + white */
-  --accent: #1b4db1;
-  --accent-600: #163e8e;
-  --accent-700: #112e6b;
-  --accent-50: #eef3fb;
-  --accent-100: #dce6f5;
-  --accent-tint: rgba(27, 77, 177, 0.08);
+  /* Brand — single source for primary + sidebar */
+  --brand: #21309d;
+  --accent: var(--brand);
+  --accent-600: #1a277e;
+  --accent-700: #141d61;
+  --accent-50: #eef0fa;
+  --accent-100: #d9ddf5;
+  --accent-tint: rgba(33, 48, 157, 0.08);
+  --accent-light: #5268c9;
+  --accent-highlight: #8b96e8;
 
   /* Surfaces */
   --bg: #f6f8fb;
   --surface: #ffffff;
   --surface-2: #f9fafc;
-  --sidebar-bg: #0e2a5c;
+  --sidebar-bg: var(--brand);
   --sidebar-fg: #e8eef8;
   --sidebar-muted: #98aed1;
 
@@ -167,7 +170,7 @@
     width: 28px;
     height: 28px;
     border-radius: 6px;
-    background: linear-gradient(135deg, #4a7bd9 0%, #1b4db1 100%);
+    background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
     display: grid;
     place-items: center;
     color: #fff;
@@ -219,7 +222,7 @@
     top: 6px;
     bottom: 6px;
     width: 3px;
-    background: #6ca3ff;
+    background: var(--accent-highlight);
     border-radius: 0 3px 3px 0;
   }
   .nav-item .nav-ico {
@@ -518,15 +521,20 @@
   .signin-left {
     background: radial-gradient(
         1200px 700px at 0% 0%,
-        rgba(108, 163, 255, 0.18),
+        rgba(139, 150, 232, 0.18),
         transparent 50%
       ),
       radial-gradient(
         900px 500px at 100% 100%,
-        rgba(27, 77, 177, 0.2),
+        rgba(33, 48, 157, 0.2),
         transparent 60%
       ),
-      linear-gradient(135deg, #0e2a5c 0%, #102e68 60%, #1b4db1 100%);
+      linear-gradient(
+        135deg,
+        var(--accent-700) 0%,
+        var(--accent) 60%,
+        var(--accent-light) 100%
+      );
     color: #fff;
     padding: 48px;
     display: flex;

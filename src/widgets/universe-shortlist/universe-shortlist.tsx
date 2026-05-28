@@ -11,6 +11,7 @@ import { IRunCompanyItem, RunCompanyStatus } from 'shared/api';
 import {
   CloudIcon,
   DownloadIcon,
+  EditIcon,
   FilterIcon,
   PlusIcon,
   SearchIcon,
@@ -20,6 +21,7 @@ import { cn } from 'shared/lib';
 import { Badge, Checkbox } from 'shared/ui';
 
 import { AddCompanyModal } from './add-company-modal';
+import { EditWebsiteModal } from './edit-website-modal';
 import { FilterDropdownPortal } from './filter-dropdown-portal';
 
 const INITIALS_LENGTH = 2;
@@ -45,6 +47,7 @@ const getStatusBadge = (company: IRunCompanyItem) => {
 
 export const UniverseShortlist = () => {
   const [showAdd, setShowAdd] = useState(false);
+  const [editWebsite, setEditWebsite] = useState<IRunCompanyItem | null>(null);
 
   const companyFilterRef = useRef<HTMLButtonElement>(null);
   const sectorFilterRef = useRef<HTMLButtonElement>(null);
@@ -531,8 +534,18 @@ export const UniverseShortlist = () => {
                                 </Badge>
                               )}
                             </div>
-                            <div className="text-[11px] text-ink-400">
+                            <div className="flex items-center gap-1.5 text-[11px] text-ink-400">
                               {profile.domain ?? '—'}
+                              {!isDeleted && (
+                                <button
+                                  type="button"
+                                  className="btn btn-icon btn-ghost size-[22px]"
+                                  onClick={() => setEditWebsite(company)}
+                                  aria-label="Edit website"
+                                >
+                                  <EditIcon width={11} height={11} />
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -592,6 +605,12 @@ export const UniverseShortlist = () => {
         existingNames={companies
           .map(company => company.companyProfile.name)
           .filter((name): name is string => name !== null)}
+      />
+
+      <EditWebsiteModal
+        runId={runId}
+        company={editWebsite}
+        onClose={() => setEditWebsite(null)}
       />
     </div>
   );

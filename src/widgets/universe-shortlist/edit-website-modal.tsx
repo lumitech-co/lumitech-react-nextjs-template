@@ -1,27 +1,30 @@
 'use client';
 
-import { IReportCompanyItem } from 'shared/api';
-import { Modal, useToast } from 'shared/ui';
+import { useEditWebsiteForm } from 'features';
+import { IRunCompanyItem } from 'shared/api';
+import { Modal } from 'shared/ui';
 
 interface IEditWebsiteModalProps {
-  company: IReportCompanyItem | null;
+  runId: string | null;
+  company: IRunCompanyItem | null;
   onClose: () => void;
 }
 
 export const EditWebsiteModal = ({
+  runId,
   company,
   onClose,
 }: IEditWebsiteModalProps) => {
-  const toast = useToast();
+  const { form, onSubmit, isSaving } = useEditWebsiteForm({
+    runId,
+    company,
+    onSuccess: onClose,
+  });
 
-  const handleSave = () => {
-    toast('Website updated · will be reused on future runs', {
-      tone: 'success',
-    });
-    onClose();
-  };
-
-  const domain = company?.companyProfile.domain ?? '';
+  const {
+    register,
+    formState: { errors, isDirty },
+  } = form;
 
   return (
     <Modal
@@ -36,15 +39,18 @@ export const EditWebsiteModal = ({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={handleSave}
+            onClick={() => {
+              onSubmit().catch(() => undefined);
+            }}
+            disabled={!isDirty || isSaving}
           >
-            Save
+            {isSaving ? 'Saving...' : 'Save'}
           </button>
         </>
       }
     >
       {company && (
-        <div className="col gap-12">
+        <form className="col gap-3" onSubmit={onSubmit}>
           <div className="hint">
             Once saved, this website is reused on all future runs without
             re-discovery.
@@ -56,13 +62,19 @@ export const EditWebsiteModal = ({
             </div>
           </div>
           <div className="field">
-            <label className="label">Official website</label>
+            <label className="label">
+              Official website<span className="req">*</span>
+            </label>
             <input
               className="input"
-              defaultValue={domain ? `https://${domain}` : ''}
+              placeholder="e.g. spotify.com"
+              {...register('domain')}
             />
+            {errors.domain?.message && (
+              <div className="text-xs text-danger">{errors.domain.message}</div>
+            )}
           </div>
-        </div>
+        </form>
       )}
     </Modal>
   );

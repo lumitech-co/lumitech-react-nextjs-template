@@ -9,6 +9,7 @@ import {
   useGetRunStats,
   useListPipelineCompanies,
   useListPreviousRuns,
+  useStreamRunEvents,
 } from 'entities';
 
 import { IArchivedRun } from 'shared/api';
@@ -32,6 +33,8 @@ export const Dashboard = () => {
   const activeRun = latestRunResponse?.data ?? null;
   const runId = activeRun?.id;
   const runStatus = activeRun?.status;
+
+  useStreamRunEvents(runId, runStatus);
 
   const { data: stats, isLoading: isStatsLoading } = useGetRunStats(
     runId,

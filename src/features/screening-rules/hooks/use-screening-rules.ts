@@ -49,18 +49,17 @@ const defaultFormValues: ScreeningRulesFormData = {
 const isUnconfiguredConfig = (data: IScreeningConfigData): boolean =>
   data.marketCapThresholdMinGbp === 0 && data.excludedSectors.length === 0;
 
-const mapApiToForm = (
-  data: IScreeningConfigData,
-  maxMcap: number | null = null,
-): ScreeningRulesFormData => {
+const mapApiToForm = (data: IScreeningConfigData): ScreeningRulesFormData => {
   if (isUnconfiguredConfig(data)) {
     return defaultFormValues;
   }
 
+  const maxGbp = data.marketCapThresholdMaxGbp;
+
   return {
     excludedSectors: data.excludedSectors,
     minMcap: data.marketCapThresholdMinGbp / GBP_PER_BILLION,
-    maxMcap,
+    maxMcap: maxGbp == null ? null : maxGbp / GBP_PER_BILLION,
   };
 };
 
@@ -77,7 +76,7 @@ export const useScreeningRules = () => {
 
   useEffect(() => {
     if (configResponse?.data && !form.formState.isDirty) {
-      form.reset(mapApiToForm(configResponse.data, form.getValues('maxMcap')));
+      form.reset(mapApiToForm(configResponse.data));
     }
   }, [configResponse, form]);
 
@@ -110,9 +109,11 @@ export const useScreeningRules = () => {
       const response = await updateMutation.mutateAsync({
         excludedSectors: formData.excludedSectors,
         marketCapThresholdMinGbp: formData.minMcap * GBP_PER_BILLION,
+        marketCapThresholdMaxGbp:
+          formData.maxMcap == null ? null : formData.maxMcap * GBP_PER_BILLION,
       });
 
-      form.reset(mapApiToForm(response.data, formData.maxMcap));
+      form.reset(mapApiToForm(response.data));
       toast('Screening rules saved · applied on next run', { tone: 'success' });
     } catch {
       toast('Failed to save screening rules', { tone: 'error' });

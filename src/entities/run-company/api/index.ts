@@ -3,6 +3,7 @@ export * from './use-delete-run-company';
 export * from './use-list-run-companies';
 export * from './use-list-pipeline-companies';
 export * from './use-list-run-reports';
+export * from './use-patch-run-company';
 export * from './use-report-counts';
 export * from './use-restore-run-company';
 export * from './use-retrieve-pending-companies';

@@ -11,16 +11,14 @@ import { IAnnualReportItem, IReportCompanyItem } from 'shared/api';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  EditIcon,
   EyeIcon,
   GlobeIcon,
   SearchIcon,
   UploadIcon,
 } from 'shared/icons';
-import { cn } from 'shared/lib';
+import { cn, toWebsiteUrl } from 'shared/lib';
 import { Badge } from 'shared/ui';
 
-import { EditWebsiteModal } from './edit-website-modal';
 import { ReuploadConfirmModal } from './reupload-confirm-modal';
 import { UploadReportModal } from './upload-report-modal';
 
@@ -47,9 +45,6 @@ const statusBadge = (status: ReportDisplayStatus | null) => {
 };
 
 export const ReportRetrieval = () => {
-  const [editWebsite, setEditWebsite] = useState<IReportCompanyItem | null>(
-    null,
-  );
   const [uploadFor, setUploadFor] = useState<{
     company: IReportCompanyItem;
     year: number;
@@ -311,17 +306,18 @@ export const ReportRetrieval = () => {
                             height={12}
                             className="text-ink-400"
                           />
-                          <a className="link text-[12.5px]">
-                            {profile.domain ?? '—'}
-                          </a>
-                          <button
-                            type="button"
-                            className="btn btn-icon btn-ghost size-[22px]"
-                            onClick={() => setEditWebsite(company)}
-                            aria-label="Edit website"
-                          >
-                            <EditIcon width={11} height={11} />
-                          </button>
+                          {profile.domain ? (
+                            <a
+                              className="link text-[12.5px]"
+                              href={toWebsiteUrl(profile.domain) ?? undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {profile.domain}
+                            </a>
+                          ) : (
+                            <span className="text-[12.5px]">—</span>
+                          )}
                         </div>
                       </td>
                       <td className="bg-surface-2 p-0" />
@@ -334,11 +330,6 @@ export const ReportRetrieval = () => {
           </table>
         </div>
       </div>
-
-      <EditWebsiteModal
-        company={editWebsite}
-        onClose={() => setEditWebsite(null)}
-      />
 
       <UploadReportModal
         target={uploadFor}
