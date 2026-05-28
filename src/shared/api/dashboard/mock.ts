@@ -17,12 +17,10 @@ import {
 } from './types';
 
 const EXCLUDED_SECTORS = [
-  'Oil & Gas',
-  'Basic Resources',
-  'Banks',
-  'Insurance',
-  'Real Estate',
+  'Energy',
+  'Basic Materials',
   'Financial Services',
+  'Real Estate',
 ];
 
 type CompanyRow = [

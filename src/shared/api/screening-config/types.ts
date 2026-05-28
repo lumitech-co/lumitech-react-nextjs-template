@@ -1,6 +1,7 @@
 export interface IScreeningConfigData {
   excludedSectors: string[];
   marketCapThresholdMinGbp: number;
+  marketCapThresholdMaxGbp?: number | null;
   updatedAt: string;
 }
 
@@ -12,6 +13,7 @@ export interface IGetScreeningConfigResponse {
 export interface IUpdateScreeningConfigRequest {
   excludedSectors: string[];
   marketCapThresholdMinGbp: number;
+  marketCapThresholdMaxGbp?: number | null;
 }
 
 export interface IUpdateScreeningConfigResponse {
