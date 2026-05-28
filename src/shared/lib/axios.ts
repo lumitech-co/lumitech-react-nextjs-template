@@ -40,8 +40,14 @@ const processQueue = (error: unknown, token: string | null) => {
   failedQueue = [];
 };
 
+let responseInterceptorId: number | null = null;
+
 export const setupResponseInterceptor = (refreshFn: RefreshFn) => {
-  api.interceptors.response.use(
+  if (responseInterceptorId !== null) {
+    api.interceptors.response.eject(responseInterceptorId);
+  }
+
+  responseInterceptorId = api.interceptors.response.use(
     response => response,
     async (error: AxiosError) => {
       const originalRequest = error.config as InternalAxiosRequestConfig & {
