@@ -1,12 +1,12 @@
 'use client';
 
 import { useEditWebsiteForm } from 'features';
-import { IReportCompanyItem } from 'shared/api';
+import { IRunCompanyItem } from 'shared/api';
 import { Modal } from 'shared/ui';
 
 interface IEditWebsiteModalProps {
   runId: string | null;
-  company: IReportCompanyItem | null;
+  company: IRunCompanyItem | null;
   onClose: () => void;
 }
 

@@ -5,7 +5,7 @@ import { usePatchRunCompany } from 'entities';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { IReportCompanyItem } from 'shared/api';
+import { IRunCompanyItem } from 'shared/api';
 import { normalizeDomain } from 'shared/lib';
 import { useToast } from 'shared/ui';
 
@@ -17,7 +17,7 @@ type EditWebsiteFormData = z.infer<typeof editWebsiteSchema>;
 
 interface IUseEditWebsiteFormParams {
   runId: string | null;
-  company: IReportCompanyItem | null;
+  company: IRunCompanyItem | null;
   onSuccess: () => void;
 }
 
