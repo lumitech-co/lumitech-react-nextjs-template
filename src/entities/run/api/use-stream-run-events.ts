@@ -1,13 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { isActiveRunStatus, RunItemStatus } from 'shared/api';
+import { authApi, isActiveRunStatus, RunItemStatus } from 'shared/api';
 import { QueryKeys } from 'shared/constants';
 import { getApiBaseUrl, tokenStorage } from 'shared/lib';
+
+class UnauthorizedError extends Error {
+  constructor() {
+    super('Unauthorized');
+    this.name = 'UnauthorizedError';
+  }
+}
 
 const invalidateRunQueries = (
   queryClient: ReturnType<typeof useQueryClient>,
@@ -27,6 +34,7 @@ export const useStreamRunEvents = (
   runStatus?: RunItemStatus | null,
 ) => {
   const queryClient = useQueryClient();
+  const [reconnectKey, setReconnectKey] = useState(0);
 
   useEffect(() => {
     if (!runId || !runStatus || !isActiveRunStatus(runStatus)) {
@@ -34,14 +42,41 @@ export const useStreamRunEvents = (
     }
 
     const abortController = new AbortController();
-    const token = tokenStorage.get();
     const streamUrl = `${getApiBaseUrl()}/api/runs/${runId}/events`;
 
     const connectToStream = async () => {
+      const token = tokenStorage.get();
+
       await fetchEventSource(streamUrl, {
         signal: abortController.signal,
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: 'include',
+        onopen: response => {
+          if (response.status === 401) {
+            throw new UnauthorizedError();
+          }
+
+          if (!response.ok) {
+            throw new Error(`SSE ${response.status}`);
+          }
+
+          return Promise.resolve();
+        },
+        onerror: error => {
+          if (error instanceof UnauthorizedError) {
+            authApi
+              .refresh()
+              .then(response => {
+                tokenStorage.set(response.data.accessToken);
+                setReconnectKey(previousKey => previousKey + 1);
+              })
+              .catch(() => {
+                // Redirect is handled by the axios response interceptor.
+              });
+          }
+
+          throw error;
+        },
         onmessage: messageEvent => {
           if (!messageEvent.data) {
             return;
@@ -64,5 +99,5 @@ export const useStreamRunEvents = (
     return () => {
       abortController.abort();
     };
-  }, [runId, runStatus, queryClient]);
+  }, [runId, runStatus, queryClient, reconnectKey]);
 };
