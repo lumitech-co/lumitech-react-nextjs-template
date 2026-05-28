@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@tanstack/react-query": "^5.68.0",
     "@tanstack/react-query-devtools": "^5.68.0",

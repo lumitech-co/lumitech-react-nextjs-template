@@ -8,6 +8,11 @@ export type RunItemStatus =
   | 'completed'
   | 'cancelled';
 
+export interface IRunEventData {
+  runId: string;
+  status: RunItemStatus;
+}
+
 export interface IRunItem {
   id: string;
   label: string | null;
