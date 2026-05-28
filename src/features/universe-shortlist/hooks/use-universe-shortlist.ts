@@ -316,7 +316,7 @@ export const useUniverseShortlist = () => {
   );
 
   const searchCompany = useCallback(
-    async (name: string, domain?: string) => {
+    async (name: string, domain: string) => {
       if (!runId) {
         return null;
       }

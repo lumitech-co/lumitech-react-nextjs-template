@@ -85,7 +85,7 @@ export interface IRunCompanyFilterOptionsResponse {
 
 export interface ISearchCompanyParams {
   name: string;
-  domain?: string;
+  domain: string;
 }
 
 export interface ISearchCompanyResult {
@@ -111,6 +111,15 @@ export interface IAddRunCompanyRequest {
 }
 
 export interface IAddRunCompanyResponse {
+  data: IRunCompanyItem;
+}
+
+export interface IPatchRunCompanyRequest {
+  domain: string | null;
+}
+
+export interface IPatchRunCompanyResponse {
+  message: string;
   data: IRunCompanyItem;
 }
 

@@ -336,6 +336,7 @@ export const ReportRetrieval = () => {
       </div>
 
       <EditWebsiteModal
+        runId={runId}
         company={editWebsite}
         onClose={() => setEditWebsite(null)}
       />

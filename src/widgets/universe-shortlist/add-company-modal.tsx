@@ -25,7 +25,7 @@ interface IAddCompanyModalProps {
   onAdd: (company: IAddRunCompanyRequest) => void | Promise<void>;
   onSearch: (
     name: string,
-    domain?: string,
+    domain: string,
   ) => Promise<ISearchCompanyResult | null>;
   isSearching: boolean;
   isAdding: boolean;
@@ -62,6 +62,15 @@ export const AddCompanyModal = ({
       return;
     }
 
+    const domainHint = websiteHint
+      .trim()
+      .replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
+
+    if (!domainHint) {
+      return;
+    }
+
     const duplicate = existingNames.some(
       existing => existing.toLowerCase() === name.trim().toLowerCase(),
     );
@@ -73,12 +82,8 @@ export const AddCompanyModal = ({
     }
 
     setNotFound(false);
-    const domainHint = websiteHint
-      .trim()
-      .replace(/^https?:\/\//, '')
-      .replace(/\/$/, '');
 
-    const result = await onSearch(name.trim(), domainHint || undefined);
+    const result = await onSearch(name.trim(), domainHint);
 
     if (!result?.name) {
       setFound(null);
@@ -178,6 +183,11 @@ export const AddCompanyModal = ({
       : Number(found.marketCapGbp) / GBP_PER_BILLION;
 
   const renderFooter = () => {
+    const normalizedDomain = websiteHint
+      .trim()
+      .replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
+
     if (step === 0) {
       return (
         <>
@@ -188,7 +198,7 @@ export const AddCompanyModal = ({
             type="button"
             className="btn btn-primary"
             onClick={handleSearchClick}
-            disabled={!name.trim() || isSearching}
+            disabled={!name.trim() || !normalizedDomain || isSearching}
           >
             {isSearching ? (
               <>
@@ -265,9 +275,8 @@ export const AddCompanyModal = ({
       {step === 0 && (
         <div className="col gap-12">
           <div className="hint">
-            Enter the company name. We&apos;ll look it up using the parser
-            service. Optionally hint the website if multiple companies share the
-            same name.
+            Enter the company name and website. We&apos;ll look it up using the
+            parser service.
           </div>
           {notFound && (
             <div className="flex gap-2.5 rounded-lg bg-warning-bg p-3 text-warning">
@@ -294,14 +303,13 @@ export const AddCompanyModal = ({
           </div>
           <div className="field">
             <label className="label">
-              Company website{' '}
-              <span className="font-normal text-ink-400">(optional)</span>
+              Company website<span className="req">*</span>
             </label>
             <input
               className="input"
               value={websiteHint}
               onChange={event => setWebsiteHint(event.target.value)}
-              placeholder="e.g. spotify.com — helps disambiguate similar names"
+              placeholder="e.g. spotify.com"
               onKeyDown={handleKeyDown}
             />
           </div>
