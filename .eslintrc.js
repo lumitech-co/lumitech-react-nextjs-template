@@ -63,7 +63,7 @@ module.exports = {
     'require-await': 'error',
     'no-magic-numbers': [
       'warn',
-      { ignoreArrayIndexes: true, ignore: [0, 1, -1, 60, 200, 401, 404, 500] },
+      { ignoreArrayIndexes: true, ignore: [0, 1, -1, 60, 200, 401, 404, 409, 500] },
     ],
     'newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
     'func-style': ['error', 'expression'],

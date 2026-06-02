@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
+import { isAxiosError } from 'axios';
 import {
   useAddRunCompany,
   useDeleteRunCompany,
@@ -328,7 +329,11 @@ export const useUniverseShortlist = () => {
         });
 
         return response.data;
-      } catch {
+      } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 409) {
+          return 'conflict' as const;
+        }
+
         return null;
       }
     },

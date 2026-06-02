@@ -89,6 +89,8 @@ export interface ISearchCompanyParams {
 }
 
 export interface ISearchCompanyResult {
+  guid: string;
+  instrumentName: string;
   name: string;
   ric: string | null;
   country: string | null;
@@ -102,6 +104,8 @@ export interface ISearchCompanyResponse {
 }
 
 export interface IAddRunCompanyRequest {
+  guid: string;
+  instrumentName: string;
   name: string;
   domain: string;
   ric?: string;

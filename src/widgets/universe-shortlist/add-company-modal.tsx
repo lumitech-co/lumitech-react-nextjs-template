@@ -27,7 +27,7 @@ interface IAddCompanyModalProps {
   onSearch: (
     name: string,
     domain: string,
-  ) => Promise<ISearchCompanyResult | null>;
+  ) => Promise<ISearchCompanyResult | 'conflict' | null>;
   isSearching: boolean;
   isAdding: boolean;
   existingNames: string[];
@@ -86,6 +86,12 @@ export const AddCompanyModal = ({
 
     const result = await onSearch(name.trim(), domainHint);
 
+    if (result === 'conflict') {
+      setStep(99);
+
+      return;
+    }
+
     if (!result?.name) {
       setFound(null);
       setNotFound(true);
@@ -119,6 +125,8 @@ export const AddCompanyModal = ({
       : undefined;
 
     return {
+      guid: found.guid,
+      instrumentName: found.instrumentName,
       name: found.name,
       domain,
       ric: found.ric ?? undefined,
