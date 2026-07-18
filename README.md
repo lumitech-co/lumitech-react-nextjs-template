@@ -181,6 +181,24 @@ Enforced by `eslint-plugin-check-file`:
 ❌ src/features/todos/ui/CreateTodoForm/createTodoForm.tsx   — fails yarn lint
 ```
 
+## 🤖 Claude Code agents & commands
+This repo ships a `.claude/` folder with Claude Code agents and slash commands tuned to this
+template's FSD/Next.js conventions (the same rules documented in `CLAUDE.md`), so anyone using
+Claude Code in this repo gets them automatically — no setup required.
+
+| Path | What it does |
+| --- | --- |
+| `.claude/commands/pr-review.md` (`/pr-review`) | Orchestrated PR review: runs the two agents below in parallel against a PR (or the local branch diff), merges their findings, and publishes one review. |
+| `.claude/agents/pr-review/pr-architecture-reviewer.md` | Checks a diff against this repo's own architecture rules, read live from `CLAUDE.md` (Server/Client components, generator-only `entities`/`features`, no barrel files, layer boundaries, `env.ts`, Zod, `QueryKeys`, Tailwind-only styling, kebab-case). |
+| `.claude/agents/pr-review/pr-functional-reviewer.md` | Verifies a PR actually implements its ticket and hunts for logic bugs on the real code path (query-key mismatches, stale query-cache data, unhandled loading/error states). |
+| `.claude/agents/code-reviewer.md` | General quality/maintainability review for a diff. No test-coverage checks — this project has no test suite. |
+| `.claude/agents/security-auditor.md` | Frontend-focused security review: XSS, `NEXT_PUBLIC_*` env leakage, CSP/security headers, client-side token handling. |
+| `.claude/agents/ai-engineer.md` | LLM/RAG integration specialist for AI-powered feature work. |
+
+These are **not** a substitute for `yarn lint:fix && yarn typescript` — they catch things lint
+can't (architectural intent, ticket coverage, logic bugs), while ESLint/TypeScript remain the
+hard gate for everything mechanical.
+
 ## Guidelines
 ### 📝 Commits format
 Commitlint is used to check if your commit messages meet the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0/). This format helps create a consistent, structured commit history, making it easier to understand the project’s development over time, automate changelog generation, and manage versioning.
