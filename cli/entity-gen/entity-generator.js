@@ -41,10 +41,6 @@ export const generateEntity = (nameCamel, namePascal, nameKebab, snakeCase) => {
     const apiDeleteFilePath = path.join(apiFolder, "delete.ts");
     fs.writeFileSync(apiDeleteFilePath, apiDeleteContent);
 
-    const apiIndexContent = templates["api/index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const apiIndexFilePath = path.join(apiFolder, "index.ts");
-    fs.writeFileSync(apiIndexFilePath, apiIndexContent);
-
 
 
     const hooksFolder = `${entityPath}/hooks`;
@@ -71,10 +67,6 @@ export const generateEntity = (nameCamel, namePascal, nameKebab, snakeCase) => {
     const hooksDeleteFilePath = path.join(hooksFolder, "delete.ts");
     fs.writeFileSync(hooksDeleteFilePath, hooksDeleteContent);
 
-    const hooksIndexContent = templates["hooks/index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const hooksIndexFilePath = path.join(hooksFolder, "index.ts");
-    fs.writeFileSync(hooksIndexFilePath, hooksIndexContent);
-
 
 
     const typesFolder = `${entityPath}/types`;
@@ -92,42 +84,6 @@ export const generateEntity = (nameCamel, namePascal, nameKebab, snakeCase) => {
     const typesResponsesContent = templates["types/responses"](namePascal, nameCamel, nameKebab, snakeCase);
     const typesResponsesFilePath = path.join(typesFolder, "responses.ts");
     fs.writeFileSync(typesResponsesFilePath, typesResponsesContent);
-
-    const typesIndexContent = templates["types/index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const typesIndexFilePath = path.join(typesFolder, "index.ts");
-    fs.writeFileSync(typesIndexFilePath, typesIndexContent);
-
-
-
-    const indexContent = templates["index"](namePascal, nameCamel, nameKebab);
-    const indexFilePath = path.join(entityPath, "index.ts");
-    fs.writeFileSync(indexFilePath, indexContent);
-
-
-
-    // === UPDATE entities/index.ts ===
-    try {
-        const indexPath = path.join(process.cwd(), "src/entities/index.ts");
-        let content = "";
-
-        if (fs.existsSync(indexPath)) {
-            content = fs.readFileSync(indexPath, "utf8");
-        } else {
-            fs.writeFileSync(indexPath, "");
-        }
-
-        const exportLine = `export * from "./${nameKebab}";`;
-
-        if (!content.includes(exportLine)) {
-            content += (content.trimEnd() ? "\n" : "") + exportLine + "\n";
-            fs.writeFileSync(indexPath, content);
-            console.log(`✨ Added export for "${nameKebab}" to entities/index.ts`);
-        } else {
-            console.log(`⚠️ Export for "${nameKebab}" already exists in index.ts`);
-        }
-    } catch (err) {
-        console.error("❌ Failed to update entities/index.ts:", err);
-    }
 
 
 

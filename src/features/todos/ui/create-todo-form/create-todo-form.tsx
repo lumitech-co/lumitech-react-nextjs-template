@@ -1,12 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useCreateTodo } from 'entities/todos/hooks/post';
 import { useForm } from 'react-hook-form';
 
-import { useCreateTodo } from 'shared/hooks';
-import { cn } from 'shared/lib';
+import { cn } from 'shared/lib/styles';
 
-import { CreateTodoInput, createTodoSchema } from '../../lib';
+import { CreateTodoInput, createTodoSchema } from '../../lib/validation';
 
 export const CreateTodoForm = () => {
   const { mutate: createTodo, isPending } = useCreateTodo();

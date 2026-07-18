@@ -3,10 +3,10 @@ export const templates = {
         `
         import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
-        import { QueryKeys } from 'shared/constants';
+        import { QueryKeys } from 'shared/constants/query-keys';
 
-        import { get${namePascal}, get${namePascal}s } from '../api';
-        import { IGet${namePascal}sParams } from '../types';
+        import { get${namePascal}, get${namePascal}s } from '../api/get';
+        import { IGet${namePascal}sParams } from '../types/params';
 
         export const useGet${namePascal}s = (query: IGet${namePascal}sParams) => {
             return useQuery({
@@ -35,11 +35,11 @@ export const templates = {
     "hooks/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { useMutation } from '@tanstack/react-query';
-        import { IUpdate${namePascal} } from "../types"
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { IUpdate${namePascal} } from "../types/payloads"
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { update${namePascal} } from '../api';
+        import { update${namePascal} } from '../api/put';
 
         export const useUpdate${namePascal} = () => {
 
@@ -67,10 +67,10 @@ export const templates = {
         `
         import { useMutation } from '@tanstack/react-query';
 
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { toggle${namePascal} } from '../api';
+        import { toggle${namePascal} } from '../api/patch';
 
         export const useToggle${namePascal} = () => {
 
@@ -95,11 +95,11 @@ export const templates = {
     "hooks/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { useMutation } from '@tanstack/react-query';
-        import { ICreate${namePascal} } from "../types"
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { ICreate${namePascal} } from "../types/payloads"
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { create${namePascal} } from '../api';
+        import { create${namePascal} } from '../api/post';
 
         export const useCreate${namePascal} = () => {
 
@@ -125,10 +125,10 @@ export const templates = {
         `
         import { useMutation } from '@tanstack/react-query';
 
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { delete${namePascal} } from '../api';
+        import { delete${namePascal} } from '../api/delete';
 
         export const useDelete${namePascal} = () => {
 
@@ -150,19 +150,10 @@ export const templates = {
         };
     `.trim(),
 
-    "hooks/index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './get';
-        export * from './post';
-        export * from './put';
-        export * from './patch';
-        export * from './delete';
-    `.trim(),
-
     "api/get": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response, I${namePascal}sResponse, IGet${namePascal}sParams } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response, I${namePascal}sResponse, IGet${namePascal}sParams } from '../types/responses';
 
         export const get${namePascal} = async (
             ${nameCamel}Id: string,
@@ -190,8 +181,8 @@ export const templates = {
 
     "api/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response, IUpdate${namePascal} } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response, IUpdate${namePascal} } from '../types/payloads';
 
         export const update${namePascal} = async (
             ${nameCamel}Id: string,
@@ -205,8 +196,8 @@ export const templates = {
 
     "api/patch": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response } from '../types/responses';
 
         export const toggle${namePascal} = async (
             ${nameCamel}Id: string,
@@ -219,8 +210,8 @@ export const templates = {
 
     "api/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response, ICreate${namePascal} } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response, ICreate${namePascal} } from '../types/payloads';
 
         export const create${namePascal} = async (
             payload: ICreate${namePascal}
@@ -233,8 +224,8 @@ export const templates = {
 
     "api/delete": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response } from '../types/responses';
 
         export const delete${namePascal} = async (
             ${nameCamel}Id: string,
@@ -243,15 +234,6 @@ export const templates = {
 
             return response.data;
         };
-    `.trim(),
-
-    "api/index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './get';
-        export * from './post';
-        export * from './put';
-        export * from './patch';
-        export * from './delete';
     `.trim(),
 
     "types/params": (namePascal, nameCamel, nameKebab, snakeCase) =>
@@ -293,19 +275,5 @@ export const templates = {
                 ${nameCamel}s: I${namePascal}[]
             }
         }
-    `.trim(),
-
-    "types/index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './params';
-        export * from './payloads';
-        export * from './responses';
-    `.trim(),
-
-    "index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './api';
-        export * from './hooks';
-        export * from './types';
     `.trim(),
 };

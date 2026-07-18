@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-import { Themes, useThemeStore } from 'shared/store';
+import { Themes, useThemeStore } from 'shared/store/theme';
 
 const themeBtnTitle: Record<Themes, string> = {
   [Themes.dark]: 'Dark',

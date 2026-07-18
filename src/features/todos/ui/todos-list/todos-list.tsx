@@ -1,8 +1,8 @@
 'use client';
 
-import { useGetTodos } from 'shared/hooks';
+import { useGetTodos } from 'entities/todos/hooks/get';
 
-import { Todo } from '../todo';
+import { Todo } from '../todo/todo';
 
 export const TodosList = () => {
   const { data, isLoading, isError } = useGetTodos({
