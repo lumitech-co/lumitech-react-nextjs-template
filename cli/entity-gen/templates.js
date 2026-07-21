@@ -24,7 +24,7 @@ export const templates = {
             });
         };
 
-        export const useGetGroup = (${nameCamel}Id: string) => {
+        export const useGet${namePascal} = (${nameCamel}Id: string) => {
             return useQuery({
                 queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S, ${nameCamel}Id],
                 queryFn: ({ signal }) => get${namePascal}(${nameCamel}Id, signal),
@@ -44,17 +44,13 @@ export const templates = {
         export const useUpdate${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: ({${nameCamel}Id, ...payload}: IUpdate${namePascal} & {
                     ${nameCamel}Id: string;
@@ -75,17 +71,13 @@ export const templates = {
         export const useToggle${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: (${nameCamel}Id: string) => toggle${namePascal}(${nameCamel}Id),
             });
@@ -104,17 +96,13 @@ export const templates = {
         export const useCreate${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: (payload: ICreate${namePascal}) => create${namePascal}(payload),
             });
@@ -133,17 +121,13 @@ export const templates = {
         export const useDelete${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: (${nameCamel}Id: string) => delete${namePascal}(${nameCamel}Id),
             });
@@ -153,7 +137,8 @@ export const templates = {
     "api/get": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response, I${namePascal}sResponse, IGet${namePascal}sParams } from '../types/responses';
+        import { I${namePascal}Response, I${namePascal}sResponse } from '../types/responses';
+        import { IGet${namePascal}sParams } from '../types/params';
 
         export const get${namePascal} = async (
             ${nameCamel}Id: string,
@@ -182,7 +167,8 @@ export const templates = {
     "api/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response, IUpdate${namePascal} } from '../types/payloads';
+        import { I${namePascal}Response } from '../types/responses';
+        import { IUpdate${namePascal} } from '../types/payloads';
 
         export const update${namePascal} = async (
             ${nameCamel}Id: string,
@@ -211,7 +197,8 @@ export const templates = {
     "api/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response, ICreate${namePascal} } from '../types/payloads';
+        import { I${namePascal}Response } from '../types/responses';
+        import { ICreate${namePascal} } from '../types/payloads';
 
         export const create${namePascal} = async (
             payload: ICreate${namePascal}

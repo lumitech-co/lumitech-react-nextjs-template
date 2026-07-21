@@ -1,10 +1,10 @@
 import { api } from 'shared/lib/axios';
 
-import { IGetTodosRequest } from '../types/params';
+import { IGetTodosParams } from '../types/params';
 import { ITodoResponse } from '../types/responses';
 
 export const getTodos = async (
-  params?: IGetTodosRequest,
+  params?: IGetTodosParams,
   signal?: AbortSignal,
 ): Promise<ITodoResponse[]> => {
   const response = await api.get('/todos', {

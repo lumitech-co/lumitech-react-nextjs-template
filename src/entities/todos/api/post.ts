@@ -1,10 +1,8 @@
 import { api } from 'shared/lib/axios';
 
-import { ICreateTodoRequest } from '../types/payloads';
+import { ICreateTodo } from '../types/payloads';
 
-export const createTodo = async (
-  payload: ICreateTodoRequest,
-): Promise<string> => {
+export const createTodo = async (payload: ICreateTodo): Promise<string> => {
   await api.post('/todos', payload);
 
   return 'Todo was created';

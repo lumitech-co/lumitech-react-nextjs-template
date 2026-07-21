@@ -1,12 +1,10 @@
-export interface ICreateTodoRequest {
-  id: number;
+export interface ICreateTodo {
   userId: number;
   title: string;
   completed: boolean;
 }
 
-export interface IUpdateTodoRequest {
-  id: number;
+export interface IUpdateTodo {
   title: string;
   completed: boolean;
 }

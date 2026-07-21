@@ -4,7 +4,7 @@ import { QueryKeys } from 'shared/constants/query-keys';
 import { queryClient } from 'shared/lib/query';
 
 import { updateTodo } from '../api/put';
-import { IUpdateTodoRequest } from '../types/payloads';
+import { IUpdateTodo } from '../types/payloads';
 
 export const useUpdateTodo = () => {
   return useMutation({
@@ -14,7 +14,7 @@ export const useUpdateTodo = () => {
     mutationFn: ({
       todoId,
       ...payload
-    }: Partial<IUpdateTodoRequest> & { todoId: string }) =>
+    }: Partial<IUpdateTodo> & { todoId: string }) =>
       updateTodo(todoId, payload),
   });
 };

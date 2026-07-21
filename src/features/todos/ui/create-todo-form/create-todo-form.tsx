@@ -22,10 +22,7 @@ export const CreateTodoForm = () => {
   const { errors } = form.formState;
 
   const handleSubmit = (values: CreateTodoInput) => {
-    createTodo(
-      { id: Date.now(), userId: Date.now(), ...values },
-      { onSuccess: () => form.reset() },
-    );
+    createTodo({ userId: 1, ...values }, { onSuccess: () => form.reset() });
   };
 
   return (

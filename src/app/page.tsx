@@ -2,14 +2,14 @@ import { Suspense } from 'react';
 
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { getTodos } from 'entities/todos/api/get';
-import { IGetTodosRequest } from 'entities/todos/types/params';
+import { IGetTodosParams } from 'entities/todos/types/params';
 
 import { CreateTodoForm } from 'features/todos/ui/create-todo-form/create-todo-form';
 import { TodosList } from 'features/todos/ui/todos-list/todos-list';
 import { QueryKeys } from 'shared/constants/query-keys';
 import { queryClient } from 'shared/lib/query';
 
-const params: IGetTodosRequest = {
+const params: IGetTodosParams = {
   _page: 1,
   _limit: 10,
 };
