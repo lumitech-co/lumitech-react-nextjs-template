@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 
 import { cn } from 'shared/lib/styles';
 
-import { CreateTodoInput, createTodoSchema } from '../../lib/validation';
+import { CreateTodoInput, createTodoSchema } from '../../schemas/validation';
 
 export const CreateTodoForm = () => {
   const { mutate: createTodo, isPending } = useCreateTodo();
