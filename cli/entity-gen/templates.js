@@ -19,7 +19,7 @@ export const templates = {
             return useInfiniteQuery({
                 initialPageParam: 1,
                 queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S, query],
-                queryFn: ({ pageParam }) => get${namePascal}s({ ...query, page: pageParam }),
+                queryFn: ({ pageParam, signal }) => get${namePascal}s({ ...query, page: pageParam }, signal),
                 getNextPageParam: lastPage => lastPage.data.nextPage,
             });
         };

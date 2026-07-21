@@ -1,12 +1,13 @@
 import { api } from 'shared/lib/axios';
 
 import { IUpdateTodo } from '../types/payloads';
+import { ITodoResponse } from '../types/responses';
 
 export const updateTodo = async (
   todoId: string,
   payload: Partial<IUpdateTodo>,
-): Promise<string> => {
-  await api.put(`/todos/${todoId}`, payload);
+): Promise<ITodoResponse> => {
+  const response = await api.put(`/todos/${todoId}`, payload);
 
-  return 'Todo was updated';
+  return response.data;
 };
