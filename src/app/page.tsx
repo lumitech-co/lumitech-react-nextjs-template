@@ -1,14 +1,15 @@
 import { Suspense } from 'react';
 
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { getTodos } from 'entities/todos/api/get';
+import { IGetTodosParams } from 'entities/todos/types/params';
 
-import { CreateTodoForm, TodosList } from 'features';
-import { todosApi } from 'shared/api';
-import { QueryKeys } from 'shared/constants';
-import { queryClient } from 'shared/lib';
-import { IGetTodosRequest } from 'shared/types';
+import { CreateTodoForm } from 'features/todos/ui/create-todo-form/create-todo-form';
+import { TodosList } from 'features/todos/ui/todos-list/todos-list';
+import { QueryKeys } from 'shared/constants/query-keys';
+import { queryClient } from 'shared/lib/query';
 
-const params: IGetTodosRequest = {
+const params: IGetTodosParams = {
   _page: 1,
   _limit: 10,
 };
@@ -16,7 +17,7 @@ const params: IGetTodosRequest = {
 const HomePage = async () => {
   await queryClient.prefetchQuery({
     queryKey: [QueryKeys.GET_TODOS, params],
-    queryFn: () => todosApi.getTodos(params),
+    queryFn: () => getTodos(params),
   });
 
   return (

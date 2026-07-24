@@ -3,9 +3,9 @@ import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Urbanist } from 'next/font/google';
 
-import { Header } from 'features';
-import { cn } from 'shared/lib';
-import { TanStackQueryProvider } from 'shared/providers';
+import { Header } from 'features/layout/ui/header/header';
+import { cn } from 'shared/lib/styles';
+import { TanStackQueryProvider } from 'shared/providers/tanstack-query';
 
 import 'app/styles/global.css';
 

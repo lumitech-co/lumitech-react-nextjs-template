@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
-import { templates } from "./templates.js";
 
 export const generateFeature = (nameCamel, namePascal, nameKebab, snakeCase) => {
     const featurePath = path.join(process.cwd(), "src/features", nameKebab);
@@ -58,12 +57,6 @@ export const generateFeature = (nameCamel, namePascal, nameKebab, snakeCase) => 
 
     const typesGitkeep = path.join(typesFolder, ".gitkeep");
     fs.writeFileSync(typesGitkeep, "");
-
-
-
-    const indexContent = templates["index"](namePascal, nameCamel, nameKebab, snakeCase);
-    const indexFilePath = path.join(featurePath, "index.ts");
-    fs.writeFileSync(indexFilePath, indexContent);
 
 
 

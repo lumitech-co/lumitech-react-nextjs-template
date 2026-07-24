@@ -3,10 +3,10 @@ export const templates = {
         `
         import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
-        import { QueryKeys } from 'shared/constants';
+        import { QueryKeys } from 'shared/constants/query-keys';
 
-        import { get${namePascal}, get${namePascal}s } from '../api';
-        import { IGet${namePascal}sParams } from '../types';
+        import { get${namePascal}, get${namePascal}s } from '../api/get';
+        import { IGet${namePascal}sParams } from '../types/params';
 
         export const useGet${namePascal}s = (query: IGet${namePascal}sParams) => {
             return useQuery({
@@ -19,12 +19,12 @@ export const templates = {
             return useInfiniteQuery({
                 initialPageParam: 1,
                 queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S, query],
-                queryFn: ({ pageParam }) => get${namePascal}s({ ...query, page: pageParam }),
+                queryFn: ({ pageParam, signal }) => get${namePascal}s({ ...query, page: pageParam }, signal),
                 getNextPageParam: lastPage => lastPage.data.nextPage,
             });
         };
 
-        export const useGetGroup = (${nameCamel}Id: string) => {
+        export const useGet${namePascal} = (${nameCamel}Id: string) => {
             return useQuery({
                 queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S, ${nameCamel}Id],
                 queryFn: ({ signal }) => get${namePascal}(${nameCamel}Id, signal),
@@ -35,26 +35,22 @@ export const templates = {
     "hooks/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { useMutation } from '@tanstack/react-query';
-        import { IUpdate${namePascal} } from "../types"
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { IUpdate${namePascal} } from "../types/payloads"
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { update${namePascal} } from '../api';
+        import { update${namePascal} } from '../api/put';
 
         export const useUpdate${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: ({${nameCamel}Id, ...payload}: IUpdate${namePascal} & {
                     ${nameCamel}Id: string;
@@ -67,25 +63,21 @@ export const templates = {
         `
         import { useMutation } from '@tanstack/react-query';
 
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { toggle${namePascal} } from '../api';
+        import { toggle${namePascal} } from '../api/patch';
 
         export const useToggle${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: (${nameCamel}Id: string) => toggle${namePascal}(${nameCamel}Id),
             });
@@ -95,26 +87,22 @@ export const templates = {
     "hooks/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
         import { useMutation } from '@tanstack/react-query';
-        import { ICreate${namePascal} } from "../types"
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { ICreate${namePascal} } from "../types/payloads"
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { create${namePascal} } from '../api';
+        import { create${namePascal} } from '../api/post';
 
         export const useCreate${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
-                },
-                onError(error) {
-                    console.error(error);
                 },
                 mutationFn: (payload: ICreate${namePascal}) => create${namePascal}(payload),
             });
@@ -125,16 +113,15 @@ export const templates = {
         `
         import { useMutation } from '@tanstack/react-query';
 
-        import { QueryKeys } from 'shared/constants';
-        import { queryClient } from 'shared/lib';
+        import { QueryKeys } from 'shared/constants/query-keys';
+        import { queryClient } from 'shared/lib/query';
 
-        import { delete${namePascal} } from '../api';
+        import { delete${namePascal} } from '../api/delete';
 
         export const useDelete${namePascal} = () => {
 
             return useMutation({
-                onSuccess(data) {
-                    console.log(data)
+                onSuccess() {
                     queryClient.invalidateQueries({
                         queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
                     });
@@ -142,27 +129,16 @@ export const templates = {
                         queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
                     });
                 },
-                onError(error) {
-                    console.error(error);
-                },
                 mutationFn: (${nameCamel}Id: string) => delete${namePascal}(${nameCamel}Id),
             });
         };
     `.trim(),
 
-    "hooks/index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './get';
-        export * from './post';
-        export * from './put';
-        export * from './patch';
-        export * from './delete';
-    `.trim(),
-
     "api/get": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response, I${namePascal}sResponse, IGet${namePascal}sParams } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response, I${namePascal}sResponse } from '../types/responses';
+        import { IGet${namePascal}sParams } from '../types/params';
 
         export const get${namePascal} = async (
             ${nameCamel}Id: string,
@@ -190,8 +166,9 @@ export const templates = {
 
     "api/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response, IUpdate${namePascal} } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response } from '../types/responses';
+        import { IUpdate${namePascal} } from '../types/payloads';
 
         export const update${namePascal} = async (
             ${nameCamel}Id: string,
@@ -205,8 +182,8 @@ export const templates = {
 
     "api/patch": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response } from '../types/responses';
 
         export const toggle${namePascal} = async (
             ${nameCamel}Id: string,
@@ -219,8 +196,9 @@ export const templates = {
 
     "api/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response, ICreate${namePascal} } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response } from '../types/responses';
+        import { ICreate${namePascal} } from '../types/payloads';
 
         export const create${namePascal} = async (
             payload: ICreate${namePascal}
@@ -233,8 +211,8 @@ export const templates = {
 
     "api/delete": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { api } from 'shared/lib';
-        import { I${namePascal}Response } from '../types';
+        import { api } from 'shared/lib/axios';
+        import { I${namePascal}Response } from '../types/responses';
 
         export const delete${namePascal} = async (
             ${nameCamel}Id: string,
@@ -243,15 +221,6 @@ export const templates = {
 
             return response.data;
         };
-    `.trim(),
-
-    "api/index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './get';
-        export * from './post';
-        export * from './put';
-        export * from './patch';
-        export * from './delete';
     `.trim(),
 
     "types/params": (namePascal, nameCamel, nameKebab, snakeCase) =>
@@ -293,19 +262,5 @@ export const templates = {
                 ${nameCamel}s: I${namePascal}[]
             }
         }
-    `.trim(),
-
-    "types/index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './params';
-        export * from './payloads';
-        export * from './responses';
-    `.trim(),
-
-    "index": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
-        export * from './api';
-        export * from './hooks';
-        export * from './types';
     `.trim(),
 };
