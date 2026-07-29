@@ -88,8 +88,8 @@ grep -rln "useGet\|useQuery" src/features src/widgets | xargs grep -ln "useState
 # Rule 5 — an inline query key string instead of a QueryKeys enum member
 grep -rn "queryKey: \[.'" src/entities src/features src/widgets
 
-# Rule 7 — a barrel file re-exporting a folder's contents
-grep -rln "export \* from\|export {.*} from" src --include="index.ts"
+# Rule 7 — a layer-wide barrel (layer root or shared segment root); slice barrels are allowed
+grep -rln "export \* from\|export {.*} from" src/*/index.ts src/shared/*/index.ts
 
 # Rule 9 — a local stylesheet other than app/styles/global.css
 git diff --name-only <base>...<head> | grep -E '\.(css|scss|sass|less)$' | grep -v "app/styles/global.css"
@@ -104,9 +104,10 @@ is a violation.
 ## Severity
 
 - **blocker** — breaks a rule that `CLAUDE.md` states as non-negotiable (its "Architecture
-  Rules" section is explicitly hard constraints). Also: **any `index.ts` that re-exports a
-  folder's contents (`export * from`/`export { x } from`) — barrel files are forbidden
-  everywhere in `src/`, no exceptions** (Rule 7); a change that hand-writes an
+  Rules" section is explicitly hard constraints). Also: **an `index.ts` on a layer root
+  (`src/features/`, `src/widgets/`, `src/entities/`, `src/shared/`, `src/app/`) or a `shared`
+  segment root that re-exports its contents — layer-wide barrels are forbidden; a slice barrel
+  `<layer>/<slice>/index.ts` is allowed** (Rule 7); a change that hand-writes an
   `entities/<name>` or `features/<name>` folder instead of running the generator, or that adds a
   new top-level/segment folder `boundaries/elements` doesn't declare.
 - **suggestion** — a real problem that does not break a stated rule: a widget that could reuse an
@@ -137,7 +138,7 @@ Return **only** a JSON object as your final message, with no surrounding prose:
 
 ```json
 {
-  "summary": "One or two lines: which rules from CLAUDE.md you checked and confirmed OK (e.g. no process.env outside env.ts, pages stay Server Components, entities/features scaffolded by the generators with no extra segments, no barrel files, layer boundaries respected, QueryKeys enum used, Zod validation on forms, Tailwind-only styling, kebab-case naming). Always filled, even when findings is empty.",
+  "summary": "One or two lines: which rules from CLAUDE.md you checked and confirmed OK (e.g. no process.env outside env.ts, pages stay Server Components, entities/features scaffolded by the generators with no extra segments, no layer-wide barrels, layer boundaries respected, QueryKeys enum used, Zod validation on forms, Tailwind-only styling, kebab-case naming). Always filled, even when findings is empty.",
   "rules_source": "CLAUDE.md (+ any nested CLAUDE.md you used)",
   "findings": [
     {
