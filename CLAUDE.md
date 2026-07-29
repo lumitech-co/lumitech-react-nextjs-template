@@ -64,9 +64,14 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
    used-as-is icons → `public/icons/`. Every other image → WebP in `public/`, rendered with
    `next/image`. No PNG/JPEG or raster image under `src/`.
 
-7. **No barrel files, ever.** No `index.ts` re-exporting a folder anywhere in `src/`
-   (lint-enforced: `no-restricted-syntax` bans `export * from` / `export { x } from`). Always
-   import directly from the declaring file. Absolute imports from `src` across layers
+7. **No layer-wide barrels.** Forbidden: an `index.ts` on a layer root or a `shared` segment
+   root (`src/features/index.ts`, `src/widgets/index.ts`, `src/entities/index.ts`,
+   `src/shared/index.ts`, `src/shared/ui/index.ts`, …) — lint-enforced, `no-restricted-syntax`
+   bans `export * from` / `export { x } from` in exactly those files, and
+   `boundaries/no-unknown-files` rejects the layer-root ones outright. Allowed: one **slice**
+   barrel, `<layer>/<slice>/index.ts` (`features/members/index.ts`), re-exporting that slice's
+   public API. Everything else imports directly from the declaring file. Absolute imports from
+   `src` across layers
    (`baseUrl: "./src"`); relative imports for siblings in the same slice. Layer boundaries
    (`app → widgets → features → entities → shared`, plus "same slice only") are enforced by
    `eslint-plugin-boundaries`.

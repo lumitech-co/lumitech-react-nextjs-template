@@ -185,16 +185,30 @@ export const getUsers = async (
 };
 ```
 
-### Imports — no barrel files (rule 7)
+### Imports — no layer-wide barrels (rule 7)
 ```typescript
 // ✅ Good — direct file import
 import { useGetUsers } from 'entities/users/hooks/get';
 import { cn } from 'shared/lib/styles';
 
-// ❌ Forbidden — there is no entities/users/index.ts to import from
-import { useGetUsers } from 'entities/users';
-import { cn } from 'shared/lib';
+// ❌ Forbidden — a barrel on a layer root or a shared segment root
+import { cn } from 'shared/lib'; // shared/lib/index.ts
+import { Header } from 'widgets'; // widgets/index.ts
 ```
+A single **slice** barrel is allowed: `<layer>/<slice>/index.ts` re-exporting that slice's
+public API. Generators don't create one — add it by hand when a slice has a public surface
+worth naming:
+```typescript
+// features/members/index.ts
+export { RemoveMemberButton } from './ui/remove-member-button';
+export { RemoveMemberDialog } from './ui/remove-member-dialog';
+
+// consumer in widgets/
+import { RemoveMemberButton } from 'features/members';
+```
+Layer rules still apply to it: the barrel is classified as its own slice, so it may only
+re-export files from that slice, and importers obey the usual layer order.
+
 Use absolute imports from `src` (`baseUrl: "./src"`) across layers; inside the same slice,
 relative imports of siblings are correct and preferred (`../todo/todo`).
 

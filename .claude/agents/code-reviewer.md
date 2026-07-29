@@ -30,9 +30,10 @@ Also check, since this repo enforces its own architecture rules from `CLAUDE.md`
 - `'use client'` sits on the smallest leaf that needs it, not a page/layout/wrapper
 - Server state lives in TanStack Query (via `entities/*/hooks`), client-only state in a zustand
   store in `shared/store` — never fetched data copied into `useState`
-- **No barrel files anywhere in `src/`** — no `index.ts` re-exporting a folder's contents
-  (`export * from`/`export { x } from`), no exceptions; every import must point directly at the
-  file that declares the symbol
+- **No layer-wide barrels** — no `index.ts` re-exporting a folder's contents on a layer root
+  (`src/features/`, `src/widgets/`, `src/entities/`, `src/shared/`, `src/app/`) or a `shared`
+  segment root; a slice barrel (`features/members/index.ts`) is allowed, everything else must
+  import directly from the file that declares the symbol
 - No cross-layer imports that break `app → widgets → features → entities → shared`
 - Styling is Tailwind utility classes composed with `cn()`, no ad hoc CSS files
 

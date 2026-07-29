@@ -204,7 +204,7 @@ summaries, and it must say **what was checked and confirmed OK**, never a bare
 **Ticket:** ABC-123 — matches the acceptance criteria.
 **Architecture** (rules from CLAUDE.md): <what passed — no process.env outside env.ts, pages
 stay Server Components with 'use client' only on the needed leaf, entity/feature scaffolded by
-the generators with no extra segments, no barrel files, layer boundaries respected, QueryKeys
+the generators with no extra segments, no layer-wide barrels, layer boundaries respected, QueryKeys
 enum used, Zod validation on forms, Tailwind-only styling, kebab-case naming>.
 **Functional:** <what was verified — the expected behaviors traced end-to-end, edge cases,
 query-key consistency between reads and mutations, loading/error states, server/client data

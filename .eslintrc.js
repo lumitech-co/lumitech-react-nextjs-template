@@ -1,5 +1,41 @@
 const path = require('path');
 
+const RESTRICTED_SYNTAX = [
+  {
+    selector: 'ForInStatement',
+    message:
+      'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+  },
+  {
+    selector: 'ForOfStatement',
+    message:
+      'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
+  },
+  {
+    selector: 'LabeledStatement',
+    message:
+      'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
+  },
+  {
+    selector: 'WithStatement',
+    message:
+      '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+  },
+];
+
+const NO_GLOBAL_BARREL = [
+  {
+    selector: 'ExportAllDeclaration',
+    message:
+      'A layer-wide barrel ("export * from \'...\'" in src/<layer>/index.ts or src/shared/<segment>/index.ts) is forbidden. Re-export from the slice instead (e.g. features/members/index.ts), or import directly from the declaring file.',
+  },
+  {
+    selector: 'ExportNamedDeclaration[source]',
+    message:
+      'A layer-wide barrel ("export { x } from \'...\'" in src/<layer>/index.ts or src/shared/<segment>/index.ts) is forbidden. Re-export from the slice instead (e.g. features/members/index.ts), or import directly from the declaring file.',
+  },
+];
+
 module.exports = {
   env: {
     browser: true,
@@ -28,18 +64,9 @@ module.exports = {
         alwaysTryTypes: true,
       },
     },
-    // FSD layers, relative to `src`. `slice`/`segment` are captured so
-    // policies below can compare "same slice" (e.g. features/todos -> features/todos).
-    // Every file under `src` must match exactly one of these — see `boundaries/no-unknown-files`
-    // below, which is what actually forbids creating folders outside this list.
     'boundaries/root-path': path.resolve(__dirname, 'src'),
-    // File (not folder) descriptor, so `src/env.ts` counts as "known" for
-    // `boundaries/no-unknown-files` without being a folder-based element.
+    'boundaries/legacy-warnings': false,
     'boundaries/files': [{ pattern: 'env.ts', category: 'env' }],
-    // Every element pattern is scoped down to its documented segments (not just
-    // `<layer>/*`) — a file in an undeclared segment (e.g. `entities/todos/ui/`,
-    // `features/todos/store/`) matches no element and gets caught by
-    // `boundaries/no-unknown-files` just like a stray top-level folder would.
     'boundaries/elements': [
       { type: 'app', pattern: 'app/**', partialMatch: false },
       {
@@ -60,6 +87,24 @@ module.exports = {
         capture: ['slice'],
       },
       {
+        type: 'widgets',
+        mode: 'file',
+        pattern: 'widgets/*/index.{ts,tsx}',
+        capture: ['slice'],
+      },
+      {
+        type: 'features',
+        mode: 'file',
+        pattern: 'features/*/index.{ts,tsx}',
+        capture: ['slice'],
+      },
+      {
+        type: 'entities',
+        mode: 'file',
+        pattern: 'entities/*/index.{ts,tsx}',
+        capture: ['slice'],
+      },
+      {
         // No `api` segment: every API call belongs to an entity (see rule 3 in CLAUDE.md).
         type: 'shared',
         pattern:
@@ -70,13 +115,7 @@ module.exports = {
   },
   plugins: ['react', '@typescript-eslint', 'boundaries', 'check-file'],
   rules: {
-    // Every file in `src` must belong to one of the `boundaries/elements` above —
-    // this is what actually blocks creating a stray folder like `src/utils/` or
-    // `src/shared/api/`.
     'boundaries/no-unknown-files': 'error',
-    // File/folder naming is kebab-case everywhere in `src`, e.g. `create-todo-form.tsx`,
-    // `entities/todos/`. `src/app/**` gets Next.js's own App Router case instead, since it
-    // has its own conventions (`[id]`, `(group)`, `@slot`) that aren't plain kebab-case.
     'check-file/filename-naming-convention': [
       'error',
       { 'src/**/*.{ts,tsx}': 'KEBAB_CASE' },
@@ -89,9 +128,6 @@ module.exports = {
         'src/!(app)/**/': 'KEBAB_CASE',
       },
     ],
-    // FSD layer rule: app -> widgets -> features -> entities -> shared.
-    // A layer may only import itself (same slice) and layers strictly below it;
-    // `shared` has no slices and its segments may freely import each other.
     'boundaries/dependencies': [
       'error',
       {
@@ -178,44 +214,7 @@ module.exports = {
         ],
       },
     ],
-    // Barrel files (`export * from`, `export { x } from`) are forbidden: they hurt
-    // tree-shaking/build times in Next.js and hide real import paths. Always import
-    // (and export) directly from the file that declares the symbol.
-    'no-restricted-syntax': [
-      'error',
-      {
-        selector: 'ForInStatement',
-        message:
-          'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
-      },
-      {
-        selector: 'ForOfStatement',
-        message:
-          'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
-      },
-      {
-        selector: 'LabeledStatement',
-        message:
-          'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
-      },
-      {
-        selector: 'WithStatement',
-        message:
-          '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
-      },
-      {
-        selector: 'ExportAllDeclaration',
-        message:
-          'Barrel re-exports ("export * from \'...\'") are forbidden. Import directly from the file that declares the symbol.',
-      },
-      {
-        selector: 'ExportNamedDeclaration[source]',
-        message:
-          'Re-exporting from another module ("export { x } from \'...\'") is forbidden — it creates a barrel. Import directly from the source file instead.',
-      },
-    ],
-    // process.env is only allowed in src/env.ts (see the `overrides` block below) —
-    // everywhere else, import the validated `env` object instead.
+    'no-restricted-syntax': ['error', ...RESTRICTED_SYNTAX],
     'no-restricted-properties': [
       'error',
       {
@@ -225,10 +224,6 @@ module.exports = {
           'Do not read process.env directly — add the variable to src/env.ts and import `env` from there instead.',
       },
     ],
-    // Styling is Tailwind-only. The single exception is app/styles/global.css (Tailwind
-    // directives + shadcn/ui-style CSS variables in @layer base). A stylesheet shipped by a
-    // library must be imported straight from the package (e.g. `import 'swiper/css'`), never
-    // copied into src/ — those bare package specifiers don't match the patterns below.
     'no-restricted-imports': [
       'error',
       {
@@ -316,10 +311,22 @@ module.exports = {
   },
   overrides: [
     {
-      // The one file allowed to read process.env directly.
       files: ['src/env.ts'],
       rules: {
         'no-restricted-properties': 'off',
+      },
+    },
+    {
+      files: [
+        'src/app/index.{ts,tsx}',
+        'src/widgets/index.{ts,tsx}',
+        'src/features/index.{ts,tsx}',
+        'src/entities/index.{ts,tsx}',
+        'src/shared/index.{ts,tsx}',
+        'src/shared/*/index.{ts,tsx}',
+      ],
+      rules: {
+        'no-restricted-syntax': ['error', ...RESTRICTED_SYNTAX, ...NO_GLOBAL_BARREL],
       },
     },
   ],

@@ -110,23 +110,39 @@ import (e.g. `entities` importing from `features`) fails `yarn lint`.
 | `src/entities/` | The API access layer, one folder per route prefix (`/users` → `entities/users/`): `api/` (axios requests), `types/` (params, payloads, responses), `hooks/` (TanStack Query hooks). **No UI, no business logic.** Scaffolded only via `yarn generate:entity <name>`. |
 | `src/shared/` | Everything global and feature-agnostic, with **no slices** — just segments: `ui/` (reusable components), `lib/` (utils + configured library instances like `axios`, `queryClient`, `cn`), `hooks/` (global hooks, not tied to any API call), `store/` (all Zustand stores), `providers/` (all React context providers, mounted in `app/layout.tsx`), `constants/` (incl. the `QueryKeys` enum), `types/` (shared types), `icons/` (custom SVG icons imported as React components). **No `api/` segment** — every API call belongs to an `entities/<entity>`, even a one-off endpoint; see [🚫 No `shared/api`](#-no-sharedapi-every-api-call-is-an-entity) below. |
 
-### 🚫 No barrel files
-**No folder in `src/` has an `index.ts` that re-exports its contents.** Every import points
-directly at the file that declares the symbol:
+### 🚫 No layer-wide barrels
+**No layer root and no `shared` segment root has an `index.ts` that re-exports its
+contents** — `src/app/`, `src/widgets/`, `src/features/`, `src/entities/`, `src/shared/`
+and `src/shared/<segment>/` stay barrel-free:
 ```typescript
 // ✅ Good
 import { useGetTodos } from 'entities/todos/hooks/get';
 import { cn } from 'shared/lib/styles';
 
-// ❌ Forbidden — there is no entities/todos/index.ts or shared/lib/index.ts
-import { useGetTodos } from 'entities/todos';
+// ❌ Forbidden — shared/lib/index.ts, features/index.ts
 import { cn } from 'shared/lib';
+import { CreateTodoForm } from 'features';
 ```
-Barrel files were removed on purpose: they defeat Next.js/webpack tree-shaking (importing
-one symbol pulls in the whole barrel graph), slow down cold builds and HMR, and hide where a
-symbol actually lives. This is enforced by ESLint's `no-restricted-syntax` rule, which
-rejects both `export * from '...'` and `export { x } from '...'` anywhere in the codebase —
-so a barrel file can't even be reintroduced by accident.
+A layer-wide barrel defeats Next.js/webpack tree-shaking (importing one symbol pulls in the
+whole layer's graph), slows down cold builds and HMR, and hides where a symbol actually
+lives. It is blocked by ESLint's `no-restricted-syntax` (an override scoped to exactly those
+files rejects `export * from '...'` and `export { x } from '...'`), and the layer-root ones
+are additionally rejected by `boundaries/no-unknown-files`.
+
+**A slice barrel is allowed**: a single `index.ts` on a slice root, re-exporting that
+slice's public API:
+```typescript
+// features/members/index.ts
+export { RemoveMemberButton } from './ui/remove-member-button';
+export { RemoveMemberDialog } from './ui/remove-member-dialog';
+```
+```typescript
+// ✅ Good — one slice, one barrel
+import { RemoveMemberButton } from 'features/members';
+```
+It stays inside the boundaries model: `.eslintrc.js` classifies `<layer>/<slice>/index.ts`
+as that slice, so it may only re-export files from its own slice and importers still obey
+the layer order. The generators don't create one — add it by hand if the slice needs it.
 
 ### 🚫 No `shared/api` — every API call is an entity
 There is no "misc API calls that don't belong to a feature" escape hatch. Any code that
@@ -445,15 +461,19 @@ import { useGetUsers } from 'entities/users/hooks/get';
 import { LoginButton } from 'features/auth/ui/login-button/login-button';
 import { fetchData } from 'shared/lib/fetch-data';
 ```
-**Always Import the Concrete File — Never a Barrel:** this template has **no `index.ts`**
-re-exporting a folder's contents (see [🚫 No barrel files](#-no-barrel-files)), so an import
-must resolve to a real file, not a directory:
+**Import the Concrete File — the only barrel is a slice barrel:** layer roots and `shared`
+segments never have an `index.ts` (see
+[🚫 No layer-wide barrels](#-no-layer-wide-barrels)), so an import resolves to a real file —
+or, at most, to a slice that chose to expose one:
 ```
 // ✅ Good: import the file that declares the symbol
 import { LoginForm } from 'features/auth/ui/login-form/login-form';
 
-// ❌ Forbidden: there is no features/auth/index.ts to import from
+// ✅ Also fine, if features/auth/index.ts exists
 import { LoginForm } from 'features/auth';
+
+// ❌ Forbidden: features/index.ts, shared/ui/index.ts
+import { LoginForm } from 'features';
 ```
 Instead of writing a long relative path like ```../../../shared/ui/button/button```, use the
 absolute one — ```shared/ui/button/button``` — from anywhere in the project. This keeps
