@@ -47,7 +47,7 @@
     "zustand": "^5.0.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.0",
