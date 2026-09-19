@@ -4,71 +4,57 @@ on:
   pull_request:
     branches: ["main"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  checks:
-    name: Lint, typecheck & build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-
-      - name: Lint application
-        run: yarn lint
-
-      - name: Typecheck application
-        run: yarn typescript
-
-      - name: Build application
-        run: yarn build
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-          NEXT_PUBLIC_NODE_ENV: ${{ secrets.NEXT_PUBLIC_NODE_ENV }}
-
-  unit:
-    name: Unit tests
-    needs: checks
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-
-      - run: yarn test:unit
-
-  integration:
-    name: Integration tests
-    needs: checks
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-
-      - run: yarn test:integration
-
-  e2e:
-    name: E2E tests
-    needs: checks
+  ci:
+    name: Lint, typecheck, build & test
     runs-on: ubuntu-latest
 
     env:
-      # The suite runs against tests/e2e/stub-api.mjs, and `next build` inlines
-      # NEXT_PUBLIC_* into the client bundle — so it must be the stub URL here
-      # too, not the real API.
+      # The e2e suite runs against tests/e2e/stub-api.mjs, and `next build`
+      # inlines NEXT_PUBLIC_* into the client bundle — so the build has to use
+      # the stub URL too.
       NEXT_PUBLIC_API_URL: http://localhost:4010
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # The three cheap checks always run, so one red step does not hide the
+      # others and a single run reports everything that is broken.
+      - name: Lint
+        if: ${{ !cancelled() }}
+        run: yarn lint
+
+      - name: Typecheck
+        if: ${{ !cancelled() }}
+        run: yarn typescript
+
+      - name: Unit & integration tests
+        if: ${{ !cancelled() }}
+        run: yarn test
+
+      # No `if` from here on, so these are skipped as soon as anything above
+      # failed: there is no point spending a browser download and a production
+      # build on code whose unit tests are already red.
       - name: Install Playwright browsers
         run: yarn playwright install --with-deps chromium
 
-      - name: Build application
+      - name: Build
         run: yarn build
 
-      - run: yarn test:e2e
+      - name: E2E tests
+        run: yarn test:e2e
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -76,19 +62,4 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
-
-  done:
-    name: All checks passed
-    needs: [unit, integration, e2e]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Verify every job succeeded
-        run: |
-          echo "unit=${{ needs.unit.result }}"
-          echo "integration=${{ needs.integration.result }}"
-          echo "e2e=${{ needs.e2e.result }}"
-          [ "${{ needs.unit.result }}" = "success" ] \
-            && [ "${{ needs.integration.result }}" = "success" ] \
-            && [ "${{ needs.e2e.result }}" = "success" ]
+          if-no-files-found: ignore
