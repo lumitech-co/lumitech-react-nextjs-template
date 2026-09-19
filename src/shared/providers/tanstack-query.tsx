@@ -2,28 +2,10 @@
 
 import { PropsWithChildren } from 'react';
 
-import {
-  isServer,
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import { queryClient } from 'shared/lib/query';
-
-let browserQueryClient: QueryClient | undefined;
-
-const getQueryClient = () => {
-  if (isServer) {
-    return queryClient;
-  }
-
-  if (!browserQueryClient) {
-    browserQueryClient = queryClient;
-  }
-
-  return browserQueryClient;
-};
+import { getQueryClient } from 'shared/lib/query';
 
 export const TanStackQueryProvider = ({ children }: PropsWithChildren) => {
   const queryClient = getQueryClient();

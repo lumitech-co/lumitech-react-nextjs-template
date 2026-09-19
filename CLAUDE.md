@@ -13,7 +13,7 @@ need the "how it looks in code" detail. This file holds the hard rules; they are
   `types/` and wires the `QueryKeys` enum. Never create an entity by hand.
 - **New feature:** `npm run generate:feature <featureName>` — scaffolds `ui/`, `hooks/`,
   `lib/`, `schemas/`, `types/`. Never create a feature by hand.
-- **Finishing a feature:** always run `npm run lint:fix && npm run typescript`.
+- **Finishing a feature:** always run `npm run lint:fix && npm run typescript && npm run test`.
 
 Generators emit no barrel files. If a generator can't produce what a task needs, stop and
 ask — fixing the generator is valid, bypassing it is not.
@@ -95,3 +95,12 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
 
 11. **No inline comments.** No comments after lines of code. JSDoc on functions/components is
     allowed when it adds meaningful, non-obvious context.
+
+12. **Tests live in `tests/`, never in `src/`.** `src/` has a fixed folder set (rule 8) with no
+    `tests` segment, so a colocated spec breaks `boundaries/no-unknown-files`. Unit and
+    integration are Vitest (`tests/unit`, `tests/integration`), e2e is Playwright
+    (`tests/e2e`). Integration tests render via `tests/utils/render.tsx` — it provides a fresh
+    `QueryClient` per test — and mock the network with MSW; never mock axios or an entity's
+    `api/` module. E2E runs against
+    `tests/e2e/stub-api.mjs`, not a real API: `page.route` cannot intercept the server-side
+    prefetch in a Server Component. See the Testing section in `README.md`.

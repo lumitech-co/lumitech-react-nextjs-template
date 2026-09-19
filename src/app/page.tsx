@@ -7,7 +7,7 @@ import { IGetTodosParams } from 'entities/todos/types/params';
 import { CreateTodoForm } from 'features/todos/ui/create-todo-form/create-todo-form';
 import { TodosList } from 'features/todos/ui/todos-list/todos-list';
 import { QueryKeys } from 'shared/constants/query-keys';
-import { queryClient } from 'shared/lib/query';
+import { getQueryClient } from 'shared/lib/query';
 
 const params: IGetTodosParams = {
   _page: 1,
@@ -15,6 +15,8 @@ const params: IGetTodosParams = {
 };
 
 const HomePage = async () => {
+  const queryClient = getQueryClient();
+
   await queryClient.prefetchQuery({
     queryKey: [QueryKeys.GET_TODOS, params],
     queryFn: () => getTodos(params),
