@@ -2,14 +2,14 @@
 
 import { useEffect } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { Themes, useThemeStore } from 'shared/store/theme';
 
-const themeBtnTitle: Record<Themes, string> = {
-  [Themes.dark]: 'Dark',
-  [Themes.light]: 'Light',
-};
+import { LocaleSwitcher } from '../locale-switcher/locale-switcher';
 
 export const Header = () => {
+  const t = useTranslations('header.theme');
   const { theme, toggleTheme } = useThemeStore(state => state);
 
   useEffect(() => {
@@ -17,10 +17,11 @@ export const Header = () => {
   }, [theme]);
 
   return (
-    <header className="p-2">
+    <header className="flex justify-between p-2">
       <button type="button" onClick={toggleTheme}>
-        {themeBtnTitle[theme]}
+        {t(theme)}
       </button>
+      <LocaleSwitcher />
     </header>
   );
 };

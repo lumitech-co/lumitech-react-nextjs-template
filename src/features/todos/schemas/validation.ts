@@ -1,10 +1,17 @@
 import { z } from 'zod';
 
-export const createTodoSchema = z.object({
-  title: z
-    .string({ message: 'Title is required' })
-    .min(1, { message: 'Title is required' }),
-  completed: z.boolean().default(false),
-});
+type ValidationMessage = 'titleRequired';
 
-export type CreateTodoInput = z.infer<typeof createTodoSchema>;
+/**
+ * Built from a translator so error messages follow the active locale —
+ * pass `useTranslations('todos.validation')` from a component.
+ */
+export const createTodoSchema = (t: (key: ValidationMessage) => string) =>
+  z.object({
+    title: z
+      .string({ message: t('titleRequired') })
+      .min(1, { message: t('titleRequired') }),
+    completed: z.boolean().default(false),
+  });
+
+export type CreateTodoInput = z.infer<ReturnType<typeof createTodoSchema>>;

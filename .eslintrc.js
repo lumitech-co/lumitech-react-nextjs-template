@@ -66,7 +66,10 @@ module.exports = {
     },
     'boundaries/root-path': path.resolve(__dirname, 'src'),
     'boundaries/legacy-warnings': false,
-    'boundaries/files': [{ pattern: 'env.ts', category: 'env' }],
+    'boundaries/files': [
+      { pattern: 'env.ts', category: 'env' },
+      { pattern: 'middleware.ts', category: 'middleware' },
+    ],
     'boundaries/elements': [
       { type: 'app', pattern: 'app/**', partialMatch: false },
       {
@@ -196,6 +199,11 @@ module.exports = {
             },
             message:
               '"widgets" may only import their own slice, "features", "entities", "shared" and "env" — not other widgets or app.',
+          },
+          {
+            from: { file: { categories: 'middleware' } },
+            allow: { to: { element: { type: 'shared' } } },
+            message: 'src/middleware.ts may only import "shared".',
           },
           {
             from: { element: { type: 'app' } },

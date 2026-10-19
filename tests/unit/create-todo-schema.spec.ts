@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { createTodoSchema } from 'features/todos/schemas/validation';
+import { createTodoSchema as buildSchema } from 'features/todos/schemas/validation';
+
+const createTodoSchema = buildSchema(key => key);
 
 describe('createTodoSchema', () => {
   it('defaults completed to false', () => {
@@ -14,7 +16,7 @@ describe('createTodoSchema', () => {
     const result = createTodoSchema.safeParse({ title: '' });
 
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0].message).toBe('Title is required');
+    expect(result.error?.issues[0].message).toBe('titleRequired');
   });
 
   it('rejects a missing title', () => {
