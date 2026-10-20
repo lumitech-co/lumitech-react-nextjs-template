@@ -285,7 +285,9 @@ const t = await getTranslations({ locale, namespace: 'metadata' });
 const t = useTranslations('todos.validation');
 useForm({ resolver: zodResolver(createTodoSchema(t)) });
 ```
-Add a string: put the key in every `messages/*.json` (types come from `en.json`).
+Add a string: put the key in every `messages/*.json` (types come from `en.json`); the
+`i18n-messages` unit test fails if any locale is missing a key or has an extra one.
+Hard-coded JSX text and locale-unaware `next/link` / `next/navigation` imports fail lint.
 Add a locale: append it to `routing.locales`, add `messages/<locale>.json`, and its label
 in `features/layout/ui/locale-switcher`.
 

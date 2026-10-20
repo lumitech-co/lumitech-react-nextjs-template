@@ -36,6 +36,38 @@ const NO_GLOBAL_BARREL = [
   },
 ];
 
+const NO_CUSTOM_CSS = {
+  group: [
+    'app/**/*.css',
+    'widgets/**/*.css',
+    'features/**/*.css',
+    'entities/**/*.css',
+    'shared/**/*.css',
+    './**/*.css',
+    '../**/*.css',
+    '**/*.scss',
+    '**/*.sass',
+    '**/*.less',
+    '!app/styles/global.css',
+  ],
+  message:
+    'Custom stylesheets are forbidden — style with Tailwind utility classes (compose them with cn() from shared/lib/styles). For a reusable class, add it to tailwind.config.ts instead of writing CSS. The only allowed stylesheet is app/styles/global.css; a third-party library\'s CSS must be imported directly from its package, not copied into src/.',
+};
+
+const NO_LOCALE_UNAWARE_NAVIGATION = [
+  {
+    name: 'next/link',
+    message:
+      'next/link drops the active locale — import { Link } from shared/lib/i18n/navigation instead.',
+  },
+  {
+    name: 'next/navigation',
+    importNames: ['useRouter', 'usePathname', 'redirect', 'permanentRedirect'],
+    message:
+      'These drop the active locale — import them from shared/lib/i18n/navigation instead (notFound, useSearchParams etc. are fine from next/navigation).',
+  },
+];
+
 module.exports = {
   env: {
     browser: true,
@@ -234,27 +266,7 @@ module.exports = {
     ],
     'no-restricted-imports': [
       'error',
-      {
-        patterns: [
-          {
-            group: [
-              'app/**/*.css',
-              'widgets/**/*.css',
-              'features/**/*.css',
-              'entities/**/*.css',
-              'shared/**/*.css',
-              './**/*.css',
-              '../**/*.css',
-              '**/*.scss',
-              '**/*.sass',
-              '**/*.less',
-              '!app/styles/global.css',
-            ],
-            message:
-              'Custom stylesheets are forbidden — style with Tailwind utility classes (compose them with cn() from shared/lib/styles). For a reusable class, add it to tailwind.config.ts instead of writing CSS. The only allowed stylesheet is app/styles/global.css; a third-party library\'s CSS must be imported directly from its package, not copied into src/.',
-          },
-        ],
-      },
+      { paths: NO_LOCALE_UNAWARE_NAVIGATION, patterns: [NO_CUSTOM_CSS] },
     ],
     'no-console': 'warn',
     'no-param-reassign': 'off',
@@ -318,6 +330,22 @@ module.exports = {
     'prettier/prettier': 'warn',
   },
   overrides: [
+    {
+      files: ['src/shared/lib/i18n/navigation.ts'],
+      rules: {
+        'no-restricted-imports': ['error', { patterns: [NO_CUSTOM_CSS] }],
+      },
+    },
+    {
+      files: [
+        'src/app/**/*.tsx',
+        'src/widgets/**/*.tsx',
+        'src/features/**/*.tsx',
+      ],
+      rules: {
+        'react/jsx-no-literals': ['error', { noStrings: true, ignoreProps: true }],
+      },
+    },
     {
       files: ['src/env.ts'],
       rules: {

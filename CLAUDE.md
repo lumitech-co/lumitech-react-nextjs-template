@@ -114,4 +114,7 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
     `shared/lib/i18n/navigation`, never `next/link`/`next/navigation`. A Zod schema with
     user-facing messages is a factory taking a translator (`createTodoSchema(t)`). Adding a
     locale = add it to `routing.ts` + a new messages file. `src/middleware.ts` (next-intl
-    routing) is the only extra file allowed at `src/` root besides `env.ts`.
+    routing) is the only extra file allowed at `src/` root besides `env.ts`. Lint-enforced:
+    `react/jsx-no-literals` (text in JSX under `app`/`widgets`/`features`) and
+    `no-restricted-imports` (`next/link`, `useRouter`/`usePathname`/`redirect` from
+    `next/navigation`); `tests/unit/i18n-messages.spec.ts` fails if locales' keys differ.
