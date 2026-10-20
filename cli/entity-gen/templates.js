@@ -34,14 +34,14 @@ export const templates = {
 
     "hooks/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { useMutation } from '@tanstack/react-query';
+        import { useMutation, useQueryClient } from '@tanstack/react-query';
         import { IUpdate${namePascal} } from "../types/payloads"
         import { QueryKeys } from 'shared/constants/query-keys';
-        import { queryClient } from 'shared/lib/query';
 
         import { update${namePascal} } from '../api/put';
 
         export const useUpdate${namePascal} = () => {
+            const queryClient = useQueryClient();
 
             return useMutation({
                 onSuccess() {
@@ -61,14 +61,14 @@ export const templates = {
 
     "hooks/patch": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { useMutation } from '@tanstack/react-query';
+        import { useMutation, useQueryClient } from '@tanstack/react-query';
 
         import { QueryKeys } from 'shared/constants/query-keys';
-        import { queryClient } from 'shared/lib/query';
 
         import { toggle${namePascal} } from '../api/patch';
 
         export const useToggle${namePascal} = () => {
+            const queryClient = useQueryClient();
 
             return useMutation({
                 onSuccess() {
@@ -86,14 +86,14 @@ export const templates = {
 
     "hooks/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { useMutation } from '@tanstack/react-query';
+        import { useMutation, useQueryClient } from '@tanstack/react-query';
         import { ICreate${namePascal} } from "../types/payloads"
         import { QueryKeys } from 'shared/constants/query-keys';
-        import { queryClient } from 'shared/lib/query';
 
         import { create${namePascal} } from '../api/post';
 
         export const useCreate${namePascal} = () => {
+            const queryClient = useQueryClient();
 
             return useMutation({
                 onSuccess() {
@@ -111,14 +111,14 @@ export const templates = {
 
     "hooks/delete": (namePascal, nameCamel, nameKebab, snakeCase) =>
         `
-        import { useMutation } from '@tanstack/react-query';
+        import { useMutation, useQueryClient } from '@tanstack/react-query';
 
         import { QueryKeys } from 'shared/constants/query-keys';
-        import { queryClient } from 'shared/lib/query';
 
         import { delete${namePascal} } from '../api/delete';
 
         export const useDelete${namePascal} = () => {
+            const queryClient = useQueryClient();
 
             return useMutation({
                 onSuccess() {

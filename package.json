@@ -13,6 +13,11 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "lint:staged": "lint-staged",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "generate:entity": "node cli/entity-gen/index.js",
     "generate:feature": "node cli/feature-gen/index.js"
   },
@@ -42,20 +47,26 @@
     "zustand": "^5.0.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.0",
     "@commitlint/config-conventional": "^17.7.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@next/eslint-plugin-next": "^13.4.13",
+    "@playwright/test": "^1.63.0",
     "@svgr/webpack": "^8.1.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "20.7.2",
     "@types/react": "18.2.23",
     "@types/react-collapse": "^5.0.4",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "10.4.2",
     "commitizen": "^4.3.0",
     "eslint": "^8.46.0",
@@ -71,11 +82,15 @@
     "eslint-plugin-react": "^7.33.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^9.1.1",
+    "jsdom": "^26",
     "lint-staged": "^15.2.7",
+    "msw": "^2.15.0",
     "postcss": "8.4.5",
     "prettier": "^3.0.1",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "tailwindcss": "^3.0.15",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
   }
 }

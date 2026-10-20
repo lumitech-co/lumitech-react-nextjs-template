@@ -1,34 +1,65 @@
-name: Development Lint & Build
+name: Pull Request
 
 on:
   pull_request:
     branches: ["main"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  ci:
+    name: Lint, typecheck, build & test
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
+    env:
+      # The e2e suite runs against tests/e2e/stub-api.mjs, and `next build`
+      # inlines NEXT_PUBLIC_* into the client bundle — so the build has to use
+      # the stub URL too.
+      NEXT_PUBLIC_API_URL: http://localhost:4010
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: ".nvmrc"
           cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Lint application
+      # The three cheap checks always run, so one red step does not hide the
+      # others and a single run reports everything that is broken.
+      - name: Lint
+        if: ${{ !cancelled() }}
         run: yarn lint
 
-      - name: Build application
+      - name: Typecheck
+        if: ${{ !cancelled() }}
+        run: yarn typescript
+
+      - name: Unit & integration tests
+        if: ${{ !cancelled() }}
+        run: yarn test
+
+      # No `if` from here on, so these are skipped as soon as anything above
+      # failed: there is no point spending a browser download and a production
+      # build on code whose unit tests are already red.
+      - name: Install Playwright browsers
+        run: yarn playwright install --with-deps chromium
+
+      - name: Build
         run: yarn build
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-          NEXT_PUBLIC_NODE_ENV: ${{ secrets.NEXT_PUBLIC_NODE_ENV }}
+
+      - name: E2E tests
+        run: yarn test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

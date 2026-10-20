@@ -83,7 +83,7 @@ The set of folders/segments is fixed and lint-enforced (`boundaries/no-unknown-f
   library that needs one). Providers are client components and are mounted in
   `src/app/layout.tsx`.
 - `shared/lib/` - global utilities and configured library instances (`axios.ts` → `api`,
-  `query.ts` → `queryClient`, `styles.ts` → `cn`).
+  `query.ts` → `makeQueryClient`/`getQueryClient`, `styles.ts` → `cn`).
 - `shared/icons/` - **custom icons only** — `.svg` files imported directly as React
   components via SVGR. Use this when the icon must be customized (`fill="currentColor"`,
   size, theme). An icon that is never restyled goes to `public/icons/` instead.
@@ -117,6 +117,8 @@ client hook reads it from cache instead of refetching:
 ```typescript
 // src/app/page.tsx — server
 const HomePage = async () => {
+  const queryClient = getQueryClient();
+
   await queryClient.prefetchQuery({
     queryKey: [QueryKeys.GET_TODOS, params],
     queryFn: () => getTodos(params),
@@ -160,6 +162,8 @@ export const useGetUsers = (query: IGetUsersParams) => {
 };
 
 export const useCreateUser = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (payload: ICreateUser) => createUser(payload),
     onSuccess: () => {
@@ -168,6 +172,9 @@ export const useCreateUser = () => {
   });
 };
 ```
+The client always comes from `useQueryClient()` (or `getQueryClient()` on the server), never
+from a module-level instance — a shared client would leak one request's cache into the next
+server render.
 
 ### Entity requests
 Requests take `(params | payload, signal?)`, use the shared `api` instance, and return

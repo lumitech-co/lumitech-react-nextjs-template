@@ -35,6 +35,8 @@ Just grab it and start developing! 🚀
 - [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction)
 - [Axios](https://axios-http.com/docs/intro)
 - [React Hook Forms](https://react-hook-form.com/)
+- [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [MSW](https://mswjs.io/)
+- [Playwright](https://playwright.dev/)
 
 
 ## 📚 Getting Started
@@ -79,6 +81,15 @@ You will have server running at:
     |      ├── lib/             # Utility functions and reusable helper libraries
     |      └── ui/              # UI components shared across the app
     └── env.ts                  # Configuration and validation of environment variables
+```
+```
+└── tests/                      # All tests live outside src/ — see 🧪 Testing below
+    ├── setup.ts                # Vitest setup: jest-dom matchers, MSW lifecycle, cache reset
+    ├── mocks/                  # MSW request handlers + node server
+    ├── utils/render.tsx        # RTL render wrapped in the app's providers
+    ├── unit/                   # Pure logic: schemas, stores, helpers
+    ├── integration/            # Components + hooks + axios, only the network is mocked
+    └── e2e/                    # Playwright specs + stub-api.mjs (in-memory API server)
 ```
 📖 See [Feature-Sliced Design](#-feature-sliced-design-fsd) below for what belongs in each
 folder and how imports between them are allowed to flow.
@@ -196,6 +207,49 @@ Enforced by `eslint-plugin-check-file`:
 ✅ src/features/todos/ui/create-todo-form/create-todo-form.tsx
 ❌ src/features/todos/ui/CreateTodoForm/createTodoForm.tsx   — fails yarn lint
 ```
+
+## 🧪 Testing
+| Level | Runner | What it covers |
+| --- | --- | --- |
+| unit | Vitest (jsdom) | Zod schemas, zustand stores, `shared/lib` helpers — no rendering, no network |
+| integration | Vitest + Testing Library + MSW | A feature component together with its entity hooks, TanStack Query cache and axios. Only the HTTP boundary is mocked |
+| e2e | Playwright (chromium) | The built app in a real browser against `tests/e2e/stub-api.mjs` |
+
+```bash
+yarn test              # unit + integration, single run
+yarn test:unit         # unit only
+yarn test:integration  # integration only
+yarn test:watch        # unit + integration in watch mode
+yarn test:e2e          # Playwright (first run: yarn playwright install chromium)
+```
+
+On a pull request `.github/workflows/build.yml` first runs lint → typecheck → build in one
+job, then fans out to three parallel jobs (unit, integration, e2e) and closes with an
+`All checks passed` gate — the single job worth marking as required in branch protection.
+
+### Why `tests/` sits outside `src/`
+`src/` has a locked-down folder set (`boundaries/no-unknown-files`, see
+[the section above](#-the-src-folder-structure-is-locked-down--even-inside-a-slice)) and a
+`tests` segment is not part of it. Keeping tests in a top-level `tests/` folder means neither
+that rule nor the FSD import boundaries have to be relaxed. `.eslintignore` already limits
+ESLint to `/src`, so test files are not linted.
+
+### Writing an integration test
+Render through `tests/utils/render.tsx`, never through RTL's bare `render` — it wires up the
+`QueryClientProvider` that entity hooks read from context, with **a fresh `QueryClient` per
+test**, so no cache leaks from one test into the next.
+
+Mock the network in `tests/mocks/handlers.ts` (the default happy path) and override per test
+with `server.use(...)`. Unhandled requests fail the test on purpose (`onUnhandledRequest:
+'error'`) — a component that suddenly calls a new endpoint should not pass silently.
+
+### Writing an e2e test
+`page.route` is **not** enough here: pages are Server Components that prefetch on the server,
+so the first request never leaves Node. Instead, Playwright boots `tests/e2e/stub-api.mjs` (a
+~60-line `node:http` server) and points `NEXT_PUBLIC_API_URL` at it, so the server prefetch and
+the browser both hit the stub. Its todos live in memory, so specs run serially (`workers: 1`)
+and reset state via `POST /__reset` in `beforeEach`.
+
 
 ## 🤖 Claude Code agents & commands
 This repo ships a `.claude/` folder with Claude Code agents and slash commands tuned to this
