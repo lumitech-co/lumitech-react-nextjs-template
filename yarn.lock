@@ -1085,10 +1085,10 @@
     "@babel/helper-validator-identifier" "^7.24.7"
     to-fast-properties "^2.0.0"
 
-"@boundaries/elements@3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@boundaries/elements/-/elements-3.0.1.tgz#d20b83bc81d3912d2aabef0636b52cf5b4c02f6d"
-  integrity sha512-T53UueJVRIn1B2G5FWo6T3rqAA1aHcuypRweQcbW6Z/leUygsHW54Gezkm/8uxB9Fw8ewE+izfKKmA9XVv7HdQ==
+"@boundaries/elements@3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@boundaries/elements/-/elements-3.1.1.tgz#d18f01bbc0939025f3461d6f808a51deecff15db"
+  integrity sha512-ikqee8669yp2I+uLG67T5P5BSbe+y4NqW5Mk+7tYa+Ydzhpmh0pDyMaH9918J2Ll36ZqYKDb4g4QBeMpWg7VDg==
   dependencies:
     eslint-import-resolver-node "0.3.9"
     eslint-module-utils "2.12.1"
@@ -3936,12 +3936,12 @@ eslint-module-utils@^2.8.0:
   dependencies:
     debug "^3.2.7"
 
-eslint-plugin-boundaries@^7.0.2:
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-boundaries/-/eslint-plugin-boundaries-7.0.2.tgz#39e69c6921b09f783d344f96781558c1cd25c39b"
-  integrity sha512-VLaPMvNh+ONw6F/S0gpkS0/QDudqVjcaL1DoGo+8sJqZmxxabOtrFZ24PDI1jQLg3pyqujzJ3/4Cq7Bk249gjQ==
+eslint-plugin-boundaries@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-boundaries/-/eslint-plugin-boundaries-7.2.0.tgz#babd3b2ceded03bce64bc7fa6ec4633ac645c59f"
+  integrity sha512-ywSaVhn9dBFPxEoUTXnu1106Er+NhSSxTuiz52H+SUgAhd0kmikHHhdavv2d+6Aw7f7w1RDT2cXQUJ/7D/V68A==
   dependencies:
-    "@boundaries/elements" "3.0.1"
+    "@boundaries/elements" "3.1.1"
     chalk "4.1.2"
     eslint-import-resolver-node "0.3.9"
     eslint-module-utils "2.12.1"

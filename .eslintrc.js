@@ -140,6 +140,13 @@ const restrictedImports = (...allowed) => [
   },
 ];
 
+const NEXT_ROUTE_FILES =
+  '{page,layout,loading,error,global-error,not-found,forbidden,unauthorized,template,default,route,sitemap,robots,manifest,icon,apple-icon,opengraph-image,twitter-image}';
+
+const SLICED_LAYERS = '{widgets,features,entities}';
+
+const RELATIVE_SOURCE = '!{app,widgets,features,entities,shared}/**';
+
 module.exports = {
   env: {
     browser: true,
@@ -177,7 +184,13 @@ module.exports = {
       { pattern: 'middleware.ts', category: 'middleware' },
     ],
     'boundaries/elements': [
-      { type: 'app', pattern: 'app/**', partialMatch: false },
+      {
+        // Only Next.js route files: components and logic belong in features/widgets.
+        type: 'app',
+        mode: 'file',
+        pattern: `app/**/${NEXT_ROUTE_FILES}.{ts,tsx}`,
+      },
+      { type: 'app', mode: 'file', pattern: 'app/styles/global.css' },
       {
         // No `schemas` segment here: forms/validation live in `features`, not `widgets`.
         type: 'widgets',
@@ -190,9 +203,10 @@ module.exports = {
         capture: ['slice'],
       },
       {
-        // No `ui` segment: entities are API-only (see rule 3 in CLAUDE.md).
+        // No `ui` segment and `.ts` only: entities are API-only (see rule 3 in CLAUDE.md).
         type: 'entities',
-        pattern: 'entities/*/(api|hooks|types)/**',
+        mode: 'file',
+        pattern: 'entities/*/(api|hooks|types)/**/*.ts',
         capture: ['slice', 'segment'],
       },
       {
@@ -225,6 +239,7 @@ module.exports = {
   plugins: ['react', '@typescript-eslint', 'boundaries', 'check-file'],
   rules: {
     'boundaries/no-unknown-files': 'error',
+    'boundaries/no-unknown-dependencies': 'error',
     'check-file/filename-naming-convention': [
       'error',
       { 'src/**/*.{ts,tsx}': 'KEBAB_CASE' },
@@ -241,6 +256,7 @@ module.exports = {
       'error',
       {
         default: 'disallow',
+        checkInternals: true,
         policies: [
           {
             from: { element: { type: 'shared' } },
@@ -334,6 +350,40 @@ module.exports = {
               ],
             },
             message: '"app" may import from any layer below it.',
+          },
+          {
+            from: { element: { type: SLICED_LAYERS } },
+            disallow: {
+              to: {
+                element: {
+                  type: '{{ from.element.types.[0] }}',
+                  captured: { slice: '{{ from.element.captured.slice }}' },
+                },
+              },
+              dependency: { source: `${SLICED_LAYERS}/**` },
+            },
+            message: 'Import files of your own slice with a relative path.',
+          },
+          {
+            disallow: {
+              to: { element: { type: '!{{ from.element.types.[0] }}' } },
+              dependency: { source: RELATIVE_SOURCE },
+            },
+            message:
+              'Relative imports never cross layers — import other layers by absolute path from src.',
+          },
+          {
+            from: { element: { type: SLICED_LAYERS } },
+            disallow: {
+              to: {
+                element: {
+                  captured: { slice: '!{{ from.element.captured.slice }}' },
+                },
+              },
+              dependency: { source: RELATIVE_SOURCE },
+            },
+            message:
+              'Relative imports are for your own slice only — import other slices by absolute path from src.',
           },
         ],
       },
