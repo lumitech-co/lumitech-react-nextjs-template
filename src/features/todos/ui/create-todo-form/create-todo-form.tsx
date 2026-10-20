@@ -1,18 +1,25 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateTodo } from 'entities/todos/hooks/post';
 import { useForm } from 'react-hook-form';
 
 import { cn } from 'shared/lib/styles';
 
-import { CreateTodoInput, createTodoSchema } from '../../schemas/validation';
+import {
+  createTodoSchema,
+  type CreateTodoInput,
+} from '../../schemas/validation';
 
 export const CreateTodoForm = () => {
+  const t = useTranslations('todos.form');
+  const tValidation = useTranslations('todos.validation');
   const { mutate: createTodo, isPending } = useCreateTodo();
 
   const form = useForm<CreateTodoInput>({
-    resolver: zodResolver(createTodoSchema),
+    resolver: zodResolver(createTodoSchema(tValidation)),
     defaultValues: {
       title: '',
       completed: false,
@@ -30,7 +37,7 @@ export const CreateTodoForm = () => {
       onSubmit={form.handleSubmit(handleSubmit)}
       className="flex max-w-[600px] flex-col gap-6"
     >
-      <h1>Create todo form</h1>
+      <h1>{t('heading')}</h1>
       <fieldset className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <label
@@ -40,12 +47,12 @@ export const CreateTodoForm = () => {
               errors.title && 'text-red-800',
             )}
           >
-            Title
+            {t('title')}
           </label>
           <input
             id="title"
             {...form.register('title')}
-            placeholder="Enter title"
+            placeholder={t('titlePlaceholder')}
             className={cn(
               'rounded border border-gray-300 p-2',
               errors.title &&
@@ -64,7 +71,7 @@ export const CreateTodoForm = () => {
             className="h-4 w-4"
           />
           <label htmlFor="completed" className="text-sm">
-            Completed
+            {t('completed')}
           </label>
         </div>
       </fieldset>
@@ -73,7 +80,7 @@ export const CreateTodoForm = () => {
         disabled={isPending}
         className="mt-4 w-full rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
       >
-        {isPending ? 'Loading...' : 'Create Todo'}
+        {isPending ? t('submitting') : t('submit')}
       </button>
     </form>
   );

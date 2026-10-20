@@ -1,7 +1,7 @@
 import { api } from 'shared/lib/axios';
 
-import { ICreateTodo } from '../types/payloads';
-import { ITodoResponse } from '../types/responses';
+import type { ICreateTodo } from '../types/payloads';
+import type { ITodoResponse } from '../types/responses';
 
 export const createTodo = async (
   payload: ICreateTodo,

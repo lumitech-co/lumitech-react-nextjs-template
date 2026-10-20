@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "title": "Lumitech | Next.js Template",
+    "description": "This Next.js template provides a ready-to-use setup for building fast, scalable web apps. It's recommended for all web projects, even if SEO isn't a priority, as Next.js offers many valuable built-in tools."
+  },
+  "header": {
+    "theme": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": "Language"
+  },
+  "todos": {
+    "list": {
+      "loading": "Loading...",
+      "error": "Error",
+      "empty": "Empty list"
+    },
+    "form": {
+      "heading": "Create todo form",
+      "title": "Title",
+      "titlePlaceholder": "Enter title",
+      "completed": "Completed",
+      "submit": "Create Todo",
+      "submitting": "Loading..."
+    },
+    "validation": {
+      "titleRequired": "Title is required"
+    }
+  }
+}

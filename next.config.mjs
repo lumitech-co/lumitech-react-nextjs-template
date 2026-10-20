@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import path from 'path';
 import createJiti from 'jiti';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const jiti = createJiti(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
@@ -42,4 +43,6 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin('./src/shared/lib/i18n/request.ts');
+
+export default withNextIntl(nextConfig);

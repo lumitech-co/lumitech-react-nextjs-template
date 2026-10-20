@@ -37,6 +37,7 @@ Just grab it and start developing! 🚀
 - [React Hook Forms](https://react-hook-form.com/)
 - [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [MSW](https://mswjs.io/)
 - [Playwright](https://playwright.dev/)
+- [next-intl](https://next-intl.dev/)
 
 
 ## 📚 Getting Started
@@ -64,8 +65,9 @@ You will have server running at:
 |     └── icons/                # Stores static assets like app icons (SVG files, etc.)
 └── src/
     ├── app/                    # Contains the core application logic and structure
-    |    ├── layout.tsx
-    |    ├── page.tsx
+    |    ├── [locale]/          # Every route lives under the locale segment
+    |    |    ├── layout.tsx    # Root layout: <html lang>, providers, NextIntlClientProvider
+    |    |    └── page.tsx
     |    └── styles/            # Global application styles (CSS/SCSS)
     |          └── global.css   # Global styles applied across the app
     ├── widgets/                # Compositions of several features into a page-level block
@@ -80,7 +82,8 @@ You will have server running at:
     |      ├── types/           # Shared TypeScript types and interfaces
     |      ├── lib/             # Utility functions and reusable helper libraries
     |      └── ui/              # UI components shared across the app
-    └── env.ts                  # Configuration and validation of environment variables
+    ├── env.ts                  # Configuration and validation of environment variables
+    └── middleware.ts           # next-intl locale routing (detects locale, rewrites/redirects)
 ```
 ```
 └── tests/                      # All tests live outside src/ — see 🧪 Testing below
@@ -119,7 +122,7 @@ import (e.g. `entities` importing from `features`) fails `yarn lint`.
 | `src/widgets/` | Compositions of several `features` (and `entities`) into one page-level block (e.g. a page header combining search + nav + user menu). Optional layer — small apps may not need it. |
 | `src/features/` | A user-facing capability and the UI/logic behind it: `ui/` (components, `'use client'` on the leaves that need it), `hooks/`, `schemas/` (Zod), `lib/` (feature-local helpers), `types/`. Scaffolded only via `yarn generate:feature <name>`. |
 | `src/entities/` | The API access layer, one folder per route prefix (`/users` → `entities/users/`): `api/` (axios requests), `types/` (params, payloads, responses), `hooks/` (TanStack Query hooks). **No UI, no business logic.** Scaffolded only via `yarn generate:entity <name>`. |
-| `src/shared/` | Everything global and feature-agnostic, with **no slices** — just segments: `ui/` (reusable components), `lib/` (utils + configured library instances like `axios`, `queryClient`, `cn`), `hooks/` (global hooks, not tied to any API call), `store/` (all Zustand stores), `providers/` (all React context providers, mounted in `app/layout.tsx`), `constants/` (incl. the `QueryKeys` enum), `types/` (shared types), `icons/` (custom SVG icons imported as React components). **No `api/` segment** — every API call belongs to an `entities/<entity>`, even a one-off endpoint; see [🚫 No `shared/api`](#-no-sharedapi-every-api-call-is-an-entity) below. |
+| `src/shared/` | Everything global and feature-agnostic, with **no slices** — just segments: `ui/` (reusable components), `lib/` (utils + configured library instances like `axios`, `queryClient`, `cn`), `hooks/` (global hooks, not tied to any API call), `store/` (all Zustand stores), `providers/` (all React context providers, mounted in `app/[locale]/layout.tsx`), `constants/` (incl. the `QueryKeys` enum), `types/` (shared types), `icons/` (custom SVG icons imported as React components). **No `api/` segment** — every API call belongs to an `entities/<entity>`, even a one-off endpoint; see [🚫 No `shared/api`](#-no-sharedapi-every-api-call-is-an-entity) below. |
 
 ### 🚫 No layer-wide barrels
 **No layer root and no `shared` segment root has an `index.ts` that re-exports its

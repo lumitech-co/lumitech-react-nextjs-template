@@ -1,7 +1,7 @@
 import { api } from 'shared/lib/axios';
 
-import { IUpdateTodo } from '../types/payloads';
-import { ITodoResponse } from '../types/responses';
+import type { IUpdateTodo } from '../types/payloads';
+import type { ITodoResponse } from '../types/responses';
 
 export const updateTodo = async (
   todoId: string,

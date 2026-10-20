@@ -104,3 +104,17 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
     `api/` module. E2E runs against
     `tests/e2e/stub-api.mjs`, not a real API: `page.route` cannot intercept the server-side
     prefetch in a Server Component. See the Testing section in `README.md`.
+
+13. **No hard-coded UI text — use `next-intl`.** Every user-visible string is a key in
+    `src/shared/lib/i18n/messages/<locale>.json` (all locales get the same keys; `en.json` is
+    the source of truth for the `AppConfig` types in `global.d.ts`). Client components read it
+    with `useTranslations`, server ones with `getTranslations`. Routes live under
+    `src/app/[locale]/`; every page/layout there calls `setRequestLocale(params.locale)`.
+    Internal links/redirects use `Link`/`useRouter`/`redirect` from
+    `shared/lib/i18n/navigation`, never `next/link`/`next/navigation`. A Zod schema with
+    user-facing messages is a factory taking a translator (`createTodoSchema(t)`). Adding a
+    locale = add it to `routing.ts` + a new messages file. `src/middleware.ts` (next-intl
+    routing) is the only extra file allowed at `src/` root besides `env.ts`. Lint-enforced:
+    `react/jsx-no-literals` (text in JSX under `app`/`widgets`/`features`) and
+    `no-restricted-imports` (`next/link`, `useRouter`/`usePathname`/`redirect` from
+    `next/navigation`); `tests/unit/i18n-messages.spec.ts` fails if locales' keys differ.

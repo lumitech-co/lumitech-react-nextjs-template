@@ -58,12 +58,14 @@ src/
 │   ├── icons/               # Custom SVG icons (SVGR components)
 │   ├── hooks/               # Global hooks (no network calls — those live in entities/)
 │   └── constants/           # Global constants + QueryKeys
-└── env.ts                   # The only place that reads process.env
+├── env.ts                   # The only place that reads process.env
+└── middleware.ts            # next-intl locale routing
 public/                      # Static assets: SVG icons, WebP images
 ```
 
 The set of folders/segments is fixed and lint-enforced (`boundaries/no-unknown-files`):
 - `app/**` — unrestricted (routing/pages, not segmented)
+- `middleware.ts` — next-intl routing; may import only `shared`
 - `widgets/*/(ui|hooks|lib|types)/**`
 - `features/*/(ui|hooks|schemas|lib|types)/**`
 - `entities/*/(api|hooks|types)/**`
@@ -81,7 +83,7 @@ The set of folders/segments is fixed and lint-enforced (`boundaries/no-unknown-f
   a component file.
 - `shared/providers/` - **all React context providers** (TanStack Query and any other
   library that needs one). Providers are client components and are mounted in
-  `src/app/layout.tsx`.
+  `src/app/[locale]/layout.tsx`.
 - `shared/lib/` - global utilities and configured library instances (`axios.ts` → `api`,
   `query.ts` → `makeQueryClient`/`getQueryClient`, `styles.ts` → `cn`).
 - `shared/icons/` - **custom icons only** — `.svg` files imported directly as React
@@ -115,7 +117,7 @@ them: `ui/` (components), `hooks/`, `schemas/` (Zod schemas for this feature's f
 A page prefetches on the server and hands data down through `HydrationBoundary`; the
 client hook reads it from cache instead of refetching:
 ```typescript
-// src/app/page.tsx — server
+// src/app/[locale]/page.tsx — server
 const HomePage = async () => {
   const queryClient = getQueryClient();
 
@@ -221,7 +223,7 @@ relative imports of siblings are correct and preferred (`../todo/todo`).
 
 ### Providers
 A provider is a client component in `shared/providers`, mounted once in
-`src/app/layout.tsx`:
+`src/app/[locale]/layout.tsx`:
 ```typescript
 <TanStackQueryProvider>
   <Header />
@@ -264,8 +266,30 @@ src/features/todos/ui/CreateTodoForm/createTodoForm.tsx
 1. `npm run generate:feature <feature>`
 2. Build the components in `features/<feature>/ui/` (`'use client'` only on the leaves that
    need it); reuse components from `shared/ui`; import each component from its own file
-3. Create `src/app/<route>/page.tsx` as a Server Component that prefetches the data and
+3. Create `src/app/[locale]/<route>/page.tsx` as a Server Component that prefetches the data and
    renders the feature inside `HydrationBoundary`
+
+### Translations (rule 13)
+Config lives in `shared/lib/i18n/`: `routing.ts` (locales, default, `localePrefix: 'as-needed'`
+so the default locale has no prefix), `request.ts` (loads `messages/<locale>.json`),
+`navigation.ts` (locale-aware `Link`, `useRouter`, `redirect`).
+```typescript
+// client component
+const t = useTranslations('todos.form');
+<button type="submit">{t('submit')}</button>
+
+// server component / generateMetadata
+const t = await getTranslations({ locale, namespace: 'metadata' });
+
+// schema with translated messages
+const t = useTranslations('todos.validation');
+useForm({ resolver: zodResolver(createTodoSchema(t)) });
+```
+Add a string: put the key in every `messages/*.json` (types come from `en.json`); the
+`i18n-messages` unit test fails if any locale is missing a key or has an extra one.
+Hard-coded JSX text and locale-unaware `next/link` / `next/navigation` imports fail lint.
+Add a locale: append it to `routing.locales`, add `messages/<locale>.json`, and its label
+in `features/layout/ui/locale-switcher`.
 
 ### Add an environment variable
 1. Add it to the `client` or `server` schema in `src/env.ts`
