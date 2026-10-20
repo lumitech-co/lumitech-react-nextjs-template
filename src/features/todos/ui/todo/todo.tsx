@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 
 import { useUpdateTodo } from 'entities/todos/hooks/put';
-import { ITodoResponse } from 'entities/todos/types/responses';
+import type { ITodoResponse } from 'entities/todos/types/responses';
 
 import { cn } from 'shared/lib/styles';
 

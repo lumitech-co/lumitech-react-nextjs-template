@@ -44,14 +44,11 @@ export const templates = {
             const queryClient = useQueryClient();
 
             return useMutation({
-                onSuccess() {
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
-                    });
-                },
+                onSuccess: () =>
+                    Promise.all([
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S], }),
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S], }),
+                    ]),
                 mutationFn: ({${nameCamel}Id, ...payload}: IUpdate${namePascal} & {
                     ${nameCamel}Id: string;
                 }) => update${namePascal}(${nameCamel}Id, payload),
@@ -71,14 +68,11 @@ export const templates = {
             const queryClient = useQueryClient();
 
             return useMutation({
-                onSuccess() {
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
-                    });
-                },
+                onSuccess: () =>
+                    Promise.all([
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S], }),
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S], }),
+                    ]),
                 mutationFn: (${nameCamel}Id: string) => toggle${namePascal}(${nameCamel}Id),
             });
         };
@@ -96,14 +90,11 @@ export const templates = {
             const queryClient = useQueryClient();
 
             return useMutation({
-                onSuccess() {
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
-                    });
-                },
+                onSuccess: () =>
+                    Promise.all([
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S], }),
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S], }),
+                    ]),
                 mutationFn: (payload: ICreate${namePascal}) => create${namePascal}(payload),
             });
         };
@@ -121,14 +112,11 @@ export const templates = {
             const queryClient = useQueryClient();
 
             return useMutation({
-                onSuccess() {
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S],
-                    });
-                    queryClient.invalidateQueries({
-                        queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S],
-                    });
-                },
+                onSuccess: () =>
+                    Promise.all([
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_${snakeCase.toUpperCase()}S], }),
+                        queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_INFINITE_${snakeCase.toUpperCase()}S], }),
+                    ]),
                 mutationFn: (${nameCamel}Id: string) => delete${namePascal}(${nameCamel}Id),
             });
         };

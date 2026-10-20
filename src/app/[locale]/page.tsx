@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 
-import { Locale } from 'next-intl';
+import type { Locale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { getTodos } from 'entities/todos/api/get';
-import { IGetTodosParams } from 'entities/todos/types/params';
+import type { IGetTodosParams } from 'entities/todos/types/params';
 
 import { CreateTodoForm } from 'features/todos/ui/create-todo-form/create-todo-form';
 import { TodosList } from 'features/todos/ui/todos-list/todos-list';

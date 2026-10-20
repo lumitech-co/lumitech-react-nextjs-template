@@ -57,6 +57,7 @@
     "@next/eslint-plugin-next": "^13.4.13",
     "@playwright/test": "^1.63.0",
     "@svgr/webpack": "^8.1.0",
+    "@tanstack/eslint-plugin-query": "^5.104.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

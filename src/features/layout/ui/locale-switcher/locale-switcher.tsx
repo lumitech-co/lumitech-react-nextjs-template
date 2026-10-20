@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react';
 
-import { Locale, useLocale, useTranslations } from 'next-intl';
+import { useLocale, useTranslations, type Locale } from 'next-intl';
 
 import { usePathname, useRouter } from 'shared/lib/i18n/navigation';
 import { routing } from 'shared/lib/i18n/routing';
