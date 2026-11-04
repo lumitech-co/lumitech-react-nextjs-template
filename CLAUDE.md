@@ -13,10 +13,19 @@ need the "how it looks in code" detail. This file holds the hard rules; they are
   `types/` and wires the `QueryKeys` enum. Never create an entity by hand.
 - **New feature:** `npm run generate:feature <featureName>` — scaffolds `ui/`, `hooks/`,
   `lib/`, `schemas/`, `types/`. Never create a feature by hand.
-- **Finishing a feature:** always run `npm run lint:fix && npm run typescript && npm run test`.
+- **Finishing a feature:** always run `npm run lint:fix && npm run typescript && npm run test && npm run knip`.
 
 Generators emit no barrel files. If a generator can't produce what a task needs, stop and
 ask — fixing the generator is valid, bypassing it is not.
+
+## Enforcement
+
+ESLint enforces most rules; `tests/unit/eslint-rules.spec.ts` proves that each architecture rule
+fires, and fails on a blanket or architecture `eslint-disable`. Claude Code hooks
+(`.claude/settings.json`) refuse a hand-made slice and lint every file Claude edits.
+`npm run check:generators` runs the generators against lint and tsc. CI also runs `format:check`,
+`knip` and an OSV scan of `yarn.lock` (an accepted finding goes in `osv-scanner.toml` with a reason
+and an `ignoreUntil` date). When one fails, fix the code — never disable the check.
 
 ## Architecture Rules (non-negotiable)
 
@@ -48,7 +57,8 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
    prefix, no UI or business logic — components use the entity's hooks, never `entities/*/api`
    directly. `features/<feature>` = UI + interaction logic. `widgets/` = compositions of
    features. `app/` = routing/layouts/pages, no business logic. There is **no `shared/api/`** —
-   every API call, including one-offs, is an entity.
+   every API call, including one-offs, is an entity, and `fetch` / `XMLHttpRequest` are
+   banned in `src/` (lint-enforced).
 
 4. **Validation only via Zod.** All untrusted input (forms, search params) is validated with a
    Zod schema; feature schemas live in `features/<feature>/schemas/`, and the type is derived
@@ -113,7 +123,7 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
     Internal links/redirects use `Link`/`useRouter`/`redirect` from
     `shared/lib/i18n/navigation`, never `next/link`/`next/navigation`. A Zod schema with
     user-facing messages is a factory taking a translator (`createTodoSchema(t)`). Adding a
-    locale = add it to `routing.ts` + a new messages file. `src/middleware.ts` (next-intl
+    locale = add it to `routing.ts` + a new messages file. `src/proxy.ts` (next-intl
     routing) is the only extra file allowed at `src/` root besides `env.ts`. Lint-enforced:
     `react/jsx-no-literals` (text in JSX under `app`/`widgets`/`features`) and
     `no-restricted-imports` (`next/link`, `useRouter`/`usePathname`/`redirect` from

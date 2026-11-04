@@ -18,11 +18,13 @@ const todosParams: IGetTodosParams = {
 };
 
 type Props = {
-  params: { locale: Locale };
+  params: Promise<{ locale: Locale }>;
 };
 
 const HomePage = async ({ params }: Props) => {
-  setRequestLocale(params.locale);
+  const { locale } = await params;
+
+  setRequestLocale(locale);
 
   const queryClient = getQueryClient();
 

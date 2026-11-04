@@ -21,6 +21,12 @@ const RESTRICTED_SYNTAX = [
     message:
       '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
   },
+  {
+    selector:
+      "CallExpression[callee.name='fetch'], MemberExpression[object.name=/^(window|globalThis|self)$/][property.name='fetch'], NewExpression[callee.name='XMLHttpRequest']",
+    message:
+      'Every API call is an entity: use the axios client in entities/<entity>/api (rule 3 in CLAUDE.md), never fetch or XMLHttpRequest.',
+  },
 ];
 
 const NO_INLINE_QUERY_KEY = {
@@ -77,7 +83,7 @@ const NO_CUSTOM_CSS = {
     '!app/styles/global.css',
   ],
   message:
-    'Custom stylesheets are forbidden — style with Tailwind utility classes (compose them with cn() from shared/lib/styles). For a reusable class, add it to tailwind.config.ts instead of writing CSS. The only allowed stylesheet is app/styles/global.css; a third-party library\'s CSS must be imported directly from its package, not copied into src/.',
+    "Custom stylesheets are forbidden — style with Tailwind utility classes (compose them with cn() from shared/lib/styles). For a reusable class, add it to tailwind.config.ts instead of writing CSS. The only allowed stylesheet is app/styles/global.css; a third-party library's CSS must be imported directly from its package, not copied into src/.",
 };
 
 const NO_LOCALE_UNAWARE_NAVIGATION = [
@@ -159,7 +165,7 @@ module.exports = {
     'plugin:@tanstack/query/recommended',
     'plugin:react/recommended',
     'plugin:prettier/recommended',
-    'plugin:@next/next/recommended',
+    'plugin:@next/next/recommended-legacy',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -181,7 +187,7 @@ module.exports = {
     'boundaries/legacy-warnings': false,
     'boundaries/files': [
       { pattern: 'env.ts', category: 'env' },
-      { pattern: 'middleware.ts', category: 'middleware' },
+      { pattern: 'proxy.ts', category: 'proxy' },
     ],
     'boundaries/elements': [
       {
@@ -266,7 +272,8 @@ module.exports = {
                 { file: { categories: 'env' } },
               ],
             },
-            message: '"shared" may only import other "shared" segments and "env".',
+            message:
+              '"shared" may only import other "shared" segments and "env".',
           },
           {
             from: { element: { type: 'entities' } },
@@ -333,9 +340,9 @@ module.exports = {
               '"widgets" may only import their own slice, "features", entity "hooks"/"types", "shared" and "env" — not entities/*/api, other widgets or app.',
           },
           {
-            from: { file: { categories: 'middleware' } },
+            from: { file: { categories: 'proxy' } },
             allow: { to: { element: { type: 'shared' } } },
-            message: 'src/middleware.ts may only import "shared".',
+            message: 'src/proxy.ts may only import "shared".',
           },
           {
             from: { element: { type: 'app' } },
@@ -388,7 +395,11 @@ module.exports = {
         ],
       },
     ],
-    'no-restricted-syntax': ['error', ...RESTRICTED_SYNTAX, NO_INLINE_QUERY_KEY],
+    'no-restricted-syntax': [
+      'error',
+      ...RESTRICTED_SYNTAX,
+      NO_INLINE_QUERY_KEY,
+    ],
     'no-restricted-properties': [
       'error',
       {
@@ -473,7 +484,10 @@ module.exports = {
     {
       files: ['src/shared/lib/i18n/navigation.ts'],
       rules: {
-        'no-restricted-imports': restrictedImports('next/link', 'next/navigation'),
+        'no-restricted-imports': restrictedImports(
+          'next/link',
+          'next/navigation',
+        ),
       },
     },
     {
@@ -507,7 +521,10 @@ module.exports = {
         'src/features/**/*.tsx',
       ],
       rules: {
-        'react/jsx-no-literals': ['error', { noStrings: true, ignoreProps: true }],
+        'react/jsx-no-literals': [
+          'error',
+          { noStrings: true, ignoreProps: true },
+        ],
         'no-restricted-syntax': [
           'error',
           ...RESTRICTED_SYNTAX,
@@ -529,6 +546,20 @@ module.exports = {
       },
     },
     {
+      // Tests sit outside the FSD layers (rule 12) and read their own fixtures.
+      files: ['tests/**/*.{ts,tsx}'],
+      rules: {
+        'boundaries/no-unknown-files': 'off',
+        'boundaries/no-unknown-dependencies': 'off',
+        'boundaries/dependencies': 'off',
+        'check-file/filename-naming-convention': 'off',
+        'check-file/folder-naming-convention': 'off',
+        'no-restricted-imports': 'off',
+        'no-restricted-properties': 'off',
+        'no-magic-numbers': 'off',
+      },
+    },
+    {
       files: ['src/env.ts'],
       rules: {
         'no-restricted-properties': 'off',
@@ -544,7 +575,11 @@ module.exports = {
         'src/shared/*/index.{ts,tsx}',
       ],
       rules: {
-        'no-restricted-syntax': ['error', ...RESTRICTED_SYNTAX, ...NO_GLOBAL_BARREL],
+        'no-restricted-syntax': [
+          'error',
+          ...RESTRICTED_SYNTAX,
+          ...NO_GLOBAL_BARREL,
+        ],
       },
     },
   ],

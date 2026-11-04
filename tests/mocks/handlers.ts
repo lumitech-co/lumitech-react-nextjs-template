@@ -1,8 +1,7 @@
+import type { ITodoResponse } from 'entities/todos/types/responses';
 import { http, HttpResponse } from 'msw';
 
-import { ITodoResponse } from 'entities/todos/types/responses';
-
-export const todosFixture: ITodoResponse[] = [
+const todosFixture: ITodoResponse[] = [
   { userId: 1, id: 1, title: 'buy milk', completed: false },
   { userId: 1, id: 2, title: 'walk the dog', completed: true },
 ];

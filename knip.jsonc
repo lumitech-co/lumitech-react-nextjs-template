@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "cli/*/index.js",
+    "scripts/*.mjs",
+    // Run by Claude Code hooks (.claude/settings.json).
+    "scripts/claude-hooks/*.mjs",
+    // next-intl's routing API: the template ships all of it, used or not.
+    "src/shared/lib/i18n/navigation.ts",
+  ],
+  "project": [
+    "src/**/*.{ts,tsx,css}",
+    "cli/**/*.js",
+    "scripts/**/*.mjs",
+    "tests/**/*.{ts,tsx}",
+  ],
+}

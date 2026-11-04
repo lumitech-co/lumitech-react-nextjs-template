@@ -8,7 +8,8 @@ layout; treat the rules in `CLAUDE.md` as authoritative.
 ## Stack
 
 Next.js (App Router) frontend template with TypeScript:
-- **Next.js 14+ App Router** - React Server Components by default
+
+- **Next.js 16 App Router** - React Server Components by default
 - **TanStack Query** - server state, caching, SSR prefetch + hydration
 - **Zustand** - client state
 - **Zod + React Hook Form** - validation and forms
@@ -22,9 +23,11 @@ Next.js (App Router) frontend template with TypeScript:
 ## Feature-Sliced Design
 
 The project follows [Feature-Sliced Design](https://feature-sliced.design/) (FSD):
+
 ```
 app → widgets → features → entities → shared
 ```
+
 A layer may import only **itself** (same slice) and layers **strictly below** it — enforced
 by `boundaries/dependencies` in `.eslintrc.js`, not just convention. `shared` has no slices
 and imports only other `shared` segments, plus libraries and `env`. So `entities/todos` can
@@ -59,13 +62,14 @@ src/
 │   ├── hooks/               # Global hooks (no network calls — those live in entities/)
 │   └── constants/           # Global constants + QueryKeys
 ├── env.ts                   # The only place that reads process.env
-└── middleware.ts            # next-intl locale routing
+└── proxy.ts            # next-intl locale routing
 public/                      # Static assets: SVG icons, WebP images
 ```
 
 The set of folders/segments is fixed and lint-enforced (`boundaries/no-unknown-files`):
+
 - `app/**` — unrestricted (routing/pages, not segmented)
-- `middleware.ts` — next-intl routing; may import only `shared`
+- `proxy.ts` — next-intl routing; may import only `shared`
 - `widgets/*/(ui|hooks|lib|types)/**`
 - `features/*/(ui|hooks|schemas|lib|types)/**`
 - `entities/*/(api|hooks|types)/**`
@@ -75,6 +79,7 @@ The set of folders/segments is fixed and lint-enforced (`boundaries/no-unknown-f
 ## Layer placement (where a file goes)
 
 `src/shared/**` — everything global, reusable and feature-agnostic:
+
 - `shared/ui/` - **all reusable UI components** (Button, Input, Modal, …). A component
   used by more than one feature, or generic enough to be, belongs here — never duplicated
   inside a feature.
@@ -114,8 +119,10 @@ them: `ui/` (components), `hooks/`, `schemas/` (Zod schemas for this feature's f
 ## Code Examples
 
 ### Pages are Server Components (rule 2)
+
 A page prefetches on the server and hands data down through `HydrationBoundary`; the
 client hook reads it from cache instead of refetching:
+
 ```typescript
 // src/app/[locale]/page.tsx — server
 const HomePage = async () => {
@@ -137,6 +144,7 @@ const HomePage = async () => {
 ```
 
 ### Environment variables (rule 1)
+
 ```typescript
 import { env } from 'env';
 
@@ -144,6 +152,7 @@ export const api = axios.create({ baseURL: env.NEXT_PUBLIC_API_URL });
 ```
 
 ### Zod schema + inferred type (rule 4)
+
 ```typescript
 export const createTodoSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
@@ -152,9 +161,11 @@ export const createTodoSchema = z.object({
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>;
 ```
+
 Forms use React Hook Form with `zodResolver(schema)`.
 
 ### Entity hooks — server state (rule 5)
+
 ```typescript
 export const useGetUsers = (query: IGetUsersParams) => {
   return useQuery({
@@ -174,13 +185,16 @@ export const useCreateUser = () => {
   });
 };
 ```
+
 The client always comes from `useQueryClient()` (or `getQueryClient()` on the server), never
 from a module-level instance — a shared client would leak one request's cache into the next
 server render.
 
 ### Entity requests
+
 Requests take `(params | payload, signal?)`, use the shared `api` instance, and return
 `response.data` typed with an interface from the entity's `types/`:
+
 ```typescript
 import { api } from 'shared/lib/axios';
 
@@ -195,26 +209,31 @@ export const getUsers = async (
 ```
 
 ### Imports — no layer-wide barrels (rule 7)
+
 ```typescript
 // ✅ Good — direct file import
 import { useGetUsers } from 'entities/users/hooks/get';
-import { cn } from 'shared/lib/styles';
+
+import { Header } from 'widgets'; // widgets/index.ts
 
 // ❌ Forbidden — a barrel on a layer root or a shared segment root
 import { cn } from 'shared/lib'; // shared/lib/index.ts
-import { Header } from 'widgets'; // widgets/index.ts
+import { cn } from 'shared/lib/styles';
 ```
+
 A single **slice** barrel is allowed: `<layer>/<slice>/index.ts` re-exporting that slice's
 public API. Generators don't create one — add it by hand when a slice has a public surface
 worth naming:
+
 ```typescript
+// consumer in widgets/
+import { RemoveMemberButton } from 'features/members';
+
 // features/members/index.ts
 export { RemoveMemberButton } from './ui/remove-member-button';
 export { RemoveMemberDialog } from './ui/remove-member-dialog';
-
-// consumer in widgets/
-import { RemoveMemberButton } from 'features/members';
 ```
+
 Layer rules still apply to it: the barrel is classified as its own slice, so it may only
 re-export files from that slice, and importers obey the usual layer order.
 
@@ -222,8 +241,10 @@ Use absolute imports from `src` (`baseUrl: "./src"`) across layers; inside the s
 relative imports of siblings are correct and preferred (`../todo/todo`).
 
 ### Providers
+
 A provider is a client component in `shared/providers`, mounted once in
 `src/app/[locale]/layout.tsx`:
+
 ```typescript
 <TanStackQueryProvider>
   <Header />
@@ -232,8 +253,10 @@ A provider is a client component in `shared/providers`, mounted once in
 ```
 
 ### Styling (rule 9)
+
 Compose Tailwind classes with `cn()`; never string-concatenate class names. A UI library
 that ships its own stylesheet is imported directly from the package:
+
 ```typescript
 // ✅ Good
 <button className={cn('rounded px-4 py-2', primary && 'bg-blue-500')}>Click me</button>
@@ -245,17 +268,19 @@ import styles from './button.module.css';
 ```
 
 ### Naming (rule 10)
+
 ```typescript
 // ✅ Good
-src/features/todos/ui/create-todo-form/create-todo-form.tsx
+src / features / todos / ui / create - todo - form / create - todo - form.tsx;
 
 // ❌ Fails lint
-src/features/todos/ui/CreateTodoForm/createTodoForm.tsx
+src / features / todos / ui / CreateTodoForm / createTodoForm.tsx;
 ```
 
 ## Common Tasks
 
 ### Add a new API route group (e.g. `/users`)
+
 1. `npm run generate:entity user`
 2. Delete the request kinds the API does not have; adjust paths in `api/*.ts`
 3. Fill in `types/responses.ts`, `types/payloads.ts`, `types/params.ts`
@@ -263,6 +288,7 @@ src/features/todos/ui/CreateTodoForm/createTodoForm.tsx
    component
 
 ### Add a new screen
+
 1. `npm run generate:feature <feature>`
 2. Build the components in `features/<feature>/ui/` (`'use client'` only on the leaves that
    need it); reuse components from `shared/ui`; import each component from its own file
@@ -270,9 +296,11 @@ src/features/todos/ui/CreateTodoForm/createTodoForm.tsx
    renders the feature inside `HydrationBoundary`
 
 ### Translations (rule 13)
+
 Config lives in `shared/lib/i18n/`: `routing.ts` (locales, default, `localePrefix: 'as-needed'`
 so the default locale has no prefix), `request.ts` (loads `messages/<locale>.json`),
 `navigation.ts` (locale-aware `Link`, `useRouter`, `redirect`).
+
 ```typescript
 // client component
 const t = useTranslations('todos.form');
@@ -285,6 +313,7 @@ const t = await getTranslations({ locale, namespace: 'metadata' });
 const t = useTranslations('todos.validation');
 useForm({ resolver: zodResolver(createTodoSchema(t)) });
 ```
+
 Add a string: put the key in every `messages/*.json` (types come from `en.json`); the
 `i18n-messages` unit test fails if any locale is missing a key or has an extra one.
 Hard-coded JSX text and locale-unaware `next/link` / `next/navigation` imports fail lint.
@@ -292,6 +321,7 @@ Add a locale: append it to `routing.locales`, add `messages/<locale>.json`, and 
 in `features/layout/ui/locale-switcher`.
 
 ### Add an environment variable
+
 1. Add it to the `client` or `server` schema in `src/env.ts`
 2. Add the matching `runtimeEnv` line
 3. Add the key to `.env.example`

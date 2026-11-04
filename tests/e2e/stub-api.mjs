@@ -69,7 +69,11 @@ createServer(async (request, response) => {
       todo.id === todoId ? { ...todo, ...payload } : todo,
     );
 
-    return send(response, 200, todos.find(todo => todo.id === todoId));
+    return send(
+      response,
+      200,
+      todos.find(todo => todo.id === todoId),
+    );
   }
 
   return send(response, 404, { message: 'Not found' });

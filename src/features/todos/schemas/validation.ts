@@ -14,4 +14,5 @@ export const createTodoSchema = (t: (key: ValidationMessage) => string) =>
     completed: z.boolean().default(false),
   });
 
+export type CreateTodoFormValues = z.input<ReturnType<typeof createTodoSchema>>;
 export type CreateTodoInput = z.infer<ReturnType<typeof createTodoSchema>>;

@@ -1,16 +1,26 @@
 name: Pull Request
 
 on:
+  # Every pull request, whatever branch it targets, plus the merged result on
+  # main. A draft runs nothing; marking it ready for review starts the checks.
   pull_request:
-    branches: ["main"]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
 
+permissions:
+  contents: read
+
+# A newer push to a pull request supersedes the running checks; main runs to
+# completion so every merge is checked.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
     name: Lint, typecheck, build & test
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     env:
@@ -22,16 +32,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Advisories in yarn.lock against OSV.dev; accepted ones go in
+      # osv-scanner.toml.
+      - name: Scan dependencies for known vulnerabilities (OSV)
+        env:
+          OSV_VERSION: '2.7.0'
+          OSV_SHA256: 160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/osv-scanner" \
+              "https://github.com/google/osv-scanner/releases/download/v${OSV_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SHA256}  $RUNNER_TEMP/osv-scanner" | sha256sum --check --quiet
+          chmod +x "$RUNNER_TEMP/osv-scanner"
+          "$RUNNER_TEMP/osv-scanner" scan source \
+              --lockfile yarn.lock \
+              --config osv-scanner.toml \
+              --verbosity error
+
       - uses: actions/setup-node@v4
         with:
-          node-version-file: ".nvmrc"
-          cache: "yarn"
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # The three cheap checks always run, so one red step does not hide the
-      # others and a single run reports everything that is broken.
+      # The cheap checks always run, so one red step does not hide the others
+      # and a single run reports everything that is broken.
       - name: Lint
         if: ${{ !cancelled() }}
         run: yarn lint
@@ -40,6 +66,14 @@ jobs:
         if: ${{ !cancelled() }}
         run: yarn typescript
 
+      - name: Check formatting
+        if: ${{ !cancelled() }}
+        run: yarn format:check
+
+      - name: Find unused files, exports and dependencies
+        if: ${{ !cancelled() }}
+        run: yarn knip
+
       - name: Unit & integration tests
         if: ${{ !cancelled() }}
         run: yarn test
@@ -47,6 +81,9 @@ jobs:
       # No `if` from here on, so these are skipped as soon as anything above
       # failed: there is no point spending a browser download and a production
       # build on code whose unit tests are already red.
+      - name: Check generated code against the rules (CLAUDE.md Rule 0)
+        run: yarn check:generators
+
       - name: Install Playwright browsers
         run: yarn playwright install --with-deps chromium
 

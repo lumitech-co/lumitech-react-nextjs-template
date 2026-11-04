@@ -1,70 +1,63 @@
-import fs from "fs";
-import path from "path";
-import { execSync } from "child_process";
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-export const generateFeature = (nameCamel, namePascal, nameKebab, snakeCase) => {
-    const featurePath = path.join(process.cwd(), "src/features", nameKebab);
+export const generateFeature = (
+  nameCamel,
+  namePascal,
+  nameKebab,
+  snakeCase,
+) => {
+  const featurePath = path.join(process.cwd(), 'src/features', nameKebab);
 
-    if (fs.existsSync(featurePath)) {
-        console.error(`❌ Feature "${nameKebab}" already exists!`);
-        process.exit(1);
-    }
+  if (fs.existsSync(featurePath)) {
+    console.error(`❌ Feature "${nameKebab}" already exists!`);
+    process.exit(1);
+  }
 
-    fs.mkdirSync(featurePath, { recursive: true });
-    console.log(`📁 Created folder: ${featurePath}`);
+  fs.mkdirSync(featurePath, { recursive: true });
+  console.log(`📁 Created folder: ${featurePath}`);
 
+  const libFolder = `${featurePath}/lib`;
+  fs.mkdirSync(libFolder, { recursive: true });
+  console.log(`📁 Created folder: ${libFolder}`);
 
+  const libGitKeep = path.join(libFolder, '.gitkeep');
+  fs.writeFileSync(libGitKeep, '');
 
-    const libFolder = `${featurePath}/lib`;
-    fs.mkdirSync(libFolder, { recursive: true });
-    console.log(`📁 Created folder: ${libFolder}`);
+  const hooksFolder = `${featurePath}/hooks`;
+  fs.mkdirSync(hooksFolder, { recursive: true });
+  console.log(`📁 Created folder: ${hooksFolder}`);
 
-    const libGitKeep = path.join(libFolder, ".gitkeep");
-    fs.writeFileSync(libGitKeep, "");
+  const hooksGitkeep = path.join(hooksFolder, '.gitkeep');
+  fs.writeFileSync(hooksGitkeep, '');
 
+  const schemasFolder = `${featurePath}/schemas`;
+  fs.mkdirSync(schemasFolder, { recursive: true });
+  console.log(`📁 Created folder: ${schemasFolder}`);
 
+  const schemasGitkeep = path.join(schemasFolder, '.gitkeep');
+  fs.writeFileSync(schemasGitkeep, '');
 
-    const hooksFolder = `${featurePath}/hooks`;
-    fs.mkdirSync(hooksFolder, { recursive: true });
-    console.log(`📁 Created folder: ${hooksFolder}`);
+  const uiFolder = `${featurePath}/ui`;
+  fs.mkdirSync(uiFolder, { recursive: true });
+  console.log(`📁 Created folder: ${uiFolder}`);
 
-    const hooksGitkeep = path.join(hooksFolder, ".gitkeep");
-    fs.writeFileSync(hooksGitkeep, "");
+  const uiGitkeep = path.join(uiFolder, '.gitkeep');
+  fs.writeFileSync(uiGitkeep, '');
 
+  const typesFolder = `${featurePath}/types`;
+  fs.mkdirSync(typesFolder, { recursive: true });
+  console.log(`📁 Created folder: ${typesFolder}`);
 
+  const typesGitkeep = path.join(typesFolder, '.gitkeep');
+  fs.writeFileSync(typesGitkeep, '');
 
-    const schemasFolder = `${featurePath}/schemas`;
-    fs.mkdirSync(schemasFolder, { recursive: true });
-    console.log(`📁 Created folder: ${schemasFolder}`);
-
-    const schemasGitkeep = path.join(schemasFolder, ".gitkeep");
-    fs.writeFileSync(schemasGitkeep, "");
-
-
-
-    const uiFolder = `${featurePath}/ui`;
-    fs.mkdirSync(uiFolder, { recursive: true });
-    console.log(`📁 Created folder: ${uiFolder}`);
-
-    const uiGitkeep = path.join(uiFolder, ".gitkeep");
-    fs.writeFileSync(uiGitkeep, "");
-
-
-
-    const typesFolder = `${featurePath}/types`;
-    fs.mkdirSync(typesFolder, { recursive: true });
-    console.log(`📁 Created folder: ${typesFolder}`);
-
-    const typesGitkeep = path.join(typesFolder, ".gitkeep");
-    fs.writeFileSync(typesGitkeep, "");
-
-
-
-    try {
-        console.log("🧹 Running lint:fix...");
-        execSync("npm run lint:fix", { stdio: "inherit" });
-        console.log("✅ Linting complete!");
-    } catch (error) {
-        console.error("⚠️  Linting failed:", error.message);
-    }
+  try {
+    console.log('🧹 Running lint:fix...');
+    execSync('npm run lint:fix', { stdio: 'inherit' });
+    console.log('✅ Linting complete!');
+  } catch (error) {
+    console.error('⚠️  Linting failed:', error.message);
+  }
 };

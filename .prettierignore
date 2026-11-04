@@ -1,0 +1,8 @@
+.next
+coverage
+playwright-report
+test-results
+yarn.lock
+public
+next-env.d.ts
+AGENTS.md

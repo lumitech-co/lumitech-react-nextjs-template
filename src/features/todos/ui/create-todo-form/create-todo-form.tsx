@@ -10,6 +10,7 @@ import { cn } from 'shared/lib/styles';
 
 import {
   createTodoSchema,
+  type CreateTodoFormValues,
   type CreateTodoInput,
 } from '../../schemas/validation';
 
@@ -18,7 +19,7 @@ export const CreateTodoForm = () => {
   const tValidation = useTranslations('todos.validation');
   const { mutate: createTodo, isPending } = useCreateTodo();
 
-  const form = useForm<CreateTodoInput>({
+  const form = useForm<CreateTodoFormValues, unknown, CreateTodoInput>({
     resolver: zodResolver(createTodoSchema(tValidation)),
     defaultValues: {
       title: '',

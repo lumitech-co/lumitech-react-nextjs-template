@@ -4,3 +4,6 @@
 
 # Allow 'src' directory:
 !/src
+
+# Allow tests:
+!/tests

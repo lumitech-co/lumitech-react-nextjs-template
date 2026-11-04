@@ -49,17 +49,19 @@ test('toggles a todo completion', async ({ page }) => {
 test('switches the language and keeps it in the URL', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('button', { name: 'UA' }).click();
+  await page.getByRole('button', { name: 'UA', exact: true }).click();
 
   await expect(page).toHaveURL(/\/uk$/);
-  await expect(page.getByRole('button', { name: 'Створити задачу' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Створити задачу' }),
+  ).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'uk');
 });
 
 test('switches back to English', async ({ page }) => {
   await page.goto('/uk');
 
-  await page.getByRole('button', { name: 'EN' }).click();
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
