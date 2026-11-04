@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import type { Metadata } from 'next';
 import type { Locale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 
@@ -10,6 +11,7 @@ import type { IGetTodosParams } from 'entities/todos/types/params';
 import { CreateTodoForm } from 'features/todos/ui/create-todo-form/create-todo-form';
 import { TodosList } from 'features/todos/ui/todos-list/todos-list';
 import { QueryKeys } from 'shared/constants/query-keys';
+import { getAlternates } from 'shared/lib/i18n/alternates';
 import { getQueryClient } from 'shared/lib/query';
 
 const todosParams: IGetTodosParams = {
@@ -19,6 +21,14 @@ const todosParams: IGetTodosParams = {
 
 type Props = {
   params: Promise<{ locale: Locale }>;
+};
+
+export const generateMetadata = async ({
+  params,
+}: Props): Promise<Metadata> => {
+  const { locale } = await params;
+
+  return { alternates: getAlternates('/', locale) };
 };
 
 const HomePage = async ({ params }: Props) => {

@@ -6,13 +6,12 @@ import {
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
-const HOUR = 60 * MINUTE;
 
 export const makeQueryClient = () =>
   new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1 * HOUR,
+        staleTime: 1 * MINUTE,
         retry: false,
       },
       dehydrate: {

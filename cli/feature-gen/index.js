@@ -4,7 +4,7 @@ const featureName = process.argv[2];
 
 if (!featureName) {
   console.error(
-    '❌ Please provide a feature name. Example: npm run generate:feature featureName',
+    '❌ Please provide a feature name. Example: yarn generate:feature featureName',
   );
 
   process.exit(1);

@@ -14,4 +14,6 @@
     "scripts/**/*.mjs",
     "tests/**/*.{ts,tsx}",
   ],
+  // The client-state library every project starts with (Rule 5).
+  "ignoreDependencies": ["zustand"],
 }

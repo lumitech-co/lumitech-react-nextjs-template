@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "lumitech-react-nextjs-template",
   "private": true,
   "version": "0.0.0",
   "sideEffects": [
@@ -35,9 +35,11 @@
     }
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
-      "yarn lint:fix"
-    ]
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0 --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{js,mjs,json,md,yml,yaml,css}": "prettier --write --ignore-unknown"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.2",
@@ -49,6 +51,7 @@
     "jiti": "^2.7.0",
     "next": "16.4.5",
     "next-intl": "^4.14.9",
+    "next-themes": "^0.4.6",
     "nuqs": "2.10.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -61,6 +64,7 @@
     "node": ">=22"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@commitlint/cli": "^17.7.0",
     "@commitlint/config-conventional": "^17.7.0",
     "@eslint/js": "^9",
@@ -107,5 +111,6 @@
   },
   "resolutions": {
     "source-map-js": "^1.2.2"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }

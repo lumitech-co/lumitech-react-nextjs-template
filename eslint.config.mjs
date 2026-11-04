@@ -48,6 +48,13 @@ const NO_INLINE_QUERY_KEY = {
     'Query keys come from the QueryKeys enum (shared/constants/query-keys), never inline literals.',
 };
 
+const NO_UNPARSED_RESPONSE = {
+  selector:
+    "ReturnStatement > MemberExpression[object.name='response'][property.name='data']",
+  message:
+    'An API response is untrusted input: return schema.parse(response.data) with a schema from the entity types (rule 4 in CLAUDE.md).',
+};
+
 const NO_LITERAL_TEXT_ATTRIBUTES = {
   selector:
     'JSXAttribute[name.name=/^(alt|placeholder|title|aria-label)$/] > Literal',
@@ -506,12 +513,6 @@ export default tseslint.config(
 
       '@next/next/no-img-element': 'error',
 
-      'jsx-a11y/no-noninteractive-element-interactions': 'off',
-      'jsx-a11y/click-events-have-key-events': 'off',
-      'jsx-a11y/no-static-element-interactions': 'off',
-      'jsx-a11y/anchor-is-valid': 'off',
-      'jsx-a11y/label-has-associated-control': 'off',
-
       'import/prefer-default-export': 'off',
       'import/no-named-as-default-member': 'off',
       'import/extensions': [
@@ -541,6 +542,12 @@ export default tseslint.config(
   {
     files: ['src/entities/*/api/**'],
     rules: {
+      'no-restricted-syntax': [
+        'error',
+        ...RESTRICTED_SYNTAX,
+        NO_INLINE_QUERY_KEY,
+        NO_UNPARSED_RESPONSE,
+      ],
       'no-restricted-imports': restrictedImports('shared/lib/axios'),
     },
   },

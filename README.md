@@ -296,7 +296,7 @@ Claude Code in this repo gets them automatically — no setup required.
 | `.claude/agents/security-auditor.md`                     | Frontend-focused security review: XSS, `NEXT_PUBLIC_*` env leakage, CSP/security headers, client-side token handling.                                                                                                                                    |
 | `.claude/agents/ai-engineer.md`                          | LLM/RAG integration specialist for AI-powered feature work.                                                                                                                                                                                              |
 
-These are **not** a substitute for `yarn lint:fix && yarn typescript` — they catch things lint
+These are **not** a substitute for `yarn lint:fix && yarn typescript && yarn test` — they catch things lint
 can't (architectural intent, ticket coverage, logic bugs), while ESLint/TypeScript remain the
 hard gate for everything mechanical.
 
@@ -313,15 +313,19 @@ hard gate for everything mechanical.
 | `yarn check:generators` | Generates a throwaway entity and feature, then runs lint and tsc on the result.                                              |
 
 CI runs all of them, plus an OSV scan of `yarn.lock` and the e2e suite. An accepted advisory goes in
-`osv-scanner.toml` with a reason and an `ignoreUntil` date at most 3 months out. Baseline security
-headers live in `next.config.mjs`; add a CSP there when a project knows its third-party origins.
+`osv-scanner.toml` with a reason and an `ignoreUntil` date at most 3 months out. Static security
+headers live in `next.config.mjs`. The CSP is built per request in `src/shared/lib/csp.ts` with a nonce
+from `src/proxy.ts`, so pages render dynamically; add a third-party origin there.
 
 ## 🐳 Docker
 
 The `Dockerfile` builds the `output: 'standalone'` server and runs it as the `node` user:
 
 ```sh
-docker build --build-arg NEXT_PUBLIC_API_URL=https://api.example.com -t app .
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com \
+  --build-arg NEXT_PUBLIC_SITE_URL=https://example.com \
+  -t app .
 docker run -p 3000:3000 app
 ```
 
@@ -590,7 +594,7 @@ import { z } from 'zod';
 const env = createEnv({
   client: {
     // Client-side variables must be prefixed with NEXT_PUBLIC_ to be exposed to the browser
-    NEXT_PUBLIC_API_URL: z.string(),
+    NEXT_PUBLIC_API_URL: z.url(),
     NEXT_PUBLIC_NODE_ENV: z.enum(['production', 'development', 'test']),
   },
   server: {

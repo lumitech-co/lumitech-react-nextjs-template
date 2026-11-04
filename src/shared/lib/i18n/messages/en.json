@@ -39,5 +39,8 @@
       "description": "This page does not exist.",
       "home": "Back to the home page"
     }
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }

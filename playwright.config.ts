@@ -33,7 +33,10 @@ export default defineConfig({
       url: APP_URL,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
-      env: { NEXT_PUBLIC_API_URL: STUB_API_URL },
+      env: {
+        NEXT_PUBLIC_API_URL: STUB_API_URL,
+        NEXT_PUBLIC_SITE_URL: APP_URL,
+      },
     },
   ],
 });

@@ -16,7 +16,7 @@ describe('makeQueryClient', () => {
   it('applies the template defaults', () => {
     const { queries } = makeQueryClient().getDefaultOptions();
 
-    expect(queries?.staleTime).toBe(60 * 60 * 1000);
+    expect(queries?.staleTime).toBe(60 * 1000);
     expect(queries?.retry).toBe(false);
   });
 });

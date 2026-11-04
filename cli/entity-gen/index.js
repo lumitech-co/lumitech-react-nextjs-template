@@ -4,7 +4,7 @@ const entityName = process.argv[2];
 
 if (!entityName) {
   console.error(
-    '❌ Please provide a entity name. Example: npm run generate:entity entityName',
+    '❌ Please provide a entity name. Example: yarn generate:entity entityName',
   );
 
   process.exit(1);

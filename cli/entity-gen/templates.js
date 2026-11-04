@@ -125,7 +125,7 @@ export const templates = {
   'api/get': (namePascal, nameCamel, nameKebab, snakeCase) =>
     `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response, I${namePascal}sResponse } from '../types/responses';
+        import { ${nameCamel}ResponseSchema, ${nameCamel}sResponseSchema, I${namePascal}Response, I${namePascal}sResponse } from '../types/responses';
         import { IGet${namePascal}sParams } from '../types/params';
 
         export const get${namePascal} = async (
@@ -136,7 +136,7 @@ export const templates = {
                 signal,
             });
 
-            return response.data;
+            return ${nameCamel}ResponseSchema.parse(response.data);
         };
 
         export const get${namePascal}s = async (
@@ -148,14 +148,14 @@ export const templates = {
                 params,
             });
 
-            return response.data;
+            return ${nameCamel}sResponseSchema.parse(response.data);
         };
     `.trim(),
 
   'api/put': (namePascal, nameCamel, nameKebab, snakeCase) =>
     `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response } from '../types/responses';
+        import { ${nameCamel}ResponseSchema, I${namePascal}Response } from '../types/responses';
         import { IUpdate${namePascal} } from '../types/payloads';
 
         export const update${namePascal} = async (
@@ -164,28 +164,28 @@ export const templates = {
         ): Promise<I${namePascal}Response> => {
             const response = await api.put(\`/${nameKebab}s/\${${nameCamel}Id}\`, payload);
 
-            return response.data;
+            return ${nameCamel}ResponseSchema.parse(response.data);
         };
     `.trim(),
 
   'api/patch': (namePascal, nameCamel, nameKebab, snakeCase) =>
     `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response } from '../types/responses';
+        import { ${nameCamel}ResponseSchema, I${namePascal}Response } from '../types/responses';
 
         export const toggle${namePascal} = async (
             ${nameCamel}Id: string,
         ): Promise<I${namePascal}Response> => {
             const response = await api.patch(\`/${nameKebab}s/\${${nameCamel}Id}\`);
 
-            return response.data;
+            return ${nameCamel}ResponseSchema.parse(response.data);
         };
     `.trim(),
 
   'api/post': (namePascal, nameCamel, nameKebab, snakeCase) =>
     `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response } from '../types/responses';
+        import { ${nameCamel}ResponseSchema, I${namePascal}Response } from '../types/responses';
         import { ICreate${namePascal} } from '../types/payloads';
 
         export const create${namePascal} = async (
@@ -193,21 +193,21 @@ export const templates = {
         ): Promise<I${namePascal}Response> => {
             const response = await api.post("/${nameKebab}s", payload);
 
-            return response.data;
+            return ${nameCamel}ResponseSchema.parse(response.data);
         };
     `.trim(),
 
   'api/delete': (namePascal, nameCamel, nameKebab, snakeCase) =>
     `
         import { api } from 'shared/lib/axios';
-        import { I${namePascal}Response } from '../types/responses';
+        import { ${nameCamel}ResponseSchema, I${namePascal}Response } from '../types/responses';
 
         export const delete${namePascal} = async (
             ${nameCamel}Id: string,
         ): Promise<I${namePascal}Response> => {
             const response = await api.delete(\`/${nameKebab}s/\${${nameCamel}Id}\`);
 
-            return response.data;
+            return ${nameCamel}ResponseSchema.parse(response.data);
         };
     `.trim(),
 
@@ -229,26 +229,32 @@ export const templates = {
 
   'types/responses': (namePascal, nameCamel, nameKebab, snakeCase) =>
     `
-        export interface I${namePascal} {
-            id: string;
-            fullName: string;
-        }
+        import { z } from 'zod';
 
-        export interface I${namePascal}Response {
-            message: string;
-            data: I${namePascal}
-        }
+        export const ${nameCamel}Schema = z.object({
+            id: z.string(),
+            fullName: z.string(),
+        });
 
-        export interface I${namePascal}sResponse {
-            message: string;
-            data: {
-                totalPages: number;
-                perPage: number;
-                total: number
-                nextPage: number | null;
-                prevPage: number | null;
-                ${nameCamel}s: I${namePascal}[]
-            }
-        }
+        export const ${nameCamel}ResponseSchema = z.object({
+            message: z.string(),
+            data: ${nameCamel}Schema,
+        });
+
+        export const ${nameCamel}sResponseSchema = z.object({
+            message: z.string(),
+            data: z.object({
+                totalPages: z.number(),
+                perPage: z.number(),
+                total: z.number(),
+                nextPage: z.number().nullable(),
+                prevPage: z.number().nullable(),
+                ${nameCamel}s: z.array(${nameCamel}Schema),
+            }),
+        });
+
+        export type I${namePascal} = z.infer<typeof ${nameCamel}Schema>;
+        export type I${namePascal}Response = z.infer<typeof ${nameCamel}ResponseSchema>;
+        export type I${namePascal}sResponse = z.infer<typeof ${nameCamel}sResponseSchema>;
     `.trim(),
 };

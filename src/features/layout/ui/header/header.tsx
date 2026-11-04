@@ -1,25 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
-
 import { useTranslations } from 'next-intl';
-
-import { Themes, useThemeStore } from 'shared/store/theme';
+import { useTheme } from 'next-themes';
 
 import { LocaleSwitcher } from '../locale-switcher/locale-switcher';
 
 export const Header = () => {
   const t = useTranslations('header.theme');
-  const { theme, toggleTheme } = useThemeStore(state => state);
+  const { resolvedTheme, setTheme } = useTheme();
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === Themes.dark);
-  }, [theme]);
+  const handleToggle = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  };
 
   return (
     <header className="flex justify-between p-2">
-      <button type="button" onClick={toggleTheme}>
-        {t(theme)}
+      <button type="button" onClick={handleToggle}>
+        <span className="dark:hidden">{t('light')}</span>
+        <span className="hidden dark:inline">{t('dark')}</span>
       </button>
       <LocaleSwitcher />
     </header>

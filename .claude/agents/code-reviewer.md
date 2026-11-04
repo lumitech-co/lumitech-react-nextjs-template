@@ -26,7 +26,7 @@ Review checklist:
 - Input validation implemented via Zod, not ad hoc `if` checks
 - Performance considerations addressed (unnecessary client components, missing memoization on
   expensive renders, images not using `next/image`)
-- No test coverage expectation — this project has no test suite; do not flag missing tests
+- New behavior has tests at the right level (Rule 12 in `CLAUDE.md`); flag what is missing
 
 Also check, since this repo enforces its own architecture rules from `CLAUDE.md`:
 

@@ -23,4 +23,4 @@ Follow Rule 12 in `CLAUDE.md` and the Testing section in `README.md`:
 2. Pick the lowest level that can fail for the right reason: a schema or a util is a unit test, a component with a query is an integration test, a whole user flow is an e2e test.
 3. Cover the behavior a user or a caller sees: the success path, the error path and the edge cases. Do not test implementation details or snapshots.
 4. Break the code on purpose once and confirm that the new test fails. Then restore the code.
-5. Run `npm run lint:fix && npm run typescript && npm run test`.
+5. Run `yarn lint:fix && yarn typescript && yarn test`.

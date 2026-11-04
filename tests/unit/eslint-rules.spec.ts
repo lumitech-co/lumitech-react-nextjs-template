@@ -15,7 +15,7 @@ type Case = {
 const FEATURE = 'src/features/todos/ui/todo/todo.tsx';
 const ENTITY_API = 'src/entities/todos/api/get.ts';
 const SHARED = 'src/shared/lib/styles.ts';
-const PAGE = 'src/app/[locale]/page.tsx';
+const PAGE = 'src/app/[locale]/(main)/page.tsx';
 
 /**
  * Every architecture rule fires on a violation and stays quiet on the allowed
@@ -119,6 +119,20 @@ const CASES: Case[] = [
     rule: 'no-restricted-imports',
     file: ENTITY_API,
     code: "import { api } from 'shared/lib/axios';\n\nexport { api };\n",
+    reports: false,
+  },
+  {
+    name: 'an unparsed API response',
+    rule: 'no-restricted-syntax',
+    file: ENTITY_API,
+    code: 'export const read = (response: { data: unknown }) => {\n  return response.data;\n};\n',
+    reports: true,
+  },
+  {
+    name: 'a parsed API response',
+    rule: 'no-restricted-syntax',
+    file: ENTITY_API,
+    code: "import { z } from 'zod';\n\nexport const read = (response: { data: unknown }) => {\n  return z.string().parse(response.data);\n};\n",
     reports: false,
   },
   {

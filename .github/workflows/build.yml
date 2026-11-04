@@ -31,6 +31,7 @@ jobs:
       # inlines NEXT_PUBLIC_* into the client bundle — so the build has to use
       # the stub URL too.
       NEXT_PUBLIC_API_URL: http://localhost:4010
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4

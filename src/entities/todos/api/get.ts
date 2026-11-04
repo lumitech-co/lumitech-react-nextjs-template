@@ -1,7 +1,7 @@
 import { api } from 'shared/lib/axios';
 
 import type { IGetTodosParams } from '../types/params';
-import type { ITodoResponse } from '../types/responses';
+import { todosResponseSchema, type ITodoResponse } from '../types/responses';
 
 export const getTodos = async (
   params?: IGetTodosParams,
@@ -12,5 +12,5 @@ export const getTodos = async (
     signal,
   });
 
-  return response.data;
+  return todosResponseSchema.parse(response.data);
 };
