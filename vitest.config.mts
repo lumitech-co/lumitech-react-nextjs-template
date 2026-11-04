@@ -13,6 +13,7 @@ export default defineConfig({
     include: ['tests/{unit,integration}/**/*.spec.{ts,tsx}'],
     env: {
       NEXT_PUBLIC_API_URL: 'http://api.test',
+      NEXT_PUBLIC_SITE_URL: 'http://site.test',
     },
   },
 });

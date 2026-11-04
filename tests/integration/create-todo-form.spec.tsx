@@ -32,7 +32,10 @@ describe('CreateTodoForm', () => {
       http.post('http://api.test/todos', async ({ request }) => {
         body = await request.json();
 
-        return HttpResponse.json({ id: 201 }, { status: 201 });
+        return HttpResponse.json(
+          { userId: 1, id: 201, title: 'buy bread', completed: true },
+          { status: 201 },
+        );
       }),
     );
 

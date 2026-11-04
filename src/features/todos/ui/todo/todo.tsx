@@ -25,13 +25,15 @@ export const Todo: FC<IProps> = ({ todo }) => {
         isPending && 'cursor-progress',
       )}
     >
-      <input
-        type="checkbox"
-        disabled={isPending}
-        onChange={handleToggleCompletion}
-        checked={todo.completed}
-      />
-      {todo.title}
+      <label className="flex gap-2">
+        <input
+          type="checkbox"
+          disabled={isPending}
+          onChange={handleToggleCompletion}
+          checked={todo.completed}
+        />
+        {todo.title}
+      </label>
     </li>
   );
 };

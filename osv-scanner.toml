@@ -11,36 +11,10 @@ request input. No fixed release exists.
 """
 
 [[IgnoredVulns]]
-id = "GHSA-23c5-xmqv-rm74"
-ignoreUntil = 2027-02-04
-reason = """
-minimatch 9.0.3, pinned exactly by @typescript-eslint/typescript-estree 6 (dev \
-dependency): ReDoS on glob patterns. The patterns are this repository's own \
-lint config. The fix needs typescript-eslint 8, a major upgrade of the lint stack.
-"""
-
-[[IgnoredVulns]]
-id = "GHSA-3ppc-4f35-3m26"
-ignoreUntil = 2027-02-04
-reason = """
-minimatch 9.0.3 in typescript-eslint 6 (dev dependency). Same as \
-GHSA-23c5-xmqv-rm74: the patterns are this repository's own.
-"""
-
-[[IgnoredVulns]]
-id = "GHSA-7r86-cg39-jmmj"
-ignoreUntil = 2027-02-04
-reason = """
-minimatch 9.0.3 in typescript-eslint 6 (dev dependency). Same as \
-GHSA-23c5-xmqv-rm74: the patterns are this repository's own.
-"""
-
-[[IgnoredVulns]]
 id = "GHSA-g3hv-75wg-m249"
 ignoreUntil = 2027-02-04
 reason = """
-minimatch 9.0.3 and 10.2.6 in @typescript-eslint/typescript-estree (dev \
-dependencies): DoS through globparts amplification. The patterns are this \
-repository's own lint config. Fixed in minimatch 11, which those packages do \
-not allow yet.
+minimatch 10.2.6 in @typescript-eslint/typescript-estree (dev dependency): DoS \
+through globparts amplification. The patterns are this repository's own lint \
+config. Fixed in minimatch 11, which that package does not allow yet.
 """

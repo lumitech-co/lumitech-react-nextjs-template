@@ -122,7 +122,7 @@ app → widgets → features → entities → shared
 A layer may only import from **itself** and from layers **strictly below** it. `shared` is
 the only layer with no import restrictions of its own — but it may never import from
 `entities`, `features`, `widgets` or `app`. This is enforced automatically by
-`eslint-plugin-boundaries` (`boundaries/dependencies` rule in `.eslintrc.js`) — an illegal
+`eslint-plugin-boundaries` (`boundaries/dependencies` rule in `eslint.config.mjs`) — an illegal
 import (e.g. `entities` importing from `features`) fails `yarn lint`.
 
 | Folder          | What goes here                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -169,7 +169,7 @@ export { RemoveMemberDialog } from './ui/remove-member-dialog';
 import { RemoveMemberButton } from 'features/members';
 ```
 
-It stays inside the boundaries model: `.eslintrc.js` classifies `<layer>/<slice>/index.ts`
+It stays inside the boundaries model: `eslint.config.mjs` classifies `<layer>/<slice>/index.ts`
 as that slice, so it may only re-export files from its own slice and importers still obey
 the layer order. The generators don't create one — add it by hand if the slice needs it.
 
@@ -196,7 +196,7 @@ So there's no `src/utils/`, no `src/shared/api/` — but also no `entities/todos
 a convention: `eslint-plugin-boundaries`'s `boundaries/no-unknown-files` rule fails
 `yarn lint` on any file that doesn't match one of the patterns above, however plausible the
 folder name looks. If a new kind of code doesn't fit an existing segment, extend
-`boundaries/elements` in `.eslintrc.js` on purpose — don't add a folder it doesn't know
+`boundaries/elements` in `eslint.config.mjs` on purpose — don't add a folder it doesn't know
 about.
 
 ### 🔐 `process.env` only in `src/env.ts`
@@ -250,17 +250,16 @@ yarn test:watch        # unit + integration in watch mode
 yarn test:e2e          # Playwright (first run: yarn playwright install chromium)
 ```
 
-On a pull request `.github/workflows/build.yml` first runs lint → typecheck → build in one
-job, then fans out to three parallel jobs (unit, integration, e2e) and closes with an
-`All checks passed` gate — the single job worth marking as required in branch protection.
+On a pull request `.github/workflows/build.yml` runs every check in one job, the cheap ones
+first. That job is the one to mark as required in branch protection.
 
 ### Why `tests/` sits outside `src/`
 
 `src/` has a locked-down folder set (`boundaries/no-unknown-files`, see
 [the section above](#-the-src-folder-structure-is-locked-down--even-inside-a-slice)) and a
 `tests` segment is not part of it. Keeping tests in a top-level `tests/` folder means neither
-that rule nor the FSD import boundaries have to be relaxed. `.eslintignore` already limits
-ESLint to `/src`, so test files are not linted.
+that rule nor the FSD import boundaries have to be relaxed. ESLint lints `tests/` too, with those
+rules switched off in its own block of `eslint.config.mjs`.
 
 ### Writing an integration test
 
@@ -297,7 +296,7 @@ Claude Code in this repo gets them automatically — no setup required.
 | `.claude/agents/security-auditor.md`                     | Frontend-focused security review: XSS, `NEXT_PUBLIC_*` env leakage, CSP/security headers, client-side token handling.                                                                                                                                    |
 | `.claude/agents/ai-engineer.md`                          | LLM/RAG integration specialist for AI-powered feature work.                                                                                                                                                                                              |
 
-These are **not** a substitute for `yarn lint:fix && yarn typescript` — they catch things lint
+These are **not** a substitute for `yarn lint:fix && yarn typescript && yarn test` — they catch things lint
 can't (architectural intent, ticket coverage, logic bugs), while ESLint/TypeScript remain the
 hard gate for everything mechanical.
 
@@ -310,11 +309,27 @@ hard gate for everything mechanical.
 | `yarn test`             | Unit and integration tests, including proof that each architecture lint rule fires and that `env.ts` matches `.env.example`. |
 | `yarn format:check`     | Prettier on code, docs and config.                                                                                           |
 | `yarn knip`             | Unused files, exports and dependencies. Set `NEXT_PUBLIC_API_URL` first, because it loads `next.config.mjs`.                 |
+| `yarn analyze`          | Opens the interactive bundle analyzer (Turbopack).                                                                           |
 | `yarn check:generators` | Generates a throwaway entity and feature, then runs lint and tsc on the result.                                              |
 
 CI runs all of them, plus an OSV scan of `yarn.lock` and the e2e suite. An accepted advisory goes in
-`osv-scanner.toml` with a reason and an `ignoreUntil` date at most 3 months out. Baseline security
-headers live in `next.config.mjs`; add a CSP there when a project knows its third-party origins.
+`osv-scanner.toml` with a reason and an `ignoreUntil` date at most 3 months out. Static security
+headers live in `next.config.mjs`. The CSP is built per request in `src/shared/lib/csp.ts` with a nonce
+from `src/proxy.ts`, so pages render dynamically; add a third-party origin there.
+
+## 🐳 Docker
+
+The `Dockerfile` builds the `output: 'standalone'` server and runs it as the `node` user:
+
+```sh
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com \
+  --build-arg NEXT_PUBLIC_SITE_URL=https://example.com \
+  -t app .
+docker run -p 3000:3000 app
+```
+
+`NEXT_PUBLIC_*` values are inlined at build time, so each one needs a `--build-arg` and an `ARG` line.
 
 ## Guidelines
 
@@ -487,7 +502,7 @@ stylesheet to fall back to: the only CSS file in `src/` is `src/app/styles/globa
 (the `@tailwind` directives, plus — if you add a library like shadcn/ui — its theme CSS
 variables in `@layer base`). No `*.css`, `*.module.css`, `*.scss` file anywhere else.
 
-This is enforced by ESLint's `no-restricted-imports` rule in `.eslintrc.js`: importing any
+This is enforced by ESLint's `no-restricted-imports` rule in `eslint.config.mjs`: importing any
 local stylesheet other than `app/styles/global.css` fails `yarn lint`.
 
 ```typescript
@@ -579,7 +594,7 @@ import { z } from 'zod';
 const env = createEnv({
   client: {
     // Client-side variables must be prefixed with NEXT_PUBLIC_ to be exposed to the browser
-    NEXT_PUBLIC_API_URL: z.string(),
+    NEXT_PUBLIC_API_URL: z.url(),
     NEXT_PUBLIC_NODE_ENV: z.enum(['production', 'development', 'test']),
   },
   server: {
@@ -606,7 +621,7 @@ const sessionExpired = env.NEXT_AUTH_SESSION_EXPIRED; // Access server-side vari
 
 ### 🔗 Properly Using Import Aliases in Your Project
 
-Thanks to `baseUrl: "./src"` in `tsconfig.json`, every folder under `src/` can be imported
+Thanks to `paths` in `tsconfig.json`, every folder under `src/` can be imported
 by its path instead of a long relative one — no extra alias configuration needed.
 
 **Basic Import:** import the exact file that declares what you need:
@@ -638,5 +653,5 @@ absolute one — `shared/ui/button/button` — from anywhere in the project. Thi
 imports short and explicit without hiding behind a barrel.
 
 Which layer is allowed to import which is enforced by `eslint-plugin-boundaries`
-(`boundaries/dependencies` in `.eslintrc.js`) — see
+(`boundaries/dependencies` in `eslint.config.mjs`) — see
 [🧱 Feature-Sliced Design](#-feature-sliced-design-fsd) above for the allowed layer order.

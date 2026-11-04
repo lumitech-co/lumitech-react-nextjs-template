@@ -29,7 +29,7 @@ app → widgets → features → entities → shared
 ```
 
 A layer may import only **itself** (same slice) and layers **strictly below** it — enforced
-by `boundaries/dependencies` in `.eslintrc.js`, not just convention. `shared` has no slices
+by `boundaries/dependencies` in `eslint.config.mjs`, not just convention. `shared` has no slices
 and imports only other `shared` segments, plus libraries and `env`. So `entities/todos` can
 never import `entities/users`, `features/*`, or `widgets/*`.
 
@@ -40,14 +40,14 @@ src/
 ├── app/                     # App Router: pages (server), layouts, global styles
 │   └── styles/global.css
 ├── widgets/                 # Compositions of features
-├── features/                # UI + user-interaction logic (npm run generate:feature)
+├── features/                # UI + user-interaction logic (yarn generate:feature)
 │   └── <feature>/
 │       ├── ui/              # Components ('use client' where needed)
 │       ├── hooks/           # Feature-local hooks
 │       ├── schemas/         # Zod schemas for this feature
 │       ├── lib/             # Feature-local helpers
 │       └── types/           # Feature-local types
-├── entities/                # API layer only (npm run generate:entity)
+├── entities/                # API layer only (yarn generate:entity)
 │   └── <entity>/            # One folder per route prefix (/users → users/)
 │       ├── api/             # Axios requests
 │       ├── types/           # Params, payloads, responses
@@ -237,7 +237,7 @@ export { RemoveMemberDialog } from './ui/remove-member-dialog';
 Layer rules still apply to it: the barrel is classified as its own slice, so it may only
 re-export files from that slice, and importers obey the usual layer order.
 
-Use absolute imports from `src` (`baseUrl: "./src"`) across layers; inside the same slice,
+Use absolute imports from `src` (`paths` in `tsconfig.json`) across layers; inside the same slice,
 relative imports of siblings are correct and preferred (`../todo/todo`).
 
 ### Providers
@@ -281,7 +281,7 @@ src / features / todos / ui / CreateTodoForm / createTodoForm.tsx;
 
 ### Add a new API route group (e.g. `/users`)
 
-1. `npm run generate:entity user`
+1. `yarn generate:entity user`
 2. Delete the request kinds the API does not have; adjust paths in `api/*.ts`
 3. Fill in `types/responses.ts`, `types/payloads.ts`, `types/params.ts`
 4. Import the generated hooks directly (e.g. `entities/users/hooks/get`) from a feature
@@ -289,7 +289,7 @@ src / features / todos / ui / CreateTodoForm / createTodoForm.tsx;
 
 ### Add a new screen
 
-1. `npm run generate:feature <feature>`
+1. `yarn generate:feature <feature>`
 2. Build the components in `features/<feature>/ui/` (`'use client'` only on the leaves that
    need it); reuse components from `shared/ui`; import each component from its own file
 3. Create `src/app/[locale]/<route>/page.tsx` as a Server Component that prefetches the data and

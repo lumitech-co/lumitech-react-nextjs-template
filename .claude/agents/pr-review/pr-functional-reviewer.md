@@ -109,7 +109,7 @@ Look hardest at the places where correctness actually dies in this stack:
 
 Verify before you report. If you can cheaply confirm a suspicion — grep for every caller of a
 changed hook or query key, read the entity's type definitions against what the component
-destructures — do it. There is no test suite to lean on here, so a confidently reported bug that
+destructures — do it. Tests catch only what they cover, so a confidently reported bug that
 turns out not to be real costs the team more than a missed nit.
 
 ## Severity

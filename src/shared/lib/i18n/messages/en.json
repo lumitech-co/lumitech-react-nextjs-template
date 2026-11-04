@@ -27,5 +27,20 @@
     "validation": {
       "titleRequired": "Title is required"
     }
+  },
+  "errors": {
+    "route": {
+      "title": "Something went wrong",
+      "description": "This page could not load. Try again.",
+      "retry": "Try again"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "This page does not exist.",
+      "home": "Back to the home page"
+    }
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }

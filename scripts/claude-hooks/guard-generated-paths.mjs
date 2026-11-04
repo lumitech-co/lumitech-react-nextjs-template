@@ -32,7 +32,7 @@ if (layer && !fs.existsSync(path.join(root, 'src', layer, slice))) {
       hookSpecificOutput: {
         hookEventName: 'PreToolUse',
         permissionDecision: 'deny',
-        permissionDecisionReason: `Rule 0: create the slice with \`npm run ${GENERATORS[layer]} ${slice}\`, then edit the files it produced.`,
+        permissionDecisionReason: `Rule 0: create the slice with \`yarn ${GENERATORS[layer]} ${slice}\`, then edit the files it produced.`,
       },
     }),
   );

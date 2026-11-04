@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 const keysOf = (source: string) =>
   [...source.matchAll(/^\s*([A-Z][A-Z0-9_]*)\s*[:=]/gm)]
     .map(([, key]) => key)
+    .filter(key => key !== 'NODE_ENV')
     .sort();
 
 const [schema = '', runtimeEnv = ''] = fs

@@ -22,15 +22,21 @@ jobs:
     name: Lint, typecheck, build & test
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
+    # The default is six hours; a hung run would eat the month's minutes.
+    timeout-minutes: 20
 
     env:
+      HUSKY: '0'
       # The e2e suite runs against tests/e2e/stub-api.mjs, and `next build`
       # inlines NEXT_PUBLIC_* into the client bundle — so the build has to use
       # the stub URL too.
       NEXT_PUBLIC_API_URL: http://localhost:4010
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # Advisories in yarn.lock against OSV.dev; accepted ones go in
       # osv-scanner.toml.

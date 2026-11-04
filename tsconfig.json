@@ -2,9 +2,13 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "paths": {
-      "entities/*": ["entities/*"]
+      "app/*": ["./src/app/*"],
+      "widgets/*": ["./src/widgets/*"],
+      "features/*": ["./src/features/*"],
+      "entities/*": ["./src/entities/*"],
+      "shared/*": ["./src/shared/*"],
+      "env": ["./src/env.ts"]
     },
-    "baseUrl": "./src",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

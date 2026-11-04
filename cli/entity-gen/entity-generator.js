@@ -185,7 +185,7 @@ export const generateEntity = (nameCamel, namePascal, nameKebab, snakeCase) => {
 
   try {
     console.log('🧹 Running lint:fix...');
-    execSync('npm run lint:fix', { stdio: 'inherit' });
+    execSync('yarn lint:fix', { stdio: 'inherit' });
     console.log('✅ Linting complete!');
   } catch (error) {
     console.error('⚠️  Linting failed:', error.message);

@@ -9,11 +9,11 @@ need the "how it looks in code" detail. This file holds the hard rules; they are
 
 ## Code Generation Commands
 
-- **New entity:** `npm run generate:entity <entityName>` — scaffolds `api/`, `hooks/`,
+- **New entity:** `yarn generate:entity <entityName>` — scaffolds `api/`, `hooks/`,
   `types/` and wires the `QueryKeys` enum. Never create an entity by hand.
-- **New feature:** `npm run generate:feature <featureName>` — scaffolds `ui/`, `hooks/`,
+- **New feature:** `yarn generate:feature <featureName>` — scaffolds `ui/`, `hooks/`,
   `lib/`, `schemas/`, `types/`. Never create a feature by hand.
-- **Finishing a feature:** always run `npm run lint:fix && npm run typescript && npm run test && npm run knip`.
+- **Finishing a feature:** always run `yarn lint:fix && yarn typescript && yarn test && yarn knip`.
 
 Generators emit no barrel files. If a generator can't produce what a task needs, stop and
 ask — fixing the generator is valid, bypassing it is not.
@@ -23,7 +23,7 @@ ask — fixing the generator is valid, bypassing it is not.
 ESLint enforces most rules; `tests/unit/eslint-rules.spec.ts` proves that each architecture rule
 fires, and fails on a blanket or architecture `eslint-disable`. Claude Code hooks
 (`.claude/settings.json`) refuse a hand-made slice and lint every file Claude edits.
-`npm run check:generators` runs the generators against lint and tsc. CI also runs `format:check`,
+`yarn check:generators` runs the generators against lint and tsc. CI also runs `format:check`,
 `knip` and an OSV scan of `yarn.lock` (an accepted finding goes in `osv-scanner.toml` with a reason
 and an `ignoreUntil` date). When one fails, fix the code — never disable the check.
 
@@ -50,6 +50,10 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
    component in `features/` (or `widgets/`) carrying its own `'use client'`; the page only
    composes them. `'use client'` sits on the smallest **leaf** that needs it. Server data is
    prefetched with `queryClient.prefetchQuery` and passed via `HydrationBoundary` + `dehydrate`.
+   Pages render dynamically: the CSP nonce from `src/proxy.ts` is per request, so no
+   `generateStaticParams` under `[locale]`. A new third-party origin goes in `shared/lib/csp.ts`.
+   `loading.tsx` sits in the `(main)` route group: streaming starts with a `200`, so a page under a
+   loading boundary cannot answer `404`, and `[...rest]` stays outside it.
 
 3. **Layer placement.** `shared/**` = global, reusable, feature-agnostic (`ui`, `types`,
    `store`, `providers`, `lib`, `icons`, `hooks` (no network), `constants`).
@@ -60,14 +64,20 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
    every API call, including one-offs, is an entity, and `fetch` / `XMLHttpRequest` are
    banned in `src/` (lint-enforced).
 
-4. **Validation only via Zod.** All untrusted input (forms, search params) is validated with a
-   Zod schema; feature schemas live in `features/<feature>/schemas/`, and the type is derived
-   with `z.infer`, never hand-written. Forms use React Hook Form with `zodResolver(schema)`.
+4. **Validation only via Zod.** All untrusted input (forms, search params, API responses) is
+   validated with a Zod schema; feature schemas live in `features/<feature>/schemas/`, response
+   schemas in `entities/<entity>/types/responses.ts` (an entity returns
+   `schema.parse(response.data)`, lint-enforced), and the type is derived with `z.infer`, never
+   hand-written. Forms use React Hook Form with `zodResolver(schema)`.
 
 5. **Server state → TanStack Query, client state → zustand.** API data is fetched with a
    query/mutation hook from `entities/<entity>/hooks`, keyed with a `QueryKeys` member, and
    invalidated after mutations — never mirrored into a store or `useState`. Purely client-side
-   state (theme, modals, wizard step) is a zustand store in `shared/store`. Query keys always
+   state (modals, wizard step) is a zustand store in `shared/store`; the theme is `next-themes`
+   (`useTheme`). List state (search,
+   sort, tab, filters) lives in the URL through `useUrlListState` from
+   `shared/hooks/use-url-list-state`, with params parsed by `zodParam`; `nuqs` is imported nowhere
+   else (lint-enforced). Query keys always
    come from the `QueryKeys` enum, never inline strings.
 
 6. **Assets.** Custom/restyled icons → SVG in `src/shared/icons/` (SVGR components);
@@ -82,7 +92,7 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
    barrel, `<layer>/<slice>/index.ts` (`features/members/index.ts`), re-exporting that slice's
    public API. Everything else imports directly from the declaring file. Absolute imports from
    `src` across layers
-   (`baseUrl: "./src"`); relative imports for siblings in the same slice. Layer boundaries
+   (`paths` in `tsconfig.json`); relative imports for siblings in the same slice. Layer boundaries
    (`app → widgets → features → entities → shared`, plus "same slice only") are enforced by
    `eslint-plugin-boundaries`.
 
@@ -119,7 +129,7 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
     `src/shared/lib/i18n/messages/<locale>.json` (all locales get the same keys; `en.json` is
     the source of truth for the `AppConfig` types in `global.d.ts`). Client components read it
     with `useTranslations`, server ones with `getTranslations`. Routes live under
-    `src/app/[locale]/`; every page/layout there calls `setRequestLocale(params.locale)`.
+    `src/app/[locale]/`; every page/layout there calls `setRequestLocale(locale)` with the awaited `params`.
     Internal links/redirects use `Link`/`useRouter`/`redirect` from
     `shared/lib/i18n/navigation`, never `next/link`/`next/navigation`. A Zod schema with
     user-facing messages is a factory taking a translator (`createTodoSchema(t)`). Adding a
