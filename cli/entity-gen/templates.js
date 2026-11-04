@@ -1,6 +1,6 @@
 export const templates = {
-    "hooks/get": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'hooks/get': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
         import { QueryKeys } from 'shared/constants/query-keys';
@@ -32,8 +32,8 @@ export const templates = {
         };
     `.trim(),
 
-    "hooks/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'hooks/put': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { useMutation, useQueryClient } from '@tanstack/react-query';
         import { IUpdate${namePascal} } from "../types/payloads"
         import { QueryKeys } from 'shared/constants/query-keys';
@@ -56,8 +56,8 @@ export const templates = {
         };
     `.trim(),
 
-    "hooks/patch": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'hooks/patch': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { useMutation, useQueryClient } from '@tanstack/react-query';
 
         import { QueryKeys } from 'shared/constants/query-keys';
@@ -78,8 +78,8 @@ export const templates = {
         };
     `.trim(),
 
-    "hooks/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'hooks/post': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { useMutation, useQueryClient } from '@tanstack/react-query';
         import { ICreate${namePascal} } from "../types/payloads"
         import { QueryKeys } from 'shared/constants/query-keys';
@@ -100,8 +100,8 @@ export const templates = {
         };
     `.trim(),
 
-    "hooks/delete": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'hooks/delete': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { useMutation, useQueryClient } from '@tanstack/react-query';
 
         import { QueryKeys } from 'shared/constants/query-keys';
@@ -122,8 +122,8 @@ export const templates = {
         };
     `.trim(),
 
-    "api/get": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'api/get': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { api } from 'shared/lib/axios';
         import { I${namePascal}Response, I${namePascal}sResponse } from '../types/responses';
         import { IGet${namePascal}sParams } from '../types/params';
@@ -152,8 +152,8 @@ export const templates = {
         };
     `.trim(),
 
-    "api/put": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'api/put': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { api } from 'shared/lib/axios';
         import { I${namePascal}Response } from '../types/responses';
         import { IUpdate${namePascal} } from '../types/payloads';
@@ -168,8 +168,8 @@ export const templates = {
         };
     `.trim(),
 
-    "api/patch": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'api/patch': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { api } from 'shared/lib/axios';
         import { I${namePascal}Response } from '../types/responses';
 
@@ -182,8 +182,8 @@ export const templates = {
         };
     `.trim(),
 
-    "api/post": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'api/post': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { api } from 'shared/lib/axios';
         import { I${namePascal}Response } from '../types/responses';
         import { ICreate${namePascal} } from '../types/payloads';
@@ -197,8 +197,8 @@ export const templates = {
         };
     `.trim(),
 
-    "api/delete": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'api/delete': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { api } from 'shared/lib/axios';
         import { I${namePascal}Response } from '../types/responses';
 
@@ -211,24 +211,24 @@ export const templates = {
         };
     `.trim(),
 
-    "types/params": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'types/params': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         export interface IGet${namePascal}sParams {
             page: number;
             perPage: number;
         }
     `.trim(),
 
-    "types/payloads": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'types/payloads': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         import { I${namePascal} } from "./responses"
 
         export interface ICreate${namePascal} extends Required<Omit<I${namePascal}, "id">> {}
         export interface IUpdate${namePascal} extends Partial<Omit<I${namePascal}, "id">> {}
     `.trim(),
 
-    "types/responses": (namePascal, nameCamel, nameKebab, snakeCase) =>
-        `
+  'types/responses': (namePascal, nameCamel, nameKebab, snakeCase) =>
+    `
         export interface I${namePascal} {
             id: string;
             fullName: string;

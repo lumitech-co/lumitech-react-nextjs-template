@@ -18,15 +18,26 @@ const flattenKeys = (node: unknown, prefix = ''): string[] =>
     : [prefix];
 
 describe('i18n messages', () => {
-  const sourceKeys = flattenKeys(readMessages(`${routing.defaultLocale}.json`)).sort();
+  const sourceKeys = flattenKeys(
+    readMessages(`${routing.defaultLocale}.json`),
+  ).sort();
 
   it('has a messages file for every locale and no extra ones', () => {
-    const files = readdirSync(MESSAGES_DIR).filter(file => file.endsWith('.json'));
+    const files = readdirSync(MESSAGES_DIR).filter(file =>
+      file.endsWith('.json'),
+    );
 
-    expect(files.sort()).toEqual(routing.locales.map(locale => `${locale}.json`).sort());
+    expect(files.sort()).toEqual(
+      routing.locales.map(locale => `${locale}.json`).sort(),
+    );
   });
 
-  it.each(routing.locales)('%s.json has exactly the same keys as the default locale', locale => {
-    expect(flattenKeys(readMessages(`${locale}.json`)).sort()).toEqual(sourceKeys);
-  });
+  it.each(routing.locales)(
+    '%s.json has exactly the same keys as the default locale',
+    locale => {
+      expect(flattenKeys(readMessages(`${locale}.json`)).sort()).toEqual(
+        sourceKeys,
+      );
+    },
+  );
 });

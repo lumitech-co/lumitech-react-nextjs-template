@@ -21,7 +21,7 @@ const urbanist = Urbanist({
 
 type Props = {
   children: ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 };
 
 export const generateStaticParams = () =>
@@ -30,10 +30,9 @@ export const generateStaticParams = () =>
 export const generateMetadata = async ({
   params,
 }: Omit<Props, 'children'>): Promise<Metadata> => {
+  const { locale } = await params;
   const t = await getTranslations({
-    locale: hasLocale(routing.locales, params.locale)
-      ? params.locale
-      : routing.defaultLocale,
+    locale: hasLocale(routing.locales, locale) ? locale : routing.defaultLocale,
     namespace: 'metadata',
   });
 
@@ -43,15 +42,17 @@ export const generateMetadata = async ({
   };
 };
 
-const LocaleLayout = ({ children, params }: Props) => {
-  if (!hasLocale(routing.locales, params.locale)) {
+const LocaleLayout = async ({ children, params }: Props) => {
+  const { locale } = await params;
+
+  if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
 
-  setRequestLocale(params.locale);
+  setRequestLocale(locale);
 
   return (
-    <html lang={params.locale}>
+    <html lang={locale}>
       <body
         className={cn(
           'bg-white text-gray-600 transition-all duration-1000 ease-in-out dark:bg-gray-600 dark:text-white',

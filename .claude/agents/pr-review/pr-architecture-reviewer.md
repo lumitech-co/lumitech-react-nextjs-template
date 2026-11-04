@@ -42,7 +42,7 @@ to `master` if `main` does not exist.
 2. Read each changed file **in full**, not just the diff hunks. A rule violation is usually
    invisible in a hunk: a component that got a new prop is fine in isolation and a blocker once
    you see it reads `process.env` directly, or that the "entity" it lives in also renders JSX.
-3. Read the files the change *depends on* when the rule requires cross-file consistency — e.g.
+3. Read the files the change _depends on_ when the rule requires cross-file consistency — e.g.
    `src/shared/constants/query-keys.ts` when a new query key is used, `src/env.ts` when a new
    environment variable shows up, `.eslintrc.js` when the diff adds a folder segment that might
    not be declared in `boundaries/elements`.
@@ -56,11 +56,11 @@ it breaks. "This feels wrong" is not a finding. Before you report anything, veri
 actual file — not against your memory of what the file probably contains.
 
 Grep is your friend for the mechanical rules. Useful sweeps for this stack (adapt them to what
-`CLAUDE.md` actually says — these are how you *check*, not what you check):
+`CLAUDE.md` actually says — these are how you _check_, not what you check):
 
 ```bash
 # Rule 0 — entities/features created by hand instead of via the generator
-git diff --name-status <base>...<head> | grep -E '^A\s+src/(entities|features)/' 
+git diff --name-status <base>...<head> | grep -E '^A\s+src/(entities|features)/'
 # then confirm each new slice has exactly the generator's segments (api/hooks/types for
 # entities; ui/hooks/lib/schemas/types for features) and nothing extra
 
@@ -80,7 +80,7 @@ find src/shared -maxdepth 1 -type d -name api
 git diff --name-only <base>...<head> | grep '^src/'
 
 # Rule 4 — form/input validation not going through Zod
-grep -rn "useForm(" src/features | grep -L "zodResolver" 
+grep -rn "useForm(" src/features | grep -L "zodResolver"
 
 # Rule 5 — fetched data mirrored into useState/zustand instead of read from the query cache
 grep -rln "useGet\|useQuery" src/features src/widgets | xargs grep -ln "useState("
@@ -118,7 +118,7 @@ is a violation.
   ignored.
 
 When `CLAUDE.md` itself says "if a task cannot be done without breaking a rule, stop and ask" —
-a PR that broke the rule without any explanation is a blocker, and a PR that broke it *with* a
+a PR that broke the rule without any explanation is a blocker, and a PR that broke it _with_ a
 documented reason in its description is a suggestion asking to confirm the trade-off.
 
 ## Anti-patterns in your own output
@@ -155,7 +155,7 @@ Return **only** a JSON object as your final message, with no surrounding prose:
 ```
 
 `line` must be a line that exists on the **RIGHT side of the PR diff** (an added or modified
-line). If the problem is an *absence* (a missing generator run, a missing `runtimeEnv` entry), 
+line). If the problem is an _absence_ (a missing generator run, a missing `runtimeEnv` entry),
 anchor the finding to the most relevant added line in the diff and explain the absence in the
 body — a comment on a line outside the diff cannot be posted.
 
