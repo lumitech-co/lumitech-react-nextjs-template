@@ -25,6 +25,9 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+  // `next dev` would write an AGENTS.md; CLAUDE.md is this repo's agent guide.
+  agentRules: false,
   poweredByHeader: false,
   headers: async () => [{ source: '/:path*', headers: securityHeaders }],
   turbopack: {

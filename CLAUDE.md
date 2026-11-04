@@ -67,7 +67,10 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
 5. **Server state → TanStack Query, client state → zustand.** API data is fetched with a
    query/mutation hook from `entities/<entity>/hooks`, keyed with a `QueryKeys` member, and
    invalidated after mutations — never mirrored into a store or `useState`. Purely client-side
-   state (theme, modals, wizard step) is a zustand store in `shared/store`. Query keys always
+   state (theme, modals, wizard step) is a zustand store in `shared/store`. List state (search,
+   sort, tab, filters) lives in the URL through `useUrlListState` from
+   `shared/hooks/use-url-list-state`, with params parsed by `zodParam`; `nuqs` is imported nowhere
+   else (lint-enforced). Query keys always
    come from the `QueryKeys` enum, never inline strings.
 
 6. **Assets.** Custom/restyled icons → SVG in `src/shared/icons/` (SVGR components);
@@ -82,7 +85,7 @@ working around it. Code examples for each rule live in `ARCHITECTURE.md`.
    barrel, `<layer>/<slice>/index.ts` (`features/members/index.ts`), re-exporting that slice's
    public API. Everything else imports directly from the declaring file. Absolute imports from
    `src` across layers
-   (`baseUrl: "./src"`); relative imports for siblings in the same slice. Layer boundaries
+   (`paths` in `tsconfig.json`); relative imports for siblings in the same slice. Layer boundaries
    (`app → widgets → features → entities → shared`, plus "same slice only") are enforced by
    `eslint-plugin-boundaries`.
 

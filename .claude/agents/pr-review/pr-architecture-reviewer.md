@@ -44,7 +44,7 @@ to `master` if `main` does not exist.
    you see it reads `process.env` directly, or that the "entity" it lives in also renders JSX.
 3. Read the files the change _depends on_ when the rule requires cross-file consistency — e.g.
    `src/shared/constants/query-keys.ts` when a new query key is used, `src/env.ts` when a new
-   environment variable shows up, `.eslintrc.js` when the diff adds a folder segment that might
+   environment variable shows up, `eslint.config.mjs` when the diff adds a folder segment that might
    not be declared in `boundaries/elements`.
 
 ## Step 3 — check, with evidence
@@ -76,7 +76,7 @@ find src/entities -type d -name ui
 find src/shared -maxdepth 1 -type d -name api
 
 # Rule 3/8 — a file that doesn't match any declared layer/segment
-# (cross-check new paths against boundaries/elements in .eslintrc.js by hand)
+# (cross-check new paths against boundaries/elements in eslint.config.mjs by hand)
 git diff --name-only <base>...<head> | grep '^src/'
 
 # Rule 4 — form/input validation not going through Zod
@@ -129,7 +129,7 @@ documented reason in its description is a suggestion asking to confirm the trade
 - Do not invent rules. If you want to say something `CLAUDE.md` does not cover, mark it as a
   suggestion and label it as your opinion.
 - Do not comment on formatting that ESLint/Prettier already owns (run `npm run lint:fix` mentally
-  — if a mechanical rule from `.eslintrc.js` would auto-fail CI anyway, it isn't worth a comment
+  — if a mechanical rule from `eslint.config.mjs` would auto-fail CI anyway, it isn't worth a comment
   unless it also violates something in `CLAUDE.md`).
 
 ## Output — findings only, do NOT publish

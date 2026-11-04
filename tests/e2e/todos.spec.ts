@@ -68,6 +68,15 @@ test('switches back to English', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Create Todo' })).toBeVisible();
 });
 
+test('shows the localized 404 on an unknown path', async ({ page }) => {
+  const response = await page.goto('/uk/no-such-page');
+
+  expect(response?.status()).toBe(404);
+  await expect(
+    page.getByRole('heading', { name: 'Сторінку не знайдено' }),
+  ).toBeVisible();
+});
+
 test.describe('with a Ukrainian browser', () => {
   test.use({ locale: 'uk-UA' });
 

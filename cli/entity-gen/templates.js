@@ -223,8 +223,8 @@ export const templates = {
     `
         import { I${namePascal} } from "./responses"
 
-        export interface ICreate${namePascal} extends Required<Omit<I${namePascal}, "id">> {}
-        export interface IUpdate${namePascal} extends Partial<Omit<I${namePascal}, "id">> {}
+        export type ICreate${namePascal} = Required<Omit<I${namePascal}, "id">>;
+        export type IUpdate${namePascal} = Partial<Omit<I${namePascal}, "id">>;
     `.trim(),
 
   'types/responses': (namePascal, nameCamel, nameKebab, snakeCase) =>

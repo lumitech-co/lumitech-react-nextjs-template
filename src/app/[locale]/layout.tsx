@@ -6,6 +6,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Urbanist } from 'next/font/google';
 import { notFound } from 'next/navigation';
 
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+
 import { Header } from 'features/layout/ui/header/header';
 import { routing } from 'shared/lib/i18n/routing';
 import { cn } from 'shared/lib/styles';
@@ -60,10 +62,12 @@ const LocaleLayout = async ({ children, params }: Props) => {
         )}
       >
         <NextIntlClientProvider>
-          <TanStackQueryProvider>
-            <Header />
-            {children}
-          </TanStackQueryProvider>
+          <NuqsAdapter>
+            <TanStackQueryProvider>
+              <Header />
+              {children}
+            </TanStackQueryProvider>
+          </NuqsAdapter>
         </NextIntlClientProvider>
       </body>
     </html>

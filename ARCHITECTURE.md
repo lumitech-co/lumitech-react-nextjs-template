@@ -29,7 +29,7 @@ app → widgets → features → entities → shared
 ```
 
 A layer may import only **itself** (same slice) and layers **strictly below** it — enforced
-by `boundaries/dependencies` in `.eslintrc.js`, not just convention. `shared` has no slices
+by `boundaries/dependencies` in `eslint.config.mjs`, not just convention. `shared` has no slices
 and imports only other `shared` segments, plus libraries and `env`. So `entities/todos` can
 never import `entities/users`, `features/*`, or `widgets/*`.
 
@@ -237,7 +237,7 @@ export { RemoveMemberDialog } from './ui/remove-member-dialog';
 Layer rules still apply to it: the barrel is classified as its own slice, so it may only
 re-export files from that slice, and importers obey the usual layer order.
 
-Use absolute imports from `src` (`baseUrl: "./src"`) across layers; inside the same slice,
+Use absolute imports from `src` (`paths` in `tsconfig.json`) across layers; inside the same slice,
 relative imports of siblings are correct and preferred (`../todo/todo`).
 
 ### Providers

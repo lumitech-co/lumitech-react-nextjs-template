@@ -122,6 +122,20 @@ const CASES: Case[] = [
     reports: false,
   },
   {
+    name: 'nuqs outside its hook',
+    rule: 'no-restricted-imports',
+    file: FEATURE,
+    code: "export { useQueryState } from 'nuqs';\n",
+    reports: true,
+  },
+  {
+    name: 'nuqs in its hook',
+    rule: 'no-restricted-imports',
+    file: 'src/shared/hooks/use-url-list-state.ts',
+    code: "export { useQueryState } from 'nuqs';\n",
+    reports: false,
+  },
+  {
     name: 'a lower layer importing a higher one',
     rule: 'boundaries/dependencies',
     file: SHARED,

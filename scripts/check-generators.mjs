@@ -22,7 +22,7 @@ try {
   passed = [
     'npm run generate:entity generatorProbe',
     'npm run generate:feature generatorProbe',
-    `npx eslint --max-warnings 0 --ext ts,tsx --no-error-on-unmatched-pattern ${SLICES.join(' ')} ${WIRED_FILE}`,
+    `npx eslint --max-warnings 0 --no-error-on-unmatched-pattern ${SLICES.join(' ')} ${WIRED_FILE}`,
     'npx tsc --noEmit',
   ].every(run);
 } finally {
